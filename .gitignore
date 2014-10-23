@@ -1,0 +1,6 @@
+_Resharper*
+bin*
+obj*
+*.suo
+
+*/Test Results/*
