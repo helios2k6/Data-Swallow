@@ -22,16 +22,29 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Stream;
 using System.Threading.Tasks;
 
-namespace DataSwallow.Sink
+namespace DataSwallow.Control
 {
     /// <summary>
-    /// Represents a message sink
+    /// Represents an Actor object
     /// </summary>
-    /// <typeparam name="TInput">The type of the input.</typeparam>
-    public interface ISink<TInput> : IOutputMessageSink<TInput>
+    /// <typeparam name="TMessage">The type of the message.</typeparam>
+    public interface IActor<TMessage>
     {
+        /// <summary>
+        /// Posts the specified message to the Actor.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        void Post(TMessage message);
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns>A task representing the running of this instance</returns>
+        Task Start();
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
+        void Stop();
     }
 }

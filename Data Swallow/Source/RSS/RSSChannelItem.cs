@@ -22,13 +22,15 @@
  * THE SOFTWARE.
  */
 
+using System;
+using System.Text;
 using YAXLib;
 namespace DataSwallow.Source.RSS
 {
     /// <summary>
     /// Represents an RSS Channel Item
     /// </summary>
-    public sealed class RSSChannelItem
+    public sealed class RSSChannelItem : IEquatable<RSSChannelItem>
     {
         /// <summary>
         /// Gets or sets the author.
@@ -120,5 +122,111 @@ namespace DataSwallow.Source.RSS
         [YAXSerializeAs("title")]
         [YAXErrorIfMissed(YAXExceptionTypes.Error)]
         public string Title { get; set; }
+
+        private bool EqualsPreamble(object other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (GetType() != other.GetType()) return false;
+
+            return true;
+        }
+
+        private int CalculateHashCode(object obj)
+        {
+            if(obj == null)
+            {
+                return 0;
+            }
+
+            return obj.GetHashCode();
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+        /// </returns>
+        public bool Equals(RSSChannelItem other)
+        {
+            if(EqualsPreamble(other) == false)
+            {
+                return false;
+            }
+
+            return Equals(Author, other.Author)
+                && Equals(Category, other.Category)
+                && Equals(Comments, other.Comments)
+                && Equals(Description, other.Description)
+                && Equals(Enclosure, other.Enclosure)
+                && Equals(Guid, other.Guid)
+                && Equals(Link, other.Link)
+                && Equals(PublicationDate, other.PublicationDate)
+                && Equals(Source, other.Source)
+                && Equals(Title, other.Title);
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (EqualsPreamble(obj) == false)
+            {
+                return false;
+            }
+
+            return Equals(obj as RSSChannelItem);
+        }
+
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return CalculateHashCode(Author)
+                ^ CalculateHashCode(Category)
+                ^ CalculateHashCode(Comments)
+                ^ CalculateHashCode(Description)
+                ^ CalculateHashCode(Enclosure)
+                ^ CalculateHashCode(Guid)
+                ^ CalculateHashCode(Link)
+                ^ CalculateHashCode(PublicationDate)
+                ^ CalculateHashCode(Source)
+                ^ CalculateHashCode(Title);
+        }
+
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder
+                .AppendLine("Author: " + Author)
+                .AppendLine("Category: " + Category)
+                .AppendLine("Comments: " + Comments)
+                .AppendLine("Description: " + Description)
+                .AppendLine("Enclosure: " + Enclosure)
+                .AppendLine("Guid: " + Guid)
+                .AppendLine("Link: " + Link)
+                .AppendLine("Publication Date: " + PublicationDate)
+                .AppendLine("Source: " + Source)
+                .AppendLine("Title: " + Title);
+
+            return builder.ToString();
+        }
     }
 }

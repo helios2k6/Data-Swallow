@@ -22,9 +22,6 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Source.RSS;
-using System;
-using YAXLib;
 namespace DataSwallow
 {
     public static class Driver

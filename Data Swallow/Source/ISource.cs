@@ -38,17 +38,17 @@ namespace DataSwallow.Source
         /// Starts this instance.
         /// </summary>
         /// <returns>A Task representing the starting of this source</returns>
-        Task Start();
+        void Start();
         /// <summary>
         /// Stops this instance.
         /// </summary>
         /// <returns>A Task representing the stopping of this source</returns>
-        Task Stop();
+        void Stop();
         /// <summary>
         /// Pauses this instance.
         /// </summary>
         /// <returns>A Task representing the pausing of this source</returns>
-        Task Pause();
+        void Pause();
         /// <summary>
         /// Gets the output streams asynchronously.
         /// </summary>

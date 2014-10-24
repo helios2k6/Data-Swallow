@@ -22,33 +22,93 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Stream;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace DataSwallow.Source.RSS
 {
+    /// <summary>
+    /// Represents a Data Source based off a RSS Feed
+    /// </summary>
     public sealed class RSSFeedDataSource : ISource<RSSFeed>
     {
-        public System.Threading.Tasks.Task Start()
+        private readonly Uri _feedUrl;
+        private readonly int _pauseTime;
+        private readonly int _variability;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSSFeedDataSource"/> class.
+        /// </summary>
+        /// <param name="feedUrl">The feed URL.</param>
+        /// <param name="pauseTime">The pause time.</param>
+        /// <param name="variability">The variability.</param>
+        public RSSFeedDataSource(Uri feedUrl, int pauseTime, int variability)
         {
-            throw new System.NotImplementedException();
+            _feedUrl = feedUrl;
+            _pauseTime = pauseTime;
+            _variability = variability;
         }
 
-        public System.Threading.Tasks.Task Stop()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSSFeedDataSource"/> class.
+        /// </summary>
+        /// <param name="feedUrl">The feed URL.</param>
+        /// <param name="pauseTime">The pause time.</param>
+        public RSSFeedDataSource(Uri feedUrl, int pauseTime)
+            : this(feedUrl, pauseTime, 0)
         {
-            throw new System.NotImplementedException();
         }
 
-        public System.Threading.Tasks.Task Pause()
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSSFeedDataSource"/> class.
+        /// </summary>
+        /// <param name="feedUrl">The feed URL.</param>
+        public RSSFeedDataSource(Uri feedUrl)
+            : this(feedUrl, 60, 0)
         {
-            throw new System.NotImplementedException();
         }
 
-        public System.Threading.Tasks.Task<System.Collections.Generic.IList<Stream.IOutputStream<RSSFeed>>> GetOutputStreamsAsync()
+        /// <summary>
+        /// Gets the output streams asynchronously.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public Task<IList<IOutputStream<RSSFeed>>> GetOutputStreamsAsync()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public System.Threading.Tasks.Task AddOutputStreamAsync(Stream.IOutputStream<RSSFeed> outputStream)
+        /// <summary>
+        /// Adds the output stream asynchronously.
+        /// </summary>
+        /// <param name="outputStream">The output stream.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
+        }
+
+        public void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Pause()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddOutputStream(IOutputStream<RSSFeed> outputStream)
+        {
+            throw new NotImplementedException();
         }
     }
 }

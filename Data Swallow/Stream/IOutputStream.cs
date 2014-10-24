@@ -33,6 +33,14 @@ namespace DataSwallow.Stream
         /// </summary>
         /// <param name="output">The output.</param>
         /// <returns>A Task representing this operation</returns>
-        Task PutAsync(TOutput output); 
+        Task PutAsync(TOutput output);
+
+        /// <summary>
+        /// Adds the sink asynchronously.
+        /// </summary>
+        /// <param name="sink">The sink.</param>
+        /// <param name="index">The index to send the message to.</param>
+        /// <returns>A Task representing the adding of the sink</returns>
+        Task AddSinkAsync(IOutputMessageSink<TOutput> sink, int index);
     }
 }

@@ -38,6 +38,6 @@ namespace DataSwallow
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
         /// <returns>A Task representing the submission of an IOutputStream</returns>
-        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream);
+        void AddOutputStream(IOutputStream<TOutput> outputStream);
     }
 }

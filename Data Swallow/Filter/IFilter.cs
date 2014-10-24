@@ -33,19 +33,13 @@ namespace DataSwallow.Filter
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public interface IFilter<TInput, TOutput> : IMessageGenerator<TOutput>
+    public interface IFilter<TInput, TOutput> : IMessageGenerator<TOutput>, IOutputMessageSink<TInput>
     {
-        /// <summary>
-        /// Submit a message for asynchronous processing
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>A Task representing the submission of the message</returns>
-        Task PutMessageAsync(IOutputStreamMessage<TInput> message);
         /// <summary>
         /// Processes the message asynchronously.
         /// </summary>
         /// <returns>The Task representing the processing of the message</returns>
-        Task ProcessAsync();
+        void ProcessAsync();
         /// <summary>
         /// Gets the output streams asynchronously.
         /// </summary>
