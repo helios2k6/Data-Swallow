@@ -93,6 +93,8 @@
     <Compile Include="Stream\IOutputStream.cs" />
     <Compile Include="Stream\IOutputStreamMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Stream\OutputStream.cs" />
+    <Compile Include="Stream\OutputStreamMessage.cs" />
     <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
     <Compile Include="Utilities\Functions.cs" />
