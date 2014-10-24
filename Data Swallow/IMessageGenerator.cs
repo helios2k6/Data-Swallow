@@ -39,8 +39,8 @@ namespace DataSwallow
         /// Adds an IOutputStream asynchronously
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="portNumber">The port number.</param>
-        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int portNumber);
+        /// <param name="sourcePortNumber">The port number.</param>
+        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber);
         /// <summary>
         /// Gets the output streams asynchronously.
         /// </summary>

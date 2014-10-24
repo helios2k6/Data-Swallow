@@ -23,6 +23,7 @@
  */
 
 using System.Threading.Tasks;
+
 namespace DataSwallow.Stream
 {
     /// <summary>

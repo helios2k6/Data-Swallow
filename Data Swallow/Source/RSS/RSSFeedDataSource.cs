@@ -235,16 +235,16 @@ namespace DataSwallow.Source.RSS
         /// Adds the output stream asynchronous.
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="portNumber">The port number.</param>
+        /// <param name="sourcePortNumber">The port number.</param>
         /// <returns>
         /// A Task representing the adding of the Output Stream
         /// </returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public async Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int portNumber)
+        public async Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.PostAndReplyAsync(Message.CreateAddOutputStreamMessage(outputStream, portNumber));
+            await _actorEngine.PostAndReplyAsync(Message.CreateAddOutputStreamMessage(outputStream, sourcePortNumber));
         }
 
         /// <summary>
@@ -286,7 +286,7 @@ namespace DataSwallow.Source.RSS
                     foreach (var kvp in _outputStreams)
                     {
                         var stream = kvp.Value;
-                        stream.Put(rssFeed);
+                        stream.PutAsync(rssFeed);
                     }
                 }
 

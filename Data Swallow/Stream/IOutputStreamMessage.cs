@@ -31,12 +31,12 @@ namespace DataSwallow.Stream
     public interface IOutputStreamMessage<T>
     {
         /// <summary>
-        /// Gets the index of the target.
+        /// Gets the target port.
         /// </summary>
         /// <value>
-        /// The index of the target.
+        /// The target port.
         /// </value>
-        int TargetIndex { get; }
+        int TargetPort { get; }
         /// <summary>
         /// Gets the payload.
         /// </summary>

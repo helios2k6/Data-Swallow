@@ -36,6 +36,7 @@ namespace DataSwallow.Stream
         /// Puts the specified output.
         /// </summary>
         /// <param name="output">The output.</param>
-        void Put(TOutput output);
+        /// <returns>A Task representing the submitting of the data</returns>
+        Task PutAsync(TOutput output);
     }
 }
