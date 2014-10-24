@@ -38,15 +38,22 @@ namespace DataSwallow.Source
         /// <summary>
         /// Starts this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A Task representing the starting of this instance.</returns>
         Task Start();
+        /// <summary>
+        /// Resumes this instance.
+        /// </summary>
+        /// <returns>A Task representing the resuming of this instance.</returns>
+        Task Resume();
         /// <summary>
         /// Pauses this instance.
         /// </summary>
+        /// <returns>A Task representing the pausing of this instance.</returns>
         Task Pause();
         /// <summary>
         /// Stops this instance.
         /// </summary>
+        /// <returns>A Task representing the stopping of this instance</returns>
         Task Stop();
     }
 }
