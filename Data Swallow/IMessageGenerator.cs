@@ -23,6 +23,8 @@
  */
 
 using DataSwallow.Stream;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DataSwallow
@@ -37,7 +39,12 @@ namespace DataSwallow
         /// Adds an IOutputStream asynchronously
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <returns>A Task representing the submission of an IOutputStream</returns>
-        void AddOutputStream(IOutputStream<TOutput> outputStream);
+        /// <param name="portNumber">The port number.</param>
+        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int portNumber);
+        /// <summary>
+        /// Gets the output streams asynchronously.
+        /// </summary>
+        /// <returns>A Task representing the getting of the output streams</returns>
+        Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync();
     }
 }

@@ -22,20 +22,24 @@
  * THE SOFTWARE.
  */
 
-using System.Threading.Tasks;
-
-namespace DataSwallow.Stream
+using System;
+namespace DataSwallow.Utilities
 {
     /// <summary>
-    /// Represents an Output Stream of data
+    /// A utility class dealing with Functions
     /// </summary>
-    /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public interface IOutputStream<TOutput>
+    public static class Functions
     {
         /// <summary>
-        /// Puts the specified output.
+        /// Gets the no op function for two inputs and one output
         /// </summary>
-        /// <param name="output">The output.</param>
-        void Put(TOutput output);
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="L"></typeparam>
+        /// <typeparam name="L"></typeparam>
+        /// <returns></returns>
+        public static Func<T, L, L> GetNoOp<T, L>()
+        {
+            return (_, state) => state;
+        }
     }
 }

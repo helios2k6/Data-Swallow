@@ -76,6 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Control\Actor.cs" />
+    <Compile Include="Control\FunctionalStateActor.cs" />
+    <Compile Include="Control\FunctionalStatelessActor.cs" />
     <Compile Include="Control\IActor.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Filter\IFilter.cs" />
@@ -92,6 +94,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
+    <Compile Include="Utilities\Functions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

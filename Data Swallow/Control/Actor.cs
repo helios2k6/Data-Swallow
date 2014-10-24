@@ -36,8 +36,16 @@ namespace DataSwallow.Control
     /// <typeparam name="TMessage">The type of the message.</typeparam>
     public abstract class Actor<TMessage> : IActor<TMessage>, IDisposable
     {
+        #region private classes
+        private sealed class Ticket
+        {
+            public TMessage Message { get; set; }
+            public TaskCompletionSource<object> TCS { get; set; }
+        }
+        #endregion
+
         #region private fields
-        private readonly BlockingCollection<TMessage> _messages = new BlockingCollection<TMessage>();
+        private readonly BlockingCollection<Ticket> _messages = new BlockingCollection<Ticket>();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         private bool _isDisposed;
@@ -50,7 +58,31 @@ namespace DataSwallow.Control
         /// <param name="message">The message.</param>
         public void Post(TMessage message)
         {
-            _messages.Add(message);
+            var ticket = new Ticket
+            {
+                Message = message,
+                TCS = new TaskCompletionSource<object>()
+            };
+
+            _messages.Add(ticket);
+        }
+
+        /// <summary>
+        /// Posts the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns>A Task representing the processing of the message</returns>
+        public Task PostAndReplyAsync(TMessage message)
+        {
+            var ticket = new Ticket
+            {
+                Message = message,
+                TCS = new TaskCompletionSource<object>()
+            };
+
+            _messages.Add(ticket);
+
+            return ticket.TCS.Task;
         }
 
         /// <summary>
@@ -70,13 +102,24 @@ namespace DataSwallow.Control
         {
             while (_tokenSource.IsCancellationRequested == false)
             {
-                TMessage nextMessage = await GetNextMessageAsync();
+                Ticket ticket = await GetNextMessageAsync();
 
-                if (EqualityComparer<TMessage>.Default.Equals(nextMessage, default(TMessage)) == false)
+                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
                 {
-                    PreProcessMessage(nextMessage);
-                    ProcessMessage(nextMessage);
-                    PostProcessMessage(nextMessage);
+                    try
+                    {
+                        var messageBody = ticket.Message;
+
+                        PreProcessMessage(messageBody);
+                        ProcessMessage(messageBody);
+                        PostProcessMessage(messageBody);
+
+                        ticket.TCS.TrySetResult(null);
+                    }
+                    catch (Exception e)
+                    {
+                        ticket.TCS.TrySetException(e);
+                    }
                 }
             }
         }
@@ -134,8 +177,11 @@ namespace DataSwallow.Control
         {
             if (_isDisposed) return;
 
-            if(isDisposing)
+            if (isDisposing)
             {
+                Stop();
+                CancelRemainingMessages();
+
                 if (_messages != null) _messages.Dispose();
                 if (_tokenSource != null) _tokenSource.Dispose();
 
@@ -145,9 +191,17 @@ namespace DataSwallow.Control
         #endregion
 
         #region private methods
-        private Task<TMessage> GetNextMessageAsync()
+        private void CancelRemainingMessages()
         {
-            return Task.Factory.StartNew<TMessage>(() =>
+            foreach (var ticket in _messages)
+            {
+                ticket.TCS.TrySetCanceled();
+            }
+        }
+
+        private Task<Ticket> GetNextMessageAsync()
+        {
+            return Task.Factory.StartNew<Ticket>(() =>
             {
                 try
                 {
@@ -155,7 +209,7 @@ namespace DataSwallow.Control
                 }
                 catch (TaskCanceledException)
                 {
-                    return default(TMessage);
+                    return default(Ticket);
                 }
             });
         }

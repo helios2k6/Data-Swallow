@@ -38,6 +38,12 @@ namespace DataSwallow.Control
         /// <param name="message">The message.</param>
         void Post(TMessage message);
         /// <summary>
+        /// Posts the specified message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns>A Task representing the processing of the message</returns>
+        Task PostAndReplyAsync(TMessage message);
+        /// <summary>
         /// Starts this instance.
         /// </summary>
         /// <returns>A task representing the running of this instance</returns>

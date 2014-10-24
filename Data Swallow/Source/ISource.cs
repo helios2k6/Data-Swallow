@@ -23,6 +23,7 @@
  */
 
 using DataSwallow.Stream;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -37,22 +38,15 @@ namespace DataSwallow.Source
         /// <summary>
         /// Starts this instance.
         /// </summary>
-        /// <returns>A Task representing the starting of this source</returns>
-        void Start();
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        /// <returns>A Task representing the stopping of this source</returns>
-        void Stop();
+        /// <returns></returns>
+        Task Start();
         /// <summary>
         /// Pauses this instance.
         /// </summary>
-        /// <returns>A Task representing the pausing of this source</returns>
-        void Pause();
+        Task Pause();
         /// <summary>
-        /// Gets the output streams asynchronously.
+        /// Stops this instance.
         /// </summary>
-        /// <returns>A Task representing the getting of the IOutputStreams</returns>
-        Task<IList<IOutputStream<TOutput>>> GetOutputStreamsAsync();
+        Task Stop();
     }
 }
