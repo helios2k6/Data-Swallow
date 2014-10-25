@@ -51,7 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>privateKey.key.pfx</AssemblyOriginatorKeyFile>
@@ -87,6 +87,8 @@
     <Compile Include="Control\FunctionalStatelessActor.cs" />
     <Compile Include="Control\IActor.cs" />
     <Compile Include="Driver.cs" />
+    <Compile Include="Filter\Anime\RSSAnimeDetectionFilter.cs" />
+    <Compile Include="Filter\Anime\AnimeEntry.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="IMessageGenerator.cs" />
     <Compile Include="Sink\ISink.cs" />
