@@ -21,6 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+using DataSwallow.Utilities;
 using System;
 
 namespace DataSwallow.Control
@@ -49,6 +51,15 @@ namespace DataSwallow.Control
             _preAction = preAction;
             _processAction = processAction;
             _postAction = postAction;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FunctionalStatelessActor{TMessage}"/> class.
+        /// </summary>
+        /// <param name="processAction">The process action.</param>
+        public FunctionalStatelessActor(Action<TMessage> processAction) 
+            : this(Functions.GetNoOpAction<TMessage>(), processAction, Functions.GetNoOpAction<TMessage>())
+        {
         }
         #endregion
 

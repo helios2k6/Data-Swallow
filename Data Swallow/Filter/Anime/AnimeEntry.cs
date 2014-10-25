@@ -36,7 +36,7 @@ namespace DataSwallow.Filter.Anime
     {
         #region private fields
         private readonly FansubFile _fansubFile;
-        private readonly ZonedDateTime _publicationDate;
+        private readonly OffsetDateTime _publicationDate;
         private readonly string _guid;
         private readonly Uri _resourceLocation;
         private readonly string _source;
@@ -51,7 +51,7 @@ namespace DataSwallow.Filter.Anime
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
-        public AnimeEntry(FansubFile fansubFile, ZonedDateTime publicationDate, string guid, Uri resourceLocation, string source)
+        public AnimeEntry(FansubFile fansubFile, OffsetDateTime publicationDate, string guid, Uri resourceLocation, string source)
         {
             _fansubFile = fansubFile;
             _publicationDate = publicationDate;
@@ -76,7 +76,7 @@ namespace DataSwallow.Filter.Anime
         /// <value>
         /// The publication date.
         /// </value>
-        public ZonedDateTime PublicationDate { get { return _publicationDate; } }
+        public OffsetDateTime PublicationDate { get { return _publicationDate; } }
 
         /// <summary>
         /// Gets the unique identifier.

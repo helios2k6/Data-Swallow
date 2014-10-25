@@ -34,7 +34,7 @@ namespace DataSwallow.Filter.Anime
     /// <summary>
     /// A filter that can detect anime entries using an RSSFeed
     /// </summary>
-    public sealed class RSSAnimeDetectionFilter : IFilter<RSSFeed, AnimeEntry>
+    public sealed class RSSAnimeDetectionFilter : IFilter<RSSFeed, AnimeEntry>, IDisposable
     {
         #region private classes
         private enum MessageType { Accept, AddOutputStream, GetOutputStreams }
@@ -52,47 +52,125 @@ namespace DataSwallow.Filter.Anime
 
         #region private fields
         private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
+        private readonly IDictionary<int, IOutputStream<AnimeEntry>> _outputStreams;
+
+        private bool _isDisposed;
         #endregion
 
         #region ctor
-        #endregion
-
-        #region public properties
+        public RSSAnimeDetectionFilter()
+        {
+            _actorEngine = new FunctionalStatelessActor<Message<MessageType, MessagePayload>>(Process);
+            _outputStreams = new Dictionary<int, IOutputStream<AnimeEntry>>();
+        }
         #endregion
 
         #region public methods
         public override string ToString()
         {
-            throw new NotImplementedException();
+            return "RSS Anime Detection Filter";
         }
 
         public override bool Equals(object other)
         {
-            throw new NotImplementedException();
+            return ReferenceEquals(this, other);
         }
 
         public override int GetHashCode()
         {
-            throw new NotImplementedException();
+            return base.GetHashCode();
         }
 
-        public Task AddOutputStreamAsync(IOutputStream<AnimeEntry> outputStream, int sourcePortNumber)
+        public async Task AddOutputStreamAsync(IOutputStream<AnimeEntry> outputStream, int sourcePortNumber)
         {
-            throw new NotImplementedException();
+            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+
+            await _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
 
         public Task<IEnumerable<Tuple<IOutputStream<AnimeEntry>, int>>> GetOutputStreamsAsync()
         {
-            throw new NotImplementedException();
+            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+
+            var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<AnimeEntry>, int>>>();
+            var message = CreateGetOutputStreamsMessage(tcs);
+
+            _actorEngine.Post(message);
+
+            return tcs.Task;
         }
 
-        public Task AcceptAsync(IOutputStreamMessage<RSSFeed> message)
+        public async Task AcceptAsync(IOutputStreamMessage<RSSFeed> message)
         {
-            throw new NotImplementedException();
+            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+
+            await _actorEngine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed) return;
+
+            _isDisposed = true;
+
+            _actorEngine.Dispose();
         }
         #endregion
 
         #region private methods
+        private void HandleAcceptMessage(Message<MessageType, MessagePayload> message)
+        {
+            //Luckily, we don't have any input ports, so just ignore it
+            RSSFeed feed = message.Payload.Message.Payload;
+
+            IEnumerable<AnimeEntry> entries;
+            if(RSSFeedProcessor.Instance.TryGetAnimeEntries(feed, out entries))
+            {
+                foreach(var entry in entries)
+                {
+                    foreach (var stream in _outputStreams)
+                    {
+                        stream.Value.PutAsync(entry);
+                    }
+                }
+            }
+        }
+
+        private void HandleAddOutputStreamMessage(Message<MessageType, MessagePayload> message)
+        {
+            _outputStreams[message.Payload.PortNumber] = message.Payload.OutputStream;
+        }
+
+        private void HandleGetOutputStreamsMessage(Message<MessageType, MessagePayload> message)
+        {
+            var list = new List<Tuple<IOutputStream<AnimeEntry>, int>>();
+
+            foreach (var kvp in _outputStreams)
+            {
+                list.Add(Tuple.Create(kvp.Value, kvp.Key));
+            }
+
+            message.Payload.TCS.TrySetResult(list);
+        }
+
+        private void Process(Message<MessageType, MessagePayload> message)
+        {
+            switch(message.MessageType)
+            {
+                case MessageType.Accept:
+                    HandleAcceptMessage(message);
+                    break;
+                case MessageType.AddOutputStream:
+                    HandleAddOutputStreamMessage(message);
+                    break;
+                case MessageType.GetOutputStreams:
+                    HandleGetOutputStreamsMessage(message);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         private static Message<MessageType, MessagePayload> CreateAcceptAsyncMessage(IOutputStreamMessage<RSSFeed> message)
         {
             var payload = new MessagePayload

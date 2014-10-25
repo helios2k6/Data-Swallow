@@ -31,6 +31,16 @@ namespace DataSwallow.Utilities
     public static class Functions
     {
         /// <summary>
+        /// Gets the no op action.
+        /// </summary>
+        /// <typeparam name="T">The type of input</typeparam>
+        /// <returns>An Action that does nothing</returns>
+        public static Action<T> GetNoOpAction<T>()
+        {
+            return _ => { };
+        }
+
+        /// <summary>
         /// Gets the no op function for two inputs and one output
         /// </summary>
         /// <typeparam name="T"></typeparam>
