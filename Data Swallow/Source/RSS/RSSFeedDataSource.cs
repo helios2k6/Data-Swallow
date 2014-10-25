@@ -79,10 +79,10 @@ namespace DataSwallow.Source.RSS
             #region public methods
             public static Message CreateGetOutputStreamsMessage(TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> tcs)
             {
-                var message = new Message("Get Output Streams", MessageType.GetOutputStreams);
-                message.TCS = tcs;
-
-                return message;
+                return new Message("Get Output Streams", MessageType.GetOutputStreams)
+                {
+                    TCS = tcs
+                };
             }
 
             public static Message CreateAddOutputStreamMessage(IOutputStream<RSSFeed> stream, int portNumber)

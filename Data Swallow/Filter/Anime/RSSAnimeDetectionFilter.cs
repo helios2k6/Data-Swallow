@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Control;
 using DataSwallow.Source.RSS;
 using DataSwallow.Stream;
 using System;
@@ -35,6 +36,46 @@ namespace DataSwallow.Filter.Anime
     /// </summary>
     public sealed class RSSAnimeDetectionFilter : IFilter<RSSFeed, AnimeEntry>
     {
+        #region private classes
+        private enum MessageType { Accept, AddOutputStream, GetOutputStreams }
+
+        private sealed class MessagePayload
+        {
+            public IOutputStream<AnimeEntry> OutputStream { get; set; }
+            public int PortNumber { get; set; }
+
+            public TaskCompletionSource<IEnumerable<Tuple<IOutputStream<AnimeEntry>, int>>> TCS { get; set; }
+
+            public IOutputStreamMessage<RSSFeed> Message { get; set; }
+        }
+        #endregion
+
+        #region private fields
+        private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
+        #endregion
+
+        #region ctor
+        #endregion
+
+        #region public properties
+        #endregion
+
+        #region public methods
+        public override string ToString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
+        {
+            throw new NotImplementedException();
+        }
+
         public Task AddOutputStreamAsync(IOutputStream<AnimeEntry> outputStream, int sourcePortNumber)
         {
             throw new NotImplementedException();
@@ -49,5 +90,39 @@ namespace DataSwallow.Filter.Anime
         {
             throw new NotImplementedException();
         }
+        #endregion
+
+        #region private methods
+        private static Message<MessageType, MessagePayload> CreateAcceptAsyncMessage(IOutputStreamMessage<RSSFeed> message)
+        {
+            var payload = new MessagePayload
+            {
+                Message = message
+            };
+
+            return new Message<MessageType, MessagePayload>(MessageType.Accept, payload, "Accept");
+        }
+
+        private static Message<MessageType, MessagePayload> CreateAddOutputStream(IOutputStream<AnimeEntry> outputStream, int sourcePort)
+        {
+            var payload = new MessagePayload
+            {
+                OutputStream = outputStream,
+                PortNumber = sourcePort
+            };
+
+            return new Message<MessageType, MessagePayload>(MessageType.AddOutputStream, payload, "Add Output Stream");
+        }
+
+        private static Message<MessageType, MessagePayload> CreateGetOutputStreamsMessage(TaskCompletionSource<IEnumerable<Tuple<IOutputStream<AnimeEntry>, int>>> tcs)
+        {
+            var payload = new MessagePayload
+            {
+                TCS = tcs
+            };
+
+            return new Message<MessageType,MessagePayload>(MessageType.GetOutputStreams, payload, "Get Output Streams");
+        }
+        #endregion
     }
 }
