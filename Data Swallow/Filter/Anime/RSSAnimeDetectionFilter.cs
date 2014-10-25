@@ -66,21 +66,56 @@ namespace DataSwallow.Filter.Anime
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return "RSS Anime Detection Filter";
         }
 
+        /// <summary>
+        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// </summary>
+        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
+        /// </returns>
         public override bool Equals(object other)
         {
             return ReferenceEquals(this, other);
         }
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
         public override int GetHashCode()
         {
             return base.GetHashCode();
         }
 
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns></returns>
+        public Task Start()
+        {
+            return _actorEngine.Start();
+        }
+
+        /// <summary>
+        /// Adds the output stream asynchronous.
+        /// </summary>
+        /// <param name="outputStream">The output stream.</param>
+        /// <param name="sourcePortNumber">The source port number.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public async Task AddOutputStreamAsync(IOutputStream<AnimeEntry> outputStream, int sourcePortNumber)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
@@ -88,6 +123,11 @@ namespace DataSwallow.Filter.Anime
             await _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
 
+        /// <summary>
+        /// Gets the output streams asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public Task<IEnumerable<Tuple<IOutputStream<AnimeEntry>, int>>> GetOutputStreamsAsync()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
@@ -100,6 +140,12 @@ namespace DataSwallow.Filter.Anime
             return tcs.Task;
         }
 
+        /// <summary>
+        /// Accepts the message asynchronously.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns>A Task representing the accepting of this message</returns>
+        /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public async Task AcceptAsync(IOutputStreamMessage<RSSFeed> message)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
@@ -107,6 +153,9 @@ namespace DataSwallow.Filter.Anime
             await _actorEngine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (_isDisposed) return;

@@ -98,30 +98,9 @@ namespace DataSwallow.Control
         /// Starts this instance.
         /// </summary>
         /// <returns>A Task representing the running of this instance</returns>
-        public async Task Start()
+        public Task Start()
         {
-            while (_tokenSource.IsCancellationRequested == false)
-            {
-                Ticket ticket = await GetNextMessageAsync();
-
-                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
-                {
-                    try
-                    {
-                        var messageBody = ticket.Message;
-
-                        PreProcessMessage(messageBody);
-                        ProcessMessage(messageBody);
-                        PostProcessMessage(messageBody);
-
-                        ticket.TCS.TrySetResult(null);
-                    }
-                    catch (Exception e)
-                    {
-                        ticket.TCS.TrySetException(e);
-                    }
-                }
-            }
+            return Run();
         }
 
         /// <summary>
@@ -198,6 +177,45 @@ namespace DataSwallow.Control
                 ticket.TCS.TrySetCanceled();
             }
         }
+        
+        private Task Run()
+        {
+            return Task.Factory.StartNew(() =>
+            {
+                Loop().Wait();
+            });
+        }
+
+        private async Task Loop()
+        {
+            while (_tokenSource.IsCancellationRequested == false)
+            {
+                Ticket ticket = await GetNextMessageAsync();
+
+                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
+                {
+                    try
+                    {
+                        var messageBody = ticket.Message;
+
+                        PreProcessMessage(messageBody);
+                        ProcessMessage(messageBody);
+                        PostProcessMessage(messageBody);
+
+                        ticket.TCS.TrySetResult(null);
+                    }
+                    catch (Exception e)
+                    {
+                        ticket.TCS.TrySetException(e);
+                    }
+                }
+            }
+        }
+
+        private Task<bool> IsCancelledRequestedAsync()
+        {
+            return Task.Factory.StartNew(() => _tokenSource.IsCancellationRequested);
+        }
 
         private Task<Ticket> GetNextMessageAsync()
         {
@@ -213,6 +231,7 @@ namespace DataSwallow.Control
                 }
             });
         }
+
         #endregion
     }
 }

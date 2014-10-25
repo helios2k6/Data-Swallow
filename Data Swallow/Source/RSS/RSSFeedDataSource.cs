@@ -134,12 +134,15 @@ namespace DataSwallow.Source.RSS
         /// A Task representing the starting of this instance
         /// </returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public async Task Start()
+        public Task Start()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.Start();
-            await _actorEngine.PostAndReplyAsync(StartMessage);
+            var continuation =_actorEngine.Start();
+            
+            _actorEngine.Post(StartMessage);
+
+            return continuation;
         }
 
         /// <summary>
@@ -217,7 +220,7 @@ namespace DataSwallow.Source.RSS
         {
             if (_state != State.Playing) return;
 
-            var waitInSeconds = _waitSeed.Next(_variability);
+            var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
             var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
 
             Thread.Sleep(waitInTimeSpan);

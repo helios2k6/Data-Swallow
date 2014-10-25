@@ -35,5 +35,10 @@ namespace DataSwallow.Filter
     /// <typeparam name="TOutput">The type of the output.</typeparam>
     public interface IFilter<TInput, TOutput> : IMessageGenerator<TOutput>, IOutputMessageSink<TInput>
     {
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns>A task representing the starting of this instance</returns>
+        Task Start();
     }
 }

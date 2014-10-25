@@ -22,14 +22,34 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Filter.Anime;
+using DataSwallow.Source.RSS;
+using DataSwallow.Stream;
 using NodaTime.Text;
 using System;
+using System.Threading.Tasks;
+
 namespace DataSwallow
 {
     public static class Driver
     {
+        private static Task Run()
+        {
+            var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 10, 8);
+            var filter = new RSSAnimeDetectionFilter();
+            var outputStream = new OutputStream<RSSFeed>(filter, 0);
+
+            var rssContinuation = rssSource.Start();
+            var filterContinuation = filter.Start();
+            var addingOutputStreamTask = rssSource.AddOutputStreamAsync(outputStream, 0);
+
+            return Task.WhenAll(rssContinuation, filterContinuation, addingOutputStreamTask);
+        }
+
         public static void Main(string[] args)
         {
+            var continuation = Run();
+            continuation.Wait();
         }
     }
 }

@@ -63,9 +63,7 @@ namespace DataSwallow.Filter.Anime
         /// <returns>True on success. False otherwise</returns>
         public bool TryGetAnimeEntries(RSSFeed feed, out IEnumerable<AnimeEntry> entries)
         {
-            entries = default(IEnumerable<AnimeEntry>);
-
-            return false;
+            return TryProcessRSSChannel(feed.Channel, out entries);
         }
 
         /// <summary>
