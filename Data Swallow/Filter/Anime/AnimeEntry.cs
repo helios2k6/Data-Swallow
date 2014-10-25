@@ -1,7 +1,31 @@
-﻿
+﻿/*
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2014 Andrew B. Johnson
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
 using FileNameParser;
 using NodaTime;
 using System;
+using System.Text;
 
 namespace DataSwallow.Filter.Anime
 {
@@ -15,22 +39,25 @@ namespace DataSwallow.Filter.Anime
         private readonly ZonedDateTime _publicationDate;
         private readonly string _guid;
         private readonly Uri _resourceLocation;
+        private readonly string _source;
         #endregion
 
         #region ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimeEntry"/> class.
+        /// Initializes a new instance of the <see cref="AnimeEntry" /> class.
         /// </summary>
         /// <param name="fansubFile">The fansub file.</param>
         /// <param name="publicationDate">The publication date.</param>
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
-        public AnimeEntry(FansubFile fansubFile, ZonedDateTime publicationDate, string guid, Uri resourceLocation)
+        /// <param name="source">The source.</param>
+        public AnimeEntry(FansubFile fansubFile, ZonedDateTime publicationDate, string guid, Uri resourceLocation, string source)
         {
             _fansubFile = fansubFile;
             _publicationDate = publicationDate;
             _guid = guid;
             _resourceLocation = resourceLocation;
+            _source = source;
         }
         #endregion
 
@@ -66,6 +93,14 @@ namespace DataSwallow.Filter.Anime
         /// The resource location.
         /// </value>
         public Uri ResourceLocation { get { return _resourceLocation; } }
+
+        /// <summary>
+        /// Gets the source.
+        /// </summary>
+        /// <value>
+        /// The source.
+        /// </value>
+        public string Source { get { return _source; } }
         #endregion
 
         #region public methods
@@ -78,7 +113,13 @@ namespace DataSwallow.Filter.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public override string ToString()
         {
-            throw new System.NotImplementedException();
+            var builder = new StringBuilder();
+
+            builder.AppendLine("Anime Entry with: ");
+            builder.AppendFormat("{ File: {0}; Publication Date: {1}; Guid: {2}; URI: {3}", FansubFile, PublicationDate, Guid, ResourceLocation);
+            builder.AppendLine();
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -99,7 +140,8 @@ namespace DataSwallow.Filter.Anime
             return Equals(FansubFile, other.FansubFile)
                 && Equals(PublicationDate, other.PublicationDate)
                 && Equals(Guid, other.Guid)
-                && Equals(ResourceLocation, other.ResourceLocation);
+                && Equals(ResourceLocation, other.ResourceLocation)
+                && Equals(Source, other.Source);
         }
 
         /// <summary>
@@ -132,7 +174,8 @@ namespace DataSwallow.Filter.Anime
             return FansubFile.GetHashCode()
                 ^ PublicationDate.GetHashCode()
                 ^ Guid.GetHashCode()
-                ^ ResourceLocation.GetHashCode();
+                ^ ResourceLocation.GetHashCode()
+                ^ Source.GetHashCode();
         }
         #endregion
 
