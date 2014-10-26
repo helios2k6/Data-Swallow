@@ -33,5 +33,10 @@ namespace DataSwallow.Sink
     /// <typeparam name="TInput">The type of the input.</typeparam>
     public interface ISink<TInput> : IOutputMessageSink<TInput>
     {
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns>A Task representing the running of this instance</returns>
+        Task Start();
     }
 }
