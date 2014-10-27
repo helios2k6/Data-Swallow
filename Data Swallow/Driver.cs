@@ -33,7 +33,7 @@ namespace DataSwallow
 {
     public static class Driver
     {
-        private static Task Run()
+        private static void Run()
         {
             var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 3, 0);
             var filter = new RSSAnimeDetectionFilter();
@@ -43,13 +43,13 @@ namespace DataSwallow
             var filterContinuation = filter.Start();
             var addingOutputStreamTask = rssSource.AddOutputStreamAsync(outputStream, 0);
 
-            return Task.WhenAll(rssContinuation, filterContinuation, addingOutputStreamTask);
+            var continuation = Task.WhenAll(rssContinuation, filterContinuation, addingOutputStreamTask);
+            continuation.Wait();
         }
 
         public static void Main(string[] args)
         {
-            var continuation = Run();
-            continuation.Wait();
+            Run();
         }
     }
 }
