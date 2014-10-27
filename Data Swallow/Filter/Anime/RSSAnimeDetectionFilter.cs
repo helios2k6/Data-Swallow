@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Anime;
 using DataSwallow.Control;
 using DataSwallow.Source.RSS;
 using DataSwallow.Stream;

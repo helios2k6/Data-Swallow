@@ -25,16 +25,24 @@
 using FileNameParser;
 using NodaTime;
 using System;
+using System.Runtime.Serialization;
 using System.Text;
 
-namespace DataSwallow.Filter.Anime
+namespace DataSwallow.Anime
 {
     /// <summary>
     /// An Anime item entry from some data source
     /// </summary>
-    public sealed class AnimeEntry : IEquatable<AnimeEntry>
+    [Serializable]
+    public sealed class AnimeEntry : IEquatable<AnimeEntry>, ISerializable
     {
         #region private fields
+        private static readonly string FansubFileKey = "FansubFile";
+        private static readonly string PublicationDateKey = "PublicationDate";
+        private static readonly string GuidKey = "Guid";
+        private static readonly string ResourceLocationKey = "ResourceLocation";
+        private static readonly string SourceKey = "Source";
+
         private readonly FansubFile _fansubFile;
         private readonly OffsetDateTime _publicationDate;
         private readonly string _guid;
@@ -58,6 +66,20 @@ namespace DataSwallow.Filter.Anime
             _guid = guid;
             _resourceLocation = resourceLocation;
             _source = source;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnimeEntry"/> class.
+        /// </summary>
+        /// <param name="info">The information.</param>
+        /// <param name="context">The context.</param>
+        private AnimeEntry(SerializationInfo info, StreamingContext context)
+        {
+            _fansubFile = (FansubFile)info.GetValue(FansubFileKey, typeof(FansubFile));
+            _publicationDate = (OffsetDateTime)info.GetValue(PublicationDateKey, typeof(OffsetDateTime));
+            _guid = (string)info.GetValue(GuidKey, typeof(string));
+            _resourceLocation = (Uri)info.GetValue(ResourceLocationKey, typeof(Uri));
+            _source = (string)info.GetValue(SourceKey, typeof(string));
         }
         #endregion
 
@@ -176,6 +198,21 @@ namespace DataSwallow.Filter.Anime
                 ^ Guid.GetHashCode()
                 ^ ResourceLocation.GetHashCode()
                 ^ Source.GetHashCode();
+        }
+
+        /// <summary>
+        /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
+        /// </summary>
+        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
+        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext" />) for this serialization.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue(FansubFileKey, FansubFile);
+            info.AddValue(PublicationDateKey, PublicationDate);
+            info.AddValue(GuidKey, Guid);
+            info.AddValue(ResourceLocationKey, ResourceLocation);
+            info.AddValue(SourceKey, Source);
         }
         #endregion
 

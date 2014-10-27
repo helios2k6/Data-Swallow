@@ -83,6 +83,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Anime\Constants.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Constants.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Anime\DBreezeDao.cs" />
     <Compile Include="Control\Actor.cs" />
     <Compile Include="Control\FunctionalStateActor.cs" />
     <Compile Include="Control\FunctionalStatelessActor.cs" />
@@ -90,7 +96,7 @@
     <Compile Include="Control\Message.cs" />
     <Compile Include="Driver.cs" />
     <Compile Include="Filter\Anime\RSSAnimeDetectionFilter.cs" />
-    <Compile Include="Filter\Anime\AnimeEntry.cs" />
+    <Compile Include="Anime\AnimeEntry.cs" />
     <Compile Include="Filter\Anime\RSSFeedProcessor.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="IMessageGenerator.cs" />
@@ -108,7 +114,10 @@
     <Compile Include="Stream\OutputStreamMessage.cs" />
     <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
+    <Compile Include="Utilities\DaoResult.cs" />
     <Compile Include="Utilities\Functions.cs" />
+    <Compile Include="Utilities\IDao.cs" />
+    <Compile Include="Utilities\IDaoResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -131,7 +140,12 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Anime\Constants.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Constants.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

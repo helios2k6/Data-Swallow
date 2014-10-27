@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Anime;
 using DataSwallow.Source.RSS;
 using FileNameParser;
 using NodaTime;
