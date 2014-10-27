@@ -58,6 +58,9 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DBreeze">
+      <HintPath>..\packages\DBreeze.1.64.0\lib\net45\DBreeze.dll</HintPath>
+    </Reference>
     <Reference Include="FileNameParser">
       <HintPath>..\Third Party\FileNameParser.dll</HintPath>
     </Reference>

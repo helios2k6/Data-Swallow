@@ -35,7 +35,7 @@ namespace DataSwallow
     {
         private static Task Run()
         {
-            var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 10, 8);
+            var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 3, 0);
             var filter = new RSSAnimeDetectionFilter();
             var outputStream = new OutputStream<RSSFeed>(filter, 0);
 
