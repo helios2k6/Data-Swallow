@@ -35,7 +35,8 @@ namespace DataSwallow
     {
         private static void Run()
         {
-            var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 3, 0);
+            //var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 3, 0);
+            var rssSource = new RSSFeedDataSource(new Uri("http://haruhichan.com/feed/feed.php?mode=rss"), 3, 0);
             var filter = new RSSAnimeDetectionFilter();
             var outputStream = new OutputStream<RSSFeed>(filter, 0);
 

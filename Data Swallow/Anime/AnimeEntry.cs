@@ -37,12 +37,14 @@ namespace DataSwallow.Anime
     public sealed class AnimeEntry : IEquatable<AnimeEntry>, ISerializable
     {
         #region private fields
+        private static readonly string OriginalInputKey = "OriginalInput";
         private static readonly string FansubFileKey = "FansubFile";
         private static readonly string PublicationDateKey = "PublicationDate";
         private static readonly string GuidKey = "Guid";
         private static readonly string ResourceLocationKey = "ResourceLocation";
         private static readonly string SourceKey = "Source";
 
+        private readonly string _originalInput;
         private readonly FansubFile _fansubFile;
         private readonly OffsetDateTime _publicationDate;
         private readonly string _guid;
@@ -54,13 +56,15 @@ namespace DataSwallow.Anime
         /// <summary>
         /// Initializes a new instance of the <see cref="AnimeEntry" /> class.
         /// </summary>
+        /// <param name="originalInput">The original input.</param>
         /// <param name="fansubFile">The fansub file.</param>
         /// <param name="publicationDate">The publication date.</param>
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
-        public AnimeEntry(FansubFile fansubFile, OffsetDateTime publicationDate, string guid, Uri resourceLocation, string source)
+        public AnimeEntry(string originalInput, FansubFile fansubFile, OffsetDateTime publicationDate, string guid, Uri resourceLocation, string source)
         {
+            _originalInput = originalInput;
             _fansubFile = fansubFile;
             _publicationDate = publicationDate;
             _guid = guid;
@@ -75,6 +79,7 @@ namespace DataSwallow.Anime
         /// <param name="context">The context.</param>
         private AnimeEntry(SerializationInfo info, StreamingContext context)
         {
+            _originalInput = (string)info.GetValue(OriginalInputKey, typeof(string));
             _fansubFile = (FansubFile)info.GetValue(FansubFileKey, typeof(FansubFile));
             _publicationDate = (OffsetDateTime)info.GetValue(PublicationDateKey, typeof(OffsetDateTime));
             _guid = (string)info.GetValue(GuidKey, typeof(string));
@@ -84,6 +89,14 @@ namespace DataSwallow.Anime
         #endregion
 
         #region public properties
+        /// <summary>
+        /// Gets the original input.
+        /// </summary>
+        /// <value>
+        /// The original input.
+        /// </value>
+        public string OriginalInput { get { return _originalInput; } }
+
         /// <summary>
         /// Gets the fansub file.
         /// </summary>
@@ -159,7 +172,8 @@ namespace DataSwallow.Anime
                 return false;
             }
 
-            return Equals(FansubFile, other.FansubFile)
+            return Equals(OriginalInput, other.OriginalInput)
+                && Equals(FansubFile, other.FansubFile)
                 && Equals(PublicationDate, other.PublicationDate)
                 && Equals(Guid, other.Guid)
                 && Equals(ResourceLocation, other.ResourceLocation)
@@ -193,7 +207,8 @@ namespace DataSwallow.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public override int GetHashCode()
         {
-            return FansubFile.GetHashCode()
+            return OriginalInput.GetHashCode() 
+                ^ FansubFile.GetHashCode()
                 ^ PublicationDate.GetHashCode()
                 ^ Guid.GetHashCode()
                 ^ ResourceLocation.GetHashCode()
@@ -208,6 +223,7 @@ namespace DataSwallow.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
+            info.AddValue(OriginalInputKey, OriginalInput);
             info.AddValue(FansubFileKey, FansubFile);
             info.AddValue(PublicationDateKey, PublicationDate);
             info.AddValue(GuidKey, Guid);

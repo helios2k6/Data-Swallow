@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Anime\AnimeCriterion.cs" />
     <Compile Include="Anime\Constants.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -95,9 +96,11 @@
     <Compile Include="Control\IActor.cs" />
     <Compile Include="Control\Message.cs" />
     <Compile Include="Driver.cs" />
+    <Compile Include="Filter\Anime\AnimeEntryProcessingFilter.cs" />
     <Compile Include="Filter\Anime\RSSAnimeDetectionFilter.cs" />
     <Compile Include="Anime\AnimeEntry.cs" />
     <Compile Include="Filter\Anime\RSSFeedProcessor.cs" />
+    <Compile Include="Filter\FilterActor.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="IMessageGenerator.cs" />
     <Compile Include="Sink\ISink.cs" />
@@ -114,6 +117,7 @@
     <Compile Include="Stream\OutputStreamMessage.cs" />
     <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
+    <Compile Include="Utilities\Criterion.cs" />
     <Compile Include="Utilities\DaoResult.cs" />
     <Compile Include="Utilities\Functions.cs" />
     <Compile Include="Utilities\IDao.cs" />

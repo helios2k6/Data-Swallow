@@ -23,9 +23,8 @@
  */
 
 using DataSwallow.Anime;
-using DataSwallow.Control;
-using DataSwallow.Source.RSS;
 using DataSwallow.Stream;
+using DataSwallow.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,10 +32,25 @@ using System.Threading.Tasks;
 namespace DataSwallow.Filter.Anime
 {
     /// <summary>
-    /// A filter that can detect anime entries using an RSSFeed
+    /// Processes an Anime Entry
     /// </summary>
-    public sealed class RSSAnimeDetectionFilter : FilterActor<RSSFeed, AnimeEntry>
+    public sealed class AnimeEntryProcessingFilter : FilterActor<AnimeEntry, AnimeEntry>
     {
+        #region private fields
+        private readonly IDao<AnimeEntry, string> _dao;
+        #endregion
+
+        #region ctor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnimeEntryProcessingFilter"/> class.
+        /// </summary>
+        /// <param name="dao">The DAO.</param>
+        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao)
+        {
+            _dao = dao;
+        }
+        #endregion
+
         #region public methods
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.
@@ -46,7 +60,7 @@ namespace DataSwallow.Filter.Anime
         /// </returns>
         public override string ToString()
         {
-            return "RSS Anime Detection Filter";
+            return "Anime Entry Processing Filter";
         }
 
         /// <summary>
@@ -74,20 +88,26 @@ namespace DataSwallow.Filter.Anime
         #endregion
 
         #region protected methods
-        protected override void DigestMessage(RSSFeed feed, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        protected override void DigestMessage(AnimeEntry input, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
         {
-            IEnumerable<AnimeEntry> entries;
-            if(RSSFeedProcessor.Instance.TryGetAnimeEntries(feed, out entries))
-            {
-                foreach(var entry in entries)
-                {
-                    foreach (var stream in outputStreams)
-                    {
-                        stream.Value.PutAsync(entry);
-                    }
-                }
-            }
+
         }
+        #endregion
+
+        #region private methods
+        private async Task DigestMessageImpl(AnimeEntry entry, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        {
+            var doesEntryExist = await DoesEntryAlreadyExist(entry);
+
+        }
+
+        private async Task<bool> DoesEntryAlreadyExist(AnimeEntry entry)
+        {
+            var existingEntry = await _dao.Get(entry.Guid);
+
+            return existingEntry.Success;
+        }
+
         #endregion
     }
 }

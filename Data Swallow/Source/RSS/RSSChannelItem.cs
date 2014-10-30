@@ -48,7 +48,7 @@ namespace DataSwallow.Source.RSS
         /// The category.
         /// </value>
         [YAXSerializeAs("category")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
+        [YAXErrorIfMissed(YAXExceptionTypes.Ignore)]
         public string Category { get; set; }
         /// <summary>
         /// Gets or sets the comments.
@@ -84,7 +84,7 @@ namespace DataSwallow.Source.RSS
         /// The unique identifier.
         /// </value>
         [YAXSerializeAs("guid")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
+        [YAXErrorIfMissed(YAXExceptionTypes.Ignore)]
         public string Guid { get; set; }
         /// <summary>
         /// Gets or sets the link.
@@ -93,7 +93,7 @@ namespace DataSwallow.Source.RSS
         /// The link.
         /// </value>
         [YAXSerializeAs("link")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
+        [YAXErrorIfMissed(YAXExceptionTypes.Ignore)]
         public string Link { get; set; }
         /// <summary>
         /// Gets or sets the publication date.
@@ -102,7 +102,7 @@ namespace DataSwallow.Source.RSS
         /// The publication date.
         /// </value>
         [YAXSerializeAs("pubDate")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
+        [YAXErrorIfMissed(YAXExceptionTypes.Ignore)]
         public string PublicationDate { get; set; }
         /// <summary>
         /// Gets or sets the source.

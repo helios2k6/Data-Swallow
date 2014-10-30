@@ -142,7 +142,7 @@ namespace DataSwallow.Filter.Anime
                 && TryGetGuid(item, out guid)
                 && TryGetResourceLocation(item, out resourceLocation))
             {
-                entry = new AnimeEntry(file, pubDate, guid, resourceLocation, source);
+                entry = new AnimeEntry(item.Title, file, pubDate, guid, resourceLocation, source);
 
                 return true;
             }
