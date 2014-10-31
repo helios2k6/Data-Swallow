@@ -62,7 +62,7 @@ namespace DataSwallow.Anime
         /// Matches the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns></returns>
+        /// <returns>True if there's a match. False otherwise</returns>
         public bool Match(AnimeEntry entry)
         {
             return ApplyCriterion<string>(_fansubGroup, entry.FansubFile.FansubGroup)

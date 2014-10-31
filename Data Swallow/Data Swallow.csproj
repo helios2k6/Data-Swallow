@@ -125,6 +125,7 @@
     <Compile Include="Topology\ITopology.cs" />
     <Compile Include="Utilities\Criterion.cs" />
     <Compile Include="Utilities\DaoResult.cs" />
+    <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\Functions.cs" />
     <Compile Include="Utilities\IDao.cs" />
     <Compile Include="Utilities\IDaoResult.cs" />
