@@ -123,6 +123,7 @@ namespace DataSwallow.Sink
 
             _isDisposed = true;
             _engine.Dispose();
+            _client.Dispose();
         }
         #endregion
 
