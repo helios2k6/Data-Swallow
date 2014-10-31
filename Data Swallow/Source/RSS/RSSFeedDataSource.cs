@@ -149,12 +149,11 @@ namespace DataSwallow.Source.RSS
         /// Resumes this instance.
         /// </summary>
         /// <returns>A Task representing the resuming of this instance</returns>
-        public async Task Resume()
+        public Task Resume()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.Start();
-            await _actorEngine.PostAndReplyAsync(ResumeMessage);
+            return _actorEngine.PostAndReplyAsync(ResumeMessage);
         }
 
         /// <summary>
@@ -162,11 +161,11 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <returns>A Task representing the pausing of this instance</returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public async Task Pause()
+        public Task Pause()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.PostAndReplyAsync(PauseMessage);
+            return _actorEngine.PostAndReplyAsync(PauseMessage);
         }
 
         /// <summary>
@@ -174,11 +173,11 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <returns>A Task representing the stopping of this instance</returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public async Task Stop()
+        public Task Stop()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.PostAndReplyAsync(StopMessage);
+            return _actorEngine.PostAndReplyAsync(StopMessage);
         }
 
         /// <summary>
@@ -190,11 +189,11 @@ namespace DataSwallow.Source.RSS
         /// A Task representing the adding of the Output Stream
         /// </returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public async Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
+        public Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            await _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
+            return _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
 
         /// <summary>

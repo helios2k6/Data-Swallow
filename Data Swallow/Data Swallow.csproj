@@ -64,6 +64,10 @@
     <Reference Include="FileNameParser">
       <HintPath>..\Third Party\FileNameParser.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="NodaTime">
       <HintPath>..\packages\NodaTime.1.3.0\lib\net35-Client\NodaTime.dll</HintPath>
     </Reference>
@@ -90,6 +94,7 @@
       <DependentUpon>Constants.resx</DependentUpon>
     </Compile>
     <Compile Include="Anime\DBreezeDao.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Control\Actor.cs" />
     <Compile Include="Control\FunctionalStateActor.cs" />
     <Compile Include="Control\FunctionalStatelessActor.cs" />
@@ -103,6 +108,7 @@
     <Compile Include="Filter\FilterActor.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="IMessageGenerator.cs" />
+    <Compile Include="Sink\AnimeEntrySink.cs" />
     <Compile Include="Sink\ISink.cs" />
     <Compile Include="Source\ISource.cs" />
     <Compile Include="Source\RSS\RSSChannel.cs" />

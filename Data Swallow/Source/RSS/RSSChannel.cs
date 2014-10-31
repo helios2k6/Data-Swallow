@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,20 @@ namespace DataSwallow.Source.RSS
     /// </summary>
     public sealed class RSSChannel : IEquatable<RSSChannel>
     {
+        #region ctor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSSChannel"/> class.
+        /// </summary>
+        public RSSChannel()
+        {
+            Description = string.Empty;
+            Link = string.Empty;
+            Title = string.Empty;
+            Items = new RSSChannelItem[0];
+        }
+        #endregion
+
+        #region public properties
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
@@ -71,16 +86,9 @@ namespace DataSwallow.Source.RSS
         [YAXCollection(YAXCollectionSerializationTypes.RecursiveWithNoContainingElement, EachElementName = "item")]
         [YAXErrorIfMissed(YAXExceptionTypes.Error)]
         public RSSChannelItem[] Items { get; set; }
+        #endregion
 
-        private bool EqualsPreamble(object other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            if (GetType() != other.GetType()) return false;
-
-            return true;
-        }
-
+        #region public methods
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
@@ -118,7 +126,7 @@ namespace DataSwallow.Source.RSS
 
             return Equals(obj as RSSChannel);
         }
-        
+
         private int CalculateHashCode(object obj)
         {
             if (obj == null)
@@ -127,23 +135,6 @@ namespace DataSwallow.Source.RSS
             }
 
             return obj.GetHashCode();
-        }
-
-        private int CalculateHashCodeEnumerable<T>(IEnumerable<T> enumerable)
-        {
-            if (enumerable == null)
-            {
-                return 0;
-            }
-
-            int seed = 1;
-
-            foreach(var t in enumerable.Where(t => t != null))
-            {
-                seed = seed ^ t.GetHashCode();
-            }
-
-            return seed;
         }
 
         /// <summary>
@@ -156,7 +147,7 @@ namespace DataSwallow.Source.RSS
         {
             return CalculateHashCode(Description)
                 ^ CalculateHashCode(Link)
-                ^ CalculateHashCodeEnumerable(Items);
+                ^ Items.GetSequenceHashCode();
         }
 
         /// <summary>
@@ -189,5 +180,17 @@ namespace DataSwallow.Source.RSS
 
             return builder.ToString();
         }
+        #endregion
+
+        #region private methods
+        private bool EqualsPreamble(object other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (GetType() != other.GetType()) return false;
+
+            return true;
+        }
+        #endregion
     }
 }

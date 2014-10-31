@@ -32,6 +32,26 @@ namespace DataSwallow.Source.RSS
     /// </summary>
     public sealed class RSSChannelItem : IEquatable<RSSChannelItem>
     {
+        #region ctor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RSSChannelItem"/> class.
+        /// </summary>
+        public RSSChannelItem()
+        {
+            Author = string.Empty;
+            Category = string.Empty;
+            Comments = string.Empty;
+            Description = string.Empty;
+            Enclosure = string.Empty;
+            Guid = string.Empty;
+            Link = string.Empty;
+            PublicationDate = string.Empty;
+            Source = string.Empty;
+            Title = string.Empty;
+        }
+        #endregion
+
+        #region public properties
         /// <summary>
         /// Gets or sets the author.
         /// </summary>
@@ -122,26 +142,9 @@ namespace DataSwallow.Source.RSS
         [YAXSerializeAs("title")]
         [YAXErrorIfMissed(YAXExceptionTypes.Error)]
         public string Title { get; set; }
+        #endregion
 
-        private bool EqualsPreamble(object other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            if (GetType() != other.GetType()) return false;
-
-            return true;
-        }
-
-        private int CalculateHashCode(object obj)
-        {
-            if(obj == null)
-            {
-                return 0;
-            }
-
-            return obj.GetHashCode();
-        }
-
+        #region public methods
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
@@ -151,7 +154,7 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public bool Equals(RSSChannelItem other)
         {
-            if(EqualsPreamble(other) == false)
+            if (EqualsPreamble(other) == false)
             {
                 return false;
             }
@@ -193,16 +196,16 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public override int GetHashCode()
         {
-            return CalculateHashCode(Author)
-                ^ CalculateHashCode(Category)
-                ^ CalculateHashCode(Comments)
-                ^ CalculateHashCode(Description)
-                ^ CalculateHashCode(Enclosure)
-                ^ CalculateHashCode(Guid)
-                ^ CalculateHashCode(Link)
-                ^ CalculateHashCode(PublicationDate)
-                ^ CalculateHashCode(Source)
-                ^ CalculateHashCode(Title);
+            return Author.GetHashCode()
+                ^ Category.GetHashCode()
+                ^ Comments.GetHashCode()
+                ^ Description.GetHashCode()
+                ^ Enclosure.GetHashCode()
+                ^ Guid.GetHashCode()
+                ^ Link.GetHashCode()
+                ^ PublicationDate.GetHashCode()
+                ^ Source.GetHashCode()
+                ^ Title.GetHashCode();
         }
 
         /// <summary>
@@ -228,5 +231,17 @@ namespace DataSwallow.Source.RSS
 
             return builder.ToString();
         }
+        #endregion
+
+        #region private methods
+        private bool EqualsPreamble(object other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (GetType() != other.GetType()) return false;
+
+            return true;
+        }
+        #endregion
     }
 }

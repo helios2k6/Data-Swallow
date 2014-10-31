@@ -23,34 +23,40 @@
  */
 
 using DataSwallow.Anime;
+using DataSwallow.Control;
 using DataSwallow.Stream;
-using DataSwallow.Utilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace DataSwallow.Filter.Anime
+namespace DataSwallow.Sink
 {
     /// <summary>
-    /// Processes an Anime Entry
+    /// Represents an AnimeEntry Sink
     /// </summary>
-    public sealed class AnimeEntryProcessingFilter : FilterActor<AnimeEntry, AnimeEntry>
+    public sealed class AnimeEntrySink : ISink<AnimeEntry>, IDisposable
     {
         #region private fields
-        private readonly IDao<AnimeEntry, string> _dao;
-        private readonly IEnumerable<AnimeCriterion> _criterions;
+        private static readonly string TorrentExtension = ".torrent";
+
+        private readonly string _destinationFolder;
+        private readonly FunctionalStatelessActor<AnimeEntry> _engine;
+        private readonly HttpClient _client;
+
+        private bool _isDisposed;
         #endregion
 
         #region ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimeEntryProcessingFilter"/> class.
+        /// Initializes a new instance of the <see cref="AnimeEntrySink"/> class.
         /// </summary>
-        /// <param name="dao">The DAO.</param>
-        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<AnimeCriterion> criterions)
+        /// <param name="destinationEntry">The destination entry.</param>
+        public AnimeEntrySink(string destinationEntry)
         {
-            _dao = dao;
-            _criterions = criterions;
+            _destinationFolder = destinationEntry;
+            _engine = new FunctionalStatelessActor<AnimeEntry>(Process);
+            _client = new HttpClient();
         }
         #endregion
 
@@ -63,7 +69,7 @@ namespace DataSwallow.Filter.Anime
         /// </returns>
         public override string ToString()
         {
-            return "Anime Entry Processing Filter";
+            return "Anime Entry Sink";
         }
 
         /// <summary>
@@ -88,53 +94,52 @@ namespace DataSwallow.Filter.Anime
         {
             return base.GetHashCode();
         }
-        #endregion
 
-        #region protected methods
-        protected override void DigestMessage(AnimeEntry input, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns></returns>
+        public Task Start()
         {
-            DigestMessageImpl(input, outputStreams).Wait();
+            return _engine.Start();
+        }
+
+        /// <summary>
+        /// Accepts messages asynchronously.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        public Task AcceptAsync(IOutputStreamMessage<AnimeEntry> message)
+        {
+            return _engine.PostAndReplyAsync(message.Payload);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_isDisposed) return;
+
+            _isDisposed = true;
+            _engine.Dispose();
         }
         #endregion
 
         #region private methods
-        private async Task DigestMessageImpl(AnimeEntry entry, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        private void Process(AnimeEntry entry)
         {
-            //Check to see if the entry exists
-            var doesEntryExist = await DoesEntryAlreadyExist(entry);
-            if(doesEntryExist)
+            var torrentFile = _client.GetByteArrayAsync(entry.ResourceLocation).Result;
+            var path = Path.Combine(_destinationFolder, entry.OriginalInput, TorrentExtension);
+
+            try
             {
-                return;
+                File.WriteAllBytes(path, torrentFile);
             }
-
-            //Add the entry to the database
-            await _dao.Store(entry);
-
-            //See if it matches any criterion
-            if(DoesMatchAnyCriterion(entry))
+            catch (Exception)
             {
-                foreach (var kvp in outputStreams)
-                {
-                    Ignore(kvp.Value.PutAsync(entry));
-                }
-            }
-        }
-
-        private async Task<bool> DoesEntryAlreadyExist(AnimeEntry entry)
-        {
-            var existingEntry = await _dao.Get(entry.Guid);
-
-            return existingEntry.Success;
-        }
-
-        private bool DoesMatchAnyCriterion(AnimeEntry entry)
-        {
-            return _criterions.Any(t => t.Match(entry));
-        }
-
-        private static void Ignore(object _)
-        {
-            //For real, do nothing
+                //TODO: Should log here
+            } 
         }
         #endregion
     }
