@@ -24,7 +24,7 @@
 
 using DataSwallow.Anime;
 using DataSwallow.Source.RSS;
-using FileNameParser;
+using FansubFileNameParser;
 using NodaTime;
 using NodaTime.Text;
 using System;

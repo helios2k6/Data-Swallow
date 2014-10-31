@@ -61,8 +61,8 @@
     <Reference Include="DBreeze">
       <HintPath>..\packages\DBreeze.1.64.0\lib\net45\DBreeze.dll</HintPath>
     </Reference>
-    <Reference Include="FileNameParser">
-      <HintPath>..\Third Party\FileNameParser.dll</HintPath>
+    <Reference Include="FansubFileNameParser">
+      <HintPath>..\Third Party\FansubFileNameParser.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

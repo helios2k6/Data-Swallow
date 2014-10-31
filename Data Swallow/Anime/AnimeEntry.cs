@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-using FileNameParser;
+using FansubFileNameParser;
 using NodaTime;
 using System;
 using System.Runtime.Serialization;
