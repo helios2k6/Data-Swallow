@@ -58,8 +58,9 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DBreeze">
-      <HintPath>..\packages\DBreeze.1.64.0\lib\net45\DBreeze.dll</HintPath>
+    <Reference Include="DBreeze, Version=1.68.2014.1205, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\DBreeze.1.68.0\lib\net45\DBreeze.dll</HintPath>
     </Reference>
     <Reference Include="FansubFileNameParser">
       <HintPath>..\Third Party\FansubFileNameParser.dll</HintPath>
