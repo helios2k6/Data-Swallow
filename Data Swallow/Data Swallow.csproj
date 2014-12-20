@@ -72,6 +72,9 @@
     <Reference Include="NodaTime">
       <HintPath>..\packages\NodaTime.1.3.0\lib\net35-Client\NodaTime.dll</HintPath>
     </Reference>
+    <Reference Include="SimMetrics">
+      <HintPath>..\packages\SimMetrics.1.1.4118.23231\lib\SimMetrics.dll</HintPath>
+    </Reference>
     <Reference Include="Sprache">
       <HintPath>..\Third Party\Sprache.dll</HintPath>
     </Reference>

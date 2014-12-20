@@ -23,6 +23,8 @@
  */
 
 using DataSwallow.Utilities;
+using SimMetricsApi;
+using SimMetricsMetricUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,24 +38,73 @@ namespace DataSwallow.Anime
     /// </summary>
     public sealed class AnimeCriterion
     {
+        #region private classes
+        private sealed class StringMetricsCalculator
+        {
+            private static readonly Lazy<StringMetricsCalculator> _instanceLazy = new Lazy<StringMetricsCalculator>(() => new StringMetricsCalculator());
+
+            public static StringMetricsCalculator Instance
+            {
+                get { return _instanceLazy.Value; }
+            }
+
+            private IList<AbstractStringMetric> CreateMetricsList()
+            {
+                return new List<AbstractStringMetric>
+                {
+                    new JaroWinkler(),
+                    new Levenstein(),
+                    new MongeElkan(),
+                    new NeedlemanWunch(),
+                    new QGramsDistance(),
+                    new SmithWatermanGotoh(),
+                };
+            }
+
+            private double GetSimilatiry(string a, string b)
+            {
+                return CreateMetricsList().Average(c => c.GetSimilarity(a, b));
+            }
+
+            public double MeasureSimilarity(string a, string b)
+            {
+                return GetSimilatiry(a, b);
+            }
+
+            public double MeasureSimilarityIgnoreCase(string a, string b)
+            {
+                string aUpper = a.ToUpperInvariant();
+                string bUpper = b.ToUpperInvariant();
+
+                return MeasureSimilarity(aUpper, bUpper);
+            }
+        }
+        #endregion
+
         #region private fields
+        private const double SmudgeFactor = 0.80;
+        private const double Epsilon = 0.000001;
+
         private readonly Criterion<string> _fansubGroup;
         private readonly Criterion<string> _extension;
         private readonly Criterion<string> _series;
+        private readonly bool _useFuzzyMatch;
         #endregion
 
         #region ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimeCriterion"/> class.
+        /// Initializes a new instance of the <see cref="AnimeCriterion" /> class.
         /// </summary>
         /// <param name="fansubGroup">The fansub group.</param>
         /// <param name="extension">The extension.</param>
         /// <param name="series">The series.</param>
-        public AnimeCriterion(string fansubGroup, string extension, string series)
+        /// <param name="useFuzzyMatch">Whether or not to use string distances to match</param>
+        public AnimeCriterion(string fansubGroup, string extension, string series, bool useFuzzyMatch)
         {
             _fansubGroup = new Criterion<string>(fansubGroup, true);
             _extension = new Criterion<string>(extension, true);
             _series = new Criterion<string>(series, true);
+            _useFuzzyMatch = useFuzzyMatch;
         }
         #endregion
 
@@ -65,16 +116,28 @@ namespace DataSwallow.Anime
         /// <returns>True if there's a match. False otherwise</returns>
         public bool Match(AnimeEntry entry)
         {
-            return ApplyCriterion<string>(_fansubGroup, entry.FansubFile.FansubGroup)
-                && ApplyCriterion<string>(_extension, entry.FansubFile.Extension)
-                && ApplyCriterion<string>(_series, entry.FansubFile.SeriesName);
+            return ApplyCriterion(_fansubGroup, entry.FansubFile.FansubGroup)
+                && ApplyCriterion(_extension, entry.FansubFile.Extension)
+                && ApplyCriterion(_series, entry.FansubFile.SeriesName);
         }
         #endregion
 
         #region private methods
-        private bool ApplyCriterion<T>(Criterion<T> criterion, T entry)
+        private bool ApplyCriterion(Criterion<string> criterion, string entry)
         {
-            var comparer = EqualityComparer<T>.Default;
+            if (_useFuzzyMatch)
+            {
+                return ApplyCriterionFuzzy(criterion, entry);
+            }
+            else
+            {
+                return ApplyCriterionExact(criterion, entry);
+            }
+        }
+
+        private bool ApplyCriterionExact(Criterion<string> criterion, string entry)
+        {
+            var comparer = EqualityComparer<string>.Default;
 
             if (comparer.Equals(criterion.Target, entry) || criterion.IsRequired == false)
             {
@@ -83,7 +146,22 @@ namespace DataSwallow.Anime
 
             return false;
         }
+
+        private bool ApplyCriterionFuzzy(Criterion<string> criterion, string entry)
+        {
+            var distance = StringMetricsCalculator.Instance.MeasureSimilarityIgnoreCase(criterion.Target, entry);
+
+            var comparison = distance - SmudgeFactor;
+            var comparisonMagnitude = Math.Abs(comparison);
+
+            if(comparison >= 0.0 && comparisonMagnitude >= Epsilon)
+            {
+                return true;
+            }
+
+            return false;
+        }
         #endregion
-            
+
     }
 }
