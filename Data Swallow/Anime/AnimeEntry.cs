@@ -23,6 +23,7 @@
  */
 
 using FansubFileNameParser;
+using FansubFileNameParser.Metadata;
 using NodaTime;
 using System;
 using System.Runtime.Serialization;
@@ -39,6 +40,7 @@ namespace DataSwallow.Anime
         #region private fields
         private static readonly string OriginalInputKey = "OriginalInput";
         private static readonly string FansubFileKey = "FansubFile";
+        private static readonly string MediaMetadataKey = "MediaMetadata";
         private static readonly string PublicationDateKey = "PublicationDate";
         private static readonly string GuidKey = "Guid";
         private static readonly string ResourceLocationKey = "ResourceLocation";
@@ -46,6 +48,7 @@ namespace DataSwallow.Anime
 
         private readonly string _originalInput;
         private readonly FansubFile _fansubFile;
+        private readonly MediaMetadata _mediaMetadata;
         private readonly OffsetDateTime _publicationDate;
         private readonly string _guid;
         private readonly Uri _resourceLocation;
@@ -58,14 +61,23 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="originalInput">The original input.</param>
         /// <param name="fansubFile">The fansub file.</param>
+        /// <param name="mediaMetadata">The media file metadata.</param>
         /// <param name="publicationDate">The publication date.</param>
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
-        public AnimeEntry(string originalInput, FansubFile fansubFile, OffsetDateTime publicationDate, string guid, Uri resourceLocation, string source)
+        public AnimeEntry(
+            string originalInput, 
+            FansubFile fansubFile, 
+            MediaMetadata mediaMetadata, 
+            OffsetDateTime publicationDate, 
+            string guid, 
+            Uri resourceLocation, 
+            string source)
         {
             _originalInput = originalInput;
             _fansubFile = fansubFile;
+            _mediaMetadata = mediaMetadata;
             _publicationDate = publicationDate;
             _guid = guid;
             _resourceLocation = resourceLocation;
@@ -81,6 +93,7 @@ namespace DataSwallow.Anime
         {
             _originalInput = (string)info.GetValue(OriginalInputKey, typeof(string));
             _fansubFile = (FansubFile)info.GetValue(FansubFileKey, typeof(FansubFile));
+            _mediaMetadata = (MediaMetadata)info.GetValue(MediaMetadataKey, typeof(MediaMetadata));
             _publicationDate = (OffsetDateTime)info.GetValue(PublicationDateKey, typeof(OffsetDateTime));
             _guid = (string)info.GetValue(GuidKey, typeof(string));
             _resourceLocation = (Uri)info.GetValue(ResourceLocationKey, typeof(Uri));
@@ -104,6 +117,14 @@ namespace DataSwallow.Anime
         /// The fansub file.
         /// </value>
         public FansubFile FansubFile { get { return _fansubFile; } }
+
+        /// <summary>
+        /// Gets the media metadata.
+        /// </summary>
+        /// <value>
+        /// The media metadata.
+        /// </value>
+        public MediaMetadata MediaMetadata { get { return _mediaMetadata; } }
 
         /// <summary>
         /// Gets the publication date.
@@ -151,8 +172,11 @@ namespace DataSwallow.Anime
             var builder = new StringBuilder();
 
             builder.AppendLine("Anime Entry with: ");
-            builder.AppendFormat("{ File: {0}; Publication Date: {1}; Guid: {2}; URI: {3}", FansubFile, PublicationDate, Guid, ResourceLocation);
-            builder.AppendLine();
+            builder.AppendLine("File: " + FansubFile.ToString());
+            builder.AppendLine("Metadata: " + MediaMetadata.ToString());
+            builder.AppendLine("Publication Date: " + PublicationDate.ToString());
+            builder.AppendLine("Guid: " + Guid.ToString());
+            builder.AppendLine("URL: " + ResourceLocation.ToString());
 
             return builder.ToString();
         }
@@ -174,6 +198,7 @@ namespace DataSwallow.Anime
 
             return Equals(OriginalInput, other.OriginalInput)
                 && Equals(FansubFile, other.FansubFile)
+                && Equals(MediaMetadata, other.MediaMetadata)
                 && Equals(PublicationDate, other.PublicationDate)
                 && Equals(Guid, other.Guid)
                 && Equals(ResourceLocation, other.ResourceLocation)
@@ -209,6 +234,7 @@ namespace DataSwallow.Anime
         {
             return OriginalInput.GetHashCode() 
                 ^ FansubFile.GetHashCode()
+                ^ MediaMetadata.GetHashCode()
                 ^ PublicationDate.GetHashCode()
                 ^ Guid.GetHashCode()
                 ^ ResourceLocation.GetHashCode()
@@ -225,6 +251,7 @@ namespace DataSwallow.Anime
         {
             info.AddValue(OriginalInputKey, OriginalInput);
             info.AddValue(FansubFileKey, FansubFile);
+            info.AddValue(MediaMetadataKey, MediaMetadata);
             info.AddValue(PublicationDateKey, PublicationDate);
             info.AddValue(GuidKey, Guid);
             info.AddValue(ResourceLocationKey, ResourceLocation);

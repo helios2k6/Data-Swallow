@@ -99,6 +99,8 @@
       <DependentUpon>Constants.resx</DependentUpon>
     </Compile>
     <Compile Include="Anime\DBreezeDao.cs" />
+    <Compile Include="Anime\FilePropertyCriterion.cs" />
+    <Compile Include="Anime\QualityCriterion.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="Control\Actor.cs" />
     <Compile Include="Control\FunctionalStateActor.cs" />
@@ -128,10 +130,10 @@
     <Compile Include="Stream\OutputStreamMessage.cs" />
     <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
-    <Compile Include="Utilities\Criterion.cs" />
     <Compile Include="Utilities\DaoResult.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\Functions.cs" />
+    <Compile Include="Utilities\ICriterion.cs" />
     <Compile Include="Utilities\IDao.cs" />
     <Compile Include="Utilities\IDaoResult.cs" />
   </ItemGroup>

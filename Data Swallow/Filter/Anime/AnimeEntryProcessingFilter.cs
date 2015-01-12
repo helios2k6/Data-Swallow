@@ -39,7 +39,7 @@ namespace DataSwallow.Filter.Anime
     {
         #region private fields
         private readonly IDao<AnimeEntry, string> _dao;
-        private readonly IEnumerable<AnimeCriterion> _criterions;
+        private readonly IEnumerable<ICriterion<AnimeEntry>> _criterions;
         #endregion
 
         #region ctor
@@ -47,7 +47,7 @@ namespace DataSwallow.Filter.Anime
         /// Initializes a new instance of the <see cref="AnimeEntryProcessingFilter"/> class.
         /// </summary>
         /// <param name="dao">The DAO.</param>
-        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<AnimeCriterion> criterions)
+        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<ICriterion<AnimeEntry>> criterions)
         {
             _dao = dao;
             _criterions = criterions;
@@ -129,7 +129,7 @@ namespace DataSwallow.Filter.Anime
 
         private bool DoesMatchAnyCriterion(AnimeEntry entry)
         {
-            return _criterions.Any(t => t.Match(entry));
+            return _criterions.Any(t => t.ApplyCriterion(entry));
         }
 
         private static void Ignore(object _)

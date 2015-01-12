@@ -28,15 +28,13 @@ using SimMetricsMetricUtilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Anime
 {
     /// <summary>
     /// Represents a search criterion for an Anime Entry
     /// </summary>
-    public sealed class AnimeCriterion
+    public sealed class AnimeCriterion : ICriterion<AnimeEntry>
     {
         #region private classes
         private sealed class StringMetricsCalculator
@@ -85,9 +83,8 @@ namespace DataSwallow.Anime
         private const double SmudgeFactor = 0.80;
         private const double Epsilon = 0.000001;
 
-        private readonly Criterion<string> _fansubGroup;
-        private readonly Criterion<string> _extension;
-        private readonly Criterion<string> _series;
+        private readonly string _fansubGroup;
+        private readonly string _series;
         private readonly bool _useFuzzyMatch;
         #endregion
 
@@ -96,34 +93,31 @@ namespace DataSwallow.Anime
         /// Initializes a new instance of the <see cref="AnimeCriterion" /> class.
         /// </summary>
         /// <param name="fansubGroup">The fansub group.</param>
-        /// <param name="extension">The extension.</param>
         /// <param name="series">The series.</param>
         /// <param name="useFuzzyMatch">Whether or not to use string distances to match</param>
-        public AnimeCriterion(string fansubGroup, string extension, string series, bool useFuzzyMatch)
+        public AnimeCriterion(string fansubGroup, string series, bool useFuzzyMatch)
         {
-            _fansubGroup = new Criterion<string>(fansubGroup, true);
-            _extension = new Criterion<string>(extension, true);
-            _series = new Criterion<string>(series, true);
+            _fansubGroup = fansubGroup;
+            _series = series;
             _useFuzzyMatch = useFuzzyMatch;
         }
         #endregion
 
         #region public methods
         /// <summary>
-        /// Matches the specified entry.
+        /// Applies the criterion.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns>True if there's a match. False otherwise</returns>
-        public bool Match(AnimeEntry entry)
+        /// <returns>Returns true if the Anime Entry passes this criterion. False otherwise</returns>
+        public bool ApplyCriterion(AnimeEntry entry)
         {
             return ApplyCriterion(_fansubGroup, entry.FansubFile.FansubGroup)
-                && ApplyCriterion(_extension, entry.FansubFile.Extension)
                 && ApplyCriterion(_series, entry.FansubFile.SeriesName);
         }
         #endregion
 
         #region private methods
-        private bool ApplyCriterion(Criterion<string> criterion, string entry)
+        private bool ApplyCriterion(string criterion, string entry)
         {
             if (_useFuzzyMatch)
             {
@@ -135,21 +129,14 @@ namespace DataSwallow.Anime
             }
         }
 
-        private bool ApplyCriterionExact(Criterion<string> criterion, string entry)
+        private bool ApplyCriterionExact(string criterion, string entry)
         {
-            var comparer = EqualityComparer<string>.Default;
-
-            if (comparer.Equals(criterion.Target, entry) || criterion.IsRequired == false)
-            {
-                return true;
-            }
-
-            return false;
+            return criterion.Equals(entry, StringComparison.Ordinal);
         }
 
-        private bool ApplyCriterionFuzzy(Criterion<string> criterion, string entry)
+        private bool ApplyCriterionFuzzy(string criterion, string entry)
         {
-            var distance = StringMetricsCalculator.Instance.MeasureSimilarityIgnoreCase(criterion.Target, entry);
+            var distance = StringMetricsCalculator.Instance.MeasureSimilarityIgnoreCase(criterion, entry);
 
             var comparison = distance - SmudgeFactor;
             var comparisonMagnitude = Math.Abs(comparison);

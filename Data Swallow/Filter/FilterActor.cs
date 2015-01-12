@@ -84,7 +84,7 @@ namespace DataSwallow.Filter
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
         /// <param name="sourcePortNumber">The source port number.</param>
-        /// <returns></returns>
+        /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public async Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber)
         {
@@ -96,7 +96,7 @@ namespace DataSwallow.Filter
         /// <summary>
         /// Gets the output streams asynchronously.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync()
         {
@@ -114,7 +114,7 @@ namespace DataSwallow.Filter
         /// Accepts the asynchronous.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <returns></returns>
+        /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public async Task AcceptAsync(IOutputStreamMessage<TInput> message)
         {
