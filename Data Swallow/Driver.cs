@@ -36,6 +36,10 @@ namespace DataSwallow
     /// </summary>
     public static class Driver
     {
+        private static void Run()
+        {
+        }
+
         /// <summary>
         /// The main entry point
         /// </summary>
