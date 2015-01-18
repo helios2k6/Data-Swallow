@@ -47,34 +47,70 @@ namespace DataSwallow.Topology
         #endregion
 
         #region ctor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Topology{TSourceOutput, TFilterInput, TFilterOutput, TSinkInput}"/> class as an
+        /// empty topology
+        /// </summary>
         public Topology()
         {
             _sources = new HashSet<ISource<TSourceOutput>>();
             _filters = new HashSet<IFilter<TFilterInput, TFilterOutput>>();
             _sinks = new HashSet<ISink<TSinkInput>>();
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Topology{TSourceOutput, TFilterInput, TFilterOutput, TSinkInput}"/> class with
+        /// the given sources, filters, and sinks.
+        /// </summary>
+        /// <param name="sources">The sources.</param>
+        /// <param name="filters">The filters.</param>
+        /// <param name="sinks">The sinks.</param>
+        public Topology(IEnumerable<ISource<TSourceOutput>> sources,
+            IEnumerable<IFilter<TFilterInput, TFilterOutput>> filters,
+            IEnumerable<ISink<TSinkInput>> sinks)
+        {
+            _sources = new HashSet<ISource<TSourceOutput>>(sources);
+            _filters = new HashSet<IFilter<TFilterInput, TFilterOutput>>(filters);
+            _sinks = new HashSet<ISink<TSinkInput>>(sinks);
+        }
         #endregion
 
         #region public methods
-
-
+        /// <summary>
+        /// Gets the sources asynchronous.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<ISource<TSourceOutput>>> GetSourcesAsync()
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew<IEnumerable<ISource<TSourceOutput>>>(() =>
+            {
+                return _sources;
+            });
         }
 
+        /// <summary>
+        /// Gets the filters asynchronous.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<IFilter<TFilterInput, TFilterOutput>>> GetFiltersAsync()
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew<IEnumerable<IFilter<TFilterInput, TFilterOutput>>>(() =>
+            {
+                return _filters;
+            });
         }
 
+        /// <summary>
+        /// Gets the sinks asynchronous.
+        /// </summary>
+        /// <returns></returns>
         public Task<IEnumerable<ISink<TSinkInput>>> GetSinksAsync()
         {
-            throw new NotImplementedException();
+            return Task.Factory.StartNew<IEnumerable<ISink<TSinkInput>>>(() =>
+            {
+                return _sinks;
+            });
         }
-        #endregion
-
-        #region private methods
         #endregion
     }
 }
