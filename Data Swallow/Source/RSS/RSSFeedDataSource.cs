@@ -115,6 +115,11 @@ namespace DataSwallow.Source.RSS
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Gets the output streams asynchronously.
+        /// </summary>
+        /// <returns>A Task representing the retrieval of the output streams</returns>
+        /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public Task<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> GetOutputStreamsAsync()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");

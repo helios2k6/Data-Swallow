@@ -169,10 +169,26 @@ namespace DataSwallow.Control
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// The function to call before processing the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected abstract void PreProcessMessage(TMessage message);
+        /// <summary>
+        /// Process the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected abstract void ProcessMessage(TMessage message);
+        /// <summary>
+        /// The function to call after processing the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected abstract void PostProcessMessage(TMessage message);
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="isDisposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool isDisposing)
         {
             if (_isDisposed) return;

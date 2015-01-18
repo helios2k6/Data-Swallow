@@ -30,16 +30,37 @@ using System.Text;
 
 namespace DataSwallow
 {
+    /// <summary>
+    /// The configuration file POCO
+    /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
     public sealed class Configuration : IEquatable<Configuration>
     {
         #region public properties
+        /// <summary>
+        /// Gets or sets the anime.
+        /// </summary>
+        /// <value>
+        /// The anime.
+        /// </value>
         [JsonProperty(Required = Required.Always, PropertyName = "Anime")]
         public string[] Anime { get; set; }
 
+        /// <summary>
+        /// Gets or sets the groups.
+        /// </summary>
+        /// <value>
+        /// The groups.
+        /// </value>
         [JsonProperty(Required = Required.Default, PropertyName = "Groups")]
         public string[] Groups { get; set; }
 
+        /// <summary>
+        /// Gets or sets the destination.
+        /// </summary>
+        /// <value>
+        /// The destination.
+        /// </value>
         [JsonProperty(Required = Required.Always, PropertyName = "Destination")]
         public string Destination { get; set; }
         #endregion

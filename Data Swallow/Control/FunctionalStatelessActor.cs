@@ -74,42 +74,31 @@ namespace DataSwallow.Control
         {
             return "Functional Stateless Actor";
         }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Equals(object other)
-        {
-            return ReferenceEquals(this, other);
-        }
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// The function to call before processing the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void PreProcessMessage(TMessage message)
         {
             _preAction.Invoke(message);
         }
 
+        /// <summary>
+        /// Processes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void ProcessMessage(TMessage message)
         {
             _processAction.Invoke(message);
         }
 
+        /// <summary>
+        /// The function to call after processing the message
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void PostProcessMessage(TMessage message)
         {
             _postAction.Invoke(message);

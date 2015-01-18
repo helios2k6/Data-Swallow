@@ -43,10 +43,9 @@ namespace DataSwallow.Utilities
         /// <summary>
         /// Gets the no op function for two inputs and one output
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <typeparam name="L"></typeparam>
-        /// <typeparam name="L"></typeparam>
-        /// <returns></returns>
+        /// <typeparam name="T">Empty type for the input</typeparam>
+        /// <typeparam name="L">The empty type for the second input and output</typeparam>
+        /// <returns>A function that represents a no-op</returns>
         public static Func<T, L, L> GetNoOp<T, L>()
         {
             return (_, state) => state;

@@ -37,7 +37,7 @@ namespace DataSwallow.Utilities
         /// Calculates the sequence's hash code
         /// </summary>
         /// <typeparam name="TElement">The type of the element.</typeparam>
-        /// <param name="this">The IEnumerable{TElement}<param>
+        /// <param name="this">The IEnumerable{TElement}</param>
         /// <returns>The hash code of this sequence</returns>
         public static int GetSequenceHashCode<TElement>(this IEnumerable<TElement> @this)
         {

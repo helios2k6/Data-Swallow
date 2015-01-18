@@ -74,6 +74,12 @@ namespace DataSwallow.Filter.Anime
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// Digests the message.
+        /// </summary>
+        /// <param name="feed">The feed.</param>
+        /// <param name="portNumber">The port number.</param>
+        /// <param name="outputStreams">The output streams.</param>
         protected override void DigestMessage(RSSFeed feed, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
         {
             IEnumerable<AnimeEntry> entries;

@@ -27,27 +27,35 @@ using FansubFileNameParser.Metadata;
 
 namespace DataSwallow.Anime
 {
+    /// <summary>
+    /// A criterion that encapsulates whether a file matches the specific metafile qualities desired
+    /// </summary>
     public sealed class FilePropertyCriterion : ICriterion<AnimeEntry>
     {
         #region private fields
         private readonly string _extension;
-        private readonly long? _maximumFileSize;
-        private readonly long? _minimumFileSize;
         #endregion
 
         #region ctor
-        public FilePropertyCriterion(string extension, long? maximumFileSize, long? minimumFileSize)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FilePropertyCriterion"/> class.
+        /// </summary>
+        /// <param name="extension">The extension.</param>
+        public FilePropertyCriterion(string extension)
         {
             _extension = extension;
-            _maximumFileSize = maximumFileSize;
-            _minimumFileSize = minimumFileSize;
         }
         #endregion
 
         #region public methods
-        public bool ApplyCriterion(AnimeEntry t)
+        /// <summary>
+        /// Applies the criterion.
+        /// </summary>
+        /// <param name="animeEntry">The <seealso cref="AnimeEntry"/></param>
+        /// <returns>True if the criterion is passed. False otherwise</returns>
+        public bool ApplyCriterion(AnimeEntry animeEntry)
         {
-            return false;
+            return animeEntry.FansubFile.Extension.Equals(_extension, System.StringComparison.OrdinalIgnoreCase);
         }
         #endregion
     }

@@ -142,6 +142,10 @@ namespace DataSwallow.Filter
         /// <param name="outputStreams">The output streams.</param>
         protected abstract void DigestMessage(TInput input, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<TOutput>>> outputStreams);
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources.
+        /// </summary>
+        /// <param name="isDisposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool isDisposing)
         {
             if (_isDisposed) return;

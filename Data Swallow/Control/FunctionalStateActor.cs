@@ -99,16 +99,28 @@ namespace DataSwallow.Control
         #endregion
 
         #region protected methods
+        /// <summary>
+        /// The function to call before the message has been processed
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void PreProcessMessage(TMessage message)
         {
             _state = _preAction.Invoke(message, _state);
         }
 
+        /// <summary>
+        /// Processes the message.
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void ProcessMessage(TMessage message)
         {
             _state = _processAction.Invoke(message, _state);
         }
 
+        /// <summary>
+        /// The function to call after the message has been processed
+        /// </summary>
+        /// <param name="message">The message.</param>
         protected override void PostProcessMessage(TMessage message)
         {
             _state = _postAction.Invoke(message, _state);

@@ -31,6 +31,9 @@ using System.Threading.Tasks;
 
 namespace DataSwallow
 {
+    /// <summary>
+    /// The bootstrap class for starting this program
+    /// </summary>
     public static class Driver
     {
         private static void Run()
@@ -48,6 +51,10 @@ namespace DataSwallow
             continuation.Wait();
         }
 
+        /// <summary>
+        /// The main entry point
+        /// </summary>
+        /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
             Run();
