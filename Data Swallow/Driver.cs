@@ -36,28 +36,12 @@ namespace DataSwallow
     /// </summary>
     public static class Driver
     {
-        private static void Run()
-        {
-            //var rssSource = new RSSFeedDataSource(new Uri("http://www.nyaa.se/?page=rss"), 3, 0);
-            var rssSource = new RSSFeedDataSource(new Uri("http://haruhichan.com/feed/feed.php?mode=rss"), 3, 0);
-            var filter = new RSSAnimeDetectionFilter();
-            var outputStream = new OutputStream<RSSFeed>(filter, 0);
-
-            var rssContinuation = rssSource.Start();
-            var filterContinuation = filter.Start();
-            var addingOutputStreamTask = rssSource.AddOutputStreamAsync(outputStream, 0);
-
-            var continuation = Task.WhenAll(rssContinuation, filterContinuation, addingOutputStreamTask);
-            continuation.Wait();
-        }
-
         /// <summary>
         /// The main entry point
         /// </summary>
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
-            Run();
         }
     }
 }

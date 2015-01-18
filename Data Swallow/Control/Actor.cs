@@ -56,12 +56,12 @@ namespace DataSwallow.Control
         /// Posts the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void Post(TMessage message)
+        public void PostAsync(TMessage message)
         {
             var ticket = new Ticket
             {
                 Message = message,
-                TCS = new TaskCompletionSource<object>()
+                TCS = new TaskCompletionSource<object>(),
             };
 
             _messages.Add(ticket);
@@ -77,7 +77,7 @@ namespace DataSwallow.Control
             var ticket = new Ticket
             {
                 Message = message,
-                TCS = new TaskCompletionSource<object>()
+                TCS = new TaskCompletionSource<object>(),
             };
 
             _messages.Add(ticket);
@@ -98,30 +98,9 @@ namespace DataSwallow.Control
         /// Starts this instance.
         /// </summary>
         /// <returns>A Task representing the running of this instance</returns>
-        public async Task Start()
+        public void Start()
         {
-            while (_tokenSource.IsCancellationRequested == false)
-            {
-                Ticket ticket = await GetNextMessageAsync();
-
-                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
-                {
-                    try
-                    {
-                        var messageBody = ticket.Message;
-
-                        PreProcessMessage(messageBody);
-                        ProcessMessage(messageBody);
-                        PostProcessMessage(messageBody);
-
-                        ticket.TCS.TrySetResult(null);
-                    }
-                    catch (Exception e)
-                    {
-                        ticket.TCS.TrySetException(e);
-                    }
-                }
-            }
+            Task.Factory.StartNew(Run);
         }
 
         /// <summary>
@@ -133,29 +112,6 @@ namespace DataSwallow.Control
         public override string ToString()
         {
             return "Actor Base";
-        }
-
-        /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
-        /// </summary>
-        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Equals(object other)
-        {
-            return ReferenceEquals(this, other);
-        }
-
-        /// <summary>
-        /// Returns a hash code for this instance.
-        /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
 
         /// <summary>
@@ -230,6 +186,31 @@ namespace DataSwallow.Control
             });
         }
 
+        private async void Run()
+        {
+            while (_tokenSource.IsCancellationRequested == false)
+            {
+                Ticket ticket = await GetNextMessageAsync();
+
+                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
+                {
+                    try
+                    {
+                        var messageBody = ticket.Message;
+
+                        PreProcessMessage(messageBody);
+                        ProcessMessage(messageBody);
+                        PostProcessMessage(messageBody);
+
+                        ticket.TCS.TrySetResult(null);
+                    }
+                    catch (Exception e)
+                    {
+                        ticket.TCS.TrySetException(e);
+                    }
+                }
+            }
+        }
         #endregion
     }
 }

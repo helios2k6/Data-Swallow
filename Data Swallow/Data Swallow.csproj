@@ -116,6 +116,9 @@
     <Compile Include="Filter\FilterActor.cs" />
     <Compile Include="Filter\IFilter.cs" />
     <Compile Include="IMessageGenerator.cs" />
+    <Compile Include="Runtime\ITopologyRuntime.cs" />
+    <Compile Include="Runtime\TopologyRuntime.cs" />
+    <Compile Include="Runtime\TopologyRuntimeState.cs" />
     <Compile Include="Sink\AnimeEntrySink.cs" />
     <Compile Include="Sink\ISink.cs" />
     <Compile Include="Source\ISource.cs" />
@@ -129,7 +132,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Stream\OutputStream.cs" />
     <Compile Include="Stream\OutputStreamMessage.cs" />
-    <Compile Include="Topology\IExecutor.cs" />
     <Compile Include="Topology\ITopology.cs" />
     <Compile Include="Topology\Topology.cs" />
     <Compile Include="Utilities\DaoResult.cs" />

@@ -74,9 +74,17 @@ namespace DataSwallow.Filter
         /// Starts this instance.
         /// </summary>
         /// <returns></returns>
-        public Task Start()
+        public void Start()
         {
-            return _engine.Start();
+            _engine.Start();
+        }
+
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
+        public void Stop()
+        {
+            _engine.Stop();
         }
 
         /// <summary>
@@ -105,7 +113,7 @@ namespace DataSwallow.Filter
             var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<TOutput>, int>>>();
             var message = CreateGetOutputStreamsMessage(tcs);
 
-            _engine.Post(message);
+            _engine.PostAsync(message);
 
             return tcs.Task;
         }

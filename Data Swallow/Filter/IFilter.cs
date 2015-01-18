@@ -38,7 +38,10 @@ namespace DataSwallow.Filter
         /// <summary>
         /// Starts this instance.
         /// </summary>
-        /// <returns>A task representing the starting of this instance</returns>
-        Task Start();
+        void Start();
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
+        void Stop();
     }
 }

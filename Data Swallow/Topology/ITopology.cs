@@ -40,19 +40,25 @@ namespace DataSwallow.Topology
     public interface ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput>
     {
         /// <summary>
-        /// Gets the sources asynchronous.
+        /// Gets the sources.
         /// </summary>
-        /// <returns>A Task representing the getting of the ISources</returns>
-        Task<IEnumerable<ISource<TSourceOutput>>> GetSourcesAsync();
+        /// <value>
+        /// The sources.
+        /// </value>
+        IEnumerable<ISource<TSourceOutput>> Sources { get; }
         /// <summary>
-        /// Gets the filters asynchronous.
+        /// Gets the filters.
         /// </summary>
-        /// <returns>The Task representing the getting of the IFilters</returns>
-        Task<IEnumerable<IFilter<TFilterInput, TFilterOutput>>> GetFiltersAsync();
+        /// <value>
+        /// The filters.
+        /// </value>
+        IEnumerable<IFilter<TFilterInput, TFilterOutput>> Filters { get; }
         /// <summary>
-        /// Gets the sinks asynchronous.
+        /// Gets the sinks.
         /// </summary>
-        /// <returns>The Task representing the getting of the ISinks</returns>
-        Task<IEnumerable<ISink<TSinkInput>>> GetSinksAsync();
+        /// <value>
+        /// The sinks.
+        /// </value>
+        IEnumerable<ISink<TSinkInput>> Sinks { get; }
     }
 }

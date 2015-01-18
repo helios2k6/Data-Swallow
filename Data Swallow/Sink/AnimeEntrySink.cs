@@ -73,35 +73,20 @@ namespace DataSwallow.Sink
         }
 
         /// <summary>
-        /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
+        /// Starts this instance asynchronously.
         /// </summary>
-        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
-        /// </returns>
-        public override bool Equals(object other)
+        /// <returns>A Task representing this action</returns>
+        public void Start()
         {
-            return ReferenceEquals(this, other);
+            _engine.Start();
         }
 
         /// <summary>
-        /// Returns a hash code for this instance.
+        /// Stops this instance.
         /// </summary>
-        /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
-        /// </returns>
-        public override int GetHashCode()
+        public void Stop()
         {
-            return base.GetHashCode();
-        }
-
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        /// <returns></returns>
-        public Task Start()
-        {
-            return _engine.Start();
+            _engine.Stop();
         }
 
         /// <summary>

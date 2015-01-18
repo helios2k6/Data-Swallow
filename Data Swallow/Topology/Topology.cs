@@ -75,41 +75,38 @@ namespace DataSwallow.Topology
         }
         #endregion
 
-        #region public methods
+        #region public properties
         /// <summary>
-        /// Gets the sources asynchronous.
+        /// Gets the sources.
         /// </summary>
-        /// <returns></returns>
-        public Task<IEnumerable<ISource<TSourceOutput>>> GetSourcesAsync()
+        /// <value>
+        /// The sources.
+        /// </value>
+        public IEnumerable<ISource<TSourceOutput>> Sources
         {
-            return Task.Factory.StartNew<IEnumerable<ISource<TSourceOutput>>>(() =>
-            {
-                return _sources;
-            });
+            get { return _sources; }
         }
 
         /// <summary>
-        /// Gets the filters asynchronous.
+        /// Gets the filters.
         /// </summary>
-        /// <returns></returns>
-        public Task<IEnumerable<IFilter<TFilterInput, TFilterOutput>>> GetFiltersAsync()
+        /// <value>
+        /// The filters.
+        /// </value>
+        public IEnumerable<IFilter<TFilterInput, TFilterOutput>> Filters
         {
-            return Task.Factory.StartNew<IEnumerable<IFilter<TFilterInput, TFilterOutput>>>(() =>
-            {
-                return _filters;
-            });
+            get { return _filters; }
         }
 
         /// <summary>
-        /// Gets the sinks asynchronous.
+        /// Gets the sinks.
         /// </summary>
-        /// <returns></returns>
-        public Task<IEnumerable<ISink<TSinkInput>>> GetSinksAsync()
+        /// <value>
+        /// The sinks.
+        /// </value>
+        public IEnumerable<ISink<TSinkInput>> Sinks
         {
-            return Task.Factory.StartNew<IEnumerable<ISink<TSinkInput>>>(() =>
-            {
-                return _sinks;
-            });
+            get { return _sinks; }
         }
         #endregion
     }

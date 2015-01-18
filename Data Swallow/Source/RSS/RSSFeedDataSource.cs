@@ -127,7 +127,7 @@ namespace DataSwallow.Source.RSS
             var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>>();
             var message = CreateGetOutputStreamsMessage(tcs);
 
-            _actorEngine.Post(message);
+            _actorEngine.PostAsync(message);
 
             return tcs.Task;
         }
@@ -139,26 +139,23 @@ namespace DataSwallow.Source.RSS
         /// A Task representing the starting of this instance
         /// </returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public Task Start()
+        public void Start()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            var continuation =_actorEngine.Start();
-            
-            _actorEngine.Post(StartMessage);
-
-            return continuation;
+            _actorEngine.Start();
+            _actorEngine.PostAsync(StartMessage);
         }
 
         /// <summary>
         /// Resumes this instance.
         /// </summary>
         /// <returns>A Task representing the resuming of this instance</returns>
-        public Task Resume()
+        public void Resume()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            return _actorEngine.PostAndReplyAsync(ResumeMessage);
+            _actorEngine.PostAndReplyAsync(ResumeMessage);
         }
 
         /// <summary>
@@ -166,11 +163,11 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <returns>A Task representing the pausing of this instance</returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public Task Pause()
+        public void Pause()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            return _actorEngine.PostAndReplyAsync(PauseMessage);
+            _actorEngine.PostAndReplyAsync(PauseMessage);
         }
 
         /// <summary>
@@ -178,11 +175,11 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <returns>A Task representing the stopping of this instance</returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public Task Stop()
+        public void Stop()
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
 
-            return _actorEngine.PostAndReplyAsync(StopMessage);
+            _actorEngine.PostAndReplyAsync(StopMessage);
         }
 
         /// <summary>
@@ -253,7 +250,7 @@ namespace DataSwallow.Source.RSS
             }
 
             //Keep looping and reposting this message if everything is good to go
-            _actorEngine.Post(FetchMessage);
+            _actorEngine.PostAsync(FetchMessage);
         }
 
         private void HandleGetOutputStreamsMessage(Message<MessageType, MessagePayload> message)
@@ -278,7 +275,7 @@ namespace DataSwallow.Source.RSS
             if (_state == State.Paused)
             {
                 _state = State.Playing;
-                _actorEngine.Post(FetchMessage);
+                _actorEngine.PostAsync(FetchMessage);
             }
         }
 
@@ -287,7 +284,7 @@ namespace DataSwallow.Source.RSS
             if (_state == State.HasNotStarted)
             {
                 _state = State.Playing;
-                _actorEngine.Post(FetchMessage);
+                _actorEngine.PostAsync(FetchMessage);
             }
         }
 

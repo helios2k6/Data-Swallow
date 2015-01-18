@@ -33,10 +33,10 @@ namespace DataSwallow.Control
     public interface IActor<TMessage>
     {
         /// <summary>
-        /// Posts the specified message to the Actor.
+        /// Posts the specified message to the Actor asynchronously.
         /// </summary>
         /// <param name="message">The message.</param>
-        void Post(TMessage message);
+        void PostAsync(TMessage message);
         /// <summary>
         /// Posts the specified message.
         /// </summary>
@@ -46,8 +46,7 @@ namespace DataSwallow.Control
         /// <summary>
         /// Starts this instance.
         /// </summary>
-        /// <returns>A task representing the running of this instance</returns>
-        Task Start();
+        void Start();
         /// <summary>
         /// Stops this instance.
         /// </summary>

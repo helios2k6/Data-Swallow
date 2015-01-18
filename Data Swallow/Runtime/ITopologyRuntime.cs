@@ -22,24 +22,41 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Stream;
 using System.Threading.Tasks;
 
-namespace DataSwallow.Sink
+namespace DataSwallow.Runtime
 {
     /// <summary>
-    /// Represents a message sink
+    /// An object that represents the runtime of a topology
     /// </summary>
-    /// <typeparam name="TInput">The type of the input.</typeparam>
-    public interface ISink<TInput> : IOutputMessageSink<TInput>
+    public interface ITopologyRuntime
     {
+        /// <summary>
+        /// Gets the running state of the <seealso cref="ITopologyRuntime"/>
+        /// </summary>
+        /// <value>
+        /// The running state of the <seealso cref="ITopologyRuntime"/>
+        /// </value>
+        TopologyRuntimeState RunningState { get; }
+
         /// <summary>
         /// Starts this instance.
         /// </summary>
         void Start();
+
         /// <summary>
         /// Stops this instance.
         /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Pauses this instance.
+        /// </summary>
+        void Pause();
+
+        /// <summary>
+        /// Resumes this instance.
+        /// </summary>
+        void Resume();
     }
 }
