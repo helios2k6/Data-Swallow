@@ -5,15 +5,18 @@
         <layout type="log4net.Layout.PatternLayout">
             <conversionPattern value="%date [%thread] %-5level %logger %ndc - %message%newline" />
         </layout>
+        <filter type="log4net.Filter.LevelRangeFilter">
+            <levelMin value="INFO" />
+            <levelMax value="FATAL" />
+        </filter>
     </appender>
-    
+
     <!-- The file log -->
     <appender name="File" type="log4net.Appender.RollingFileAppender">
         <file value="dataSwallow.log" />
         <appendToFile value="true" />
         <maximumFileSize value="100KB" />
-        <maxSizeRollBackups value="2" />
-        
+
         <layout type="log4net.Layout.PatternLayout">
             <conversionPattern value="%date [%thread] %-5level %logger %ndc - %message%newline" />
         </layout>

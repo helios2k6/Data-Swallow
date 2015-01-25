@@ -105,7 +105,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Constants.resx</DependentUpon>
     </Compile>
-    <Compile Include="Anime\DBreezeDao.cs" />
+    <Compile Include="Persistence\DBreezeDao.cs" />
     <Compile Include="Anime\FilePropertyCriterion.cs" />
     <Compile Include="Anime\QualityCriterion.cs" />
     <Compile Include="Program\Configuration.cs" />

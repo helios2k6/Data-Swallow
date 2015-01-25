@@ -22,12 +22,16 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Persistence;
+using DataSwallow.Anime;
 using DBreeze;
+using log4net;
 using System;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
-namespace DataSwallow.Anime
+namespace DataSwallow.Persistence
 {
     /// <summary>
     /// The DBreeze database DAO for Anime Entries
@@ -35,6 +39,7 @@ namespace DataSwallow.Anime
     public sealed class DBreezeDao : IDao<AnimeEntry, string>
     {
         #region private fields
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(DBreezeDao));
         private readonly DBreezeEngine _databaseEngine;
         #endregion
 
@@ -77,7 +82,12 @@ namespace DataSwallow.Anime
                 {
                     using (var transaction = _databaseEngine.GetTransaction())
                     {
-                        transaction.Insert<string, AnimeEntry>(Constants.AnimeEntryTable, entry.Guid, entry);
+                        transaction.Insert<string, byte[]>(
+                            Constants.AnimeEntryTable, 
+                            entry.Guid, 
+                            SerializeAnimeEntry(entry)
+                        );
+
                         transaction.Commit();
                     }
                 });
@@ -117,10 +127,10 @@ namespace DataSwallow.Anime
                 {
                     using (var transaction = _databaseEngine.GetTransaction())
                     {
-                        var row = transaction.Select<string, AnimeEntry>(Constants.AnimeEntryTable, key);
+                        var row = transaction.Select<string, byte[]>(Constants.AnimeEntryTable, key);
                         if (row.Exists)
                         {
-                            return DaoResult<AnimeEntry>.CreateSuccess(row.Value);
+                            return DaoResult<AnimeEntry>.CreateSuccess(DeserializeAnimeEntry(row.Value));
                         }
 
                         return DaoResult<AnimeEntry>.CreateFailure();
@@ -128,6 +138,7 @@ namespace DataSwallow.Anime
                 }
                 catch (Exception e)
                 {
+                    Logger.Error(string.Format("An error occurred while getting the key {0}", key), e);
                     return DaoResult<AnimeEntry>.CreateFailure(e);
                 }
             });
@@ -135,15 +146,34 @@ namespace DataSwallow.Anime
         #endregion
 
         #region private methods
+        private byte[] SerializeAnimeEntry(AnimeEntry entry)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                IFormatter serializer = new BinaryFormatter();
+                serializer.Serialize(memoryStream, entry);
+                return memoryStream.ToArray();
+            }
+        }
+
+        private AnimeEntry DeserializeAnimeEntry(byte[] blob)
+        {
+            using (var memoryStream = new MemoryStream(blob))
+            {
+                IFormatter deserializer = new BinaryFormatter();
+                return (AnimeEntry)deserializer.Deserialize(memoryStream);
+            }
+        }
+
         private void Wrap(Action action)
         {
             try
             {
                 action.Invoke();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //TODO: LOG
+                Logger.Error("An error occurred in the DBreezeDao", e);
             }
         }
         #endregion

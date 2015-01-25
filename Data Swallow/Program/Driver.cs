@@ -25,6 +25,7 @@
 using DataSwallow.Anime;
 using DataSwallow.Filter;
 using DataSwallow.Filter.Anime;
+using DataSwallow.Persistence;
 using DataSwallow.Runtime;
 using DataSwallow.Sink;
 using DataSwallow.Source.RSS;
@@ -77,7 +78,8 @@ namespace DataSwallow.Program
 
         private static void ConfigureLogger()
         {
-            XmlConfigurator.Configure(new FileInfo("log4net_config.xml"));
+            var fileInfo = new FileInfo(@"Program\log4net_config.xml");
+            XmlConfigurator.Configure(fileInfo);
         }
 
         /// <summary>

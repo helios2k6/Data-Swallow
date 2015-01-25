@@ -262,7 +262,7 @@ namespace DataSwallow.Source.RSS
 
             Thread.Sleep(waitInTimeSpan);
 
-            Logger.Debug("RSSFeedDataSource fetching RSS feed");
+            Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
 
             var getTask = _client.GetStringAsync(_feedUrl);
             var contents = getTask.Result;
