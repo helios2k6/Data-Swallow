@@ -25,56 +25,43 @@
 using DataSwallow.Utilities;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Text;
 
-namespace DataSwallow.Program
+namespace DataSwallow.Program.Configuration
 {
     /// <summary>
-    /// The configuration file POCO
+    /// The configuration for the media quality that an anime file must meet
     /// </summary>
     [JsonObject(MemberSerialization.OptIn)]
-    public sealed class Configuration : IEquatable<Configuration>
+    public sealed class MediaQualityConfiguration : IEquatable<MediaQualityConfiguration>
     {
         #region public properties
         /// <summary>
-        /// Gets or sets the anime.
+        /// Gets or sets the video media.
         /// </summary>
         /// <value>
-        /// The anime.
+        /// The video media.
         /// </value>
-        [JsonProperty(Required = Required.Always, PropertyName = "Anime")]
-        public string[] Anime { get; set; }
+        [JsonProperty(Required = Required.Default, PropertyName = "VideoMedia")]
+        public string VideoMedia { get; set; }
 
         /// <summary>
-        /// Gets or sets the groups.
+        /// Gets or sets the video mode.
         /// </summary>
         /// <value>
-        /// The groups.
+        /// The video mode.
         /// </value>
-        [JsonProperty(Required = Required.Default, PropertyName = "Groups")]
-        public string[] Groups { get; set; }
+        [JsonProperty(Required = Required.Default, PropertyName = "VideoMode")]
+        public string VideoMode { get; set; }
 
         /// <summary>
-        /// Gets or sets the destination.
+        /// Gets or sets a value indicating whether all settings must match when evaluating anime media files to download.
         /// </summary>
         /// <value>
-        /// The destination.
+        ///   <c>true</c> if all criteria must match; otherwise, <c>false</c>.
         /// </value>
-        [JsonProperty(Required = Required.Always, PropertyName = "Destination")]
-        public string Destination { get; set; }
-        #endregion
-
-        #region ctor
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Configuration"/> class.
-        /// </summary>
-        public Configuration()
-        {
-            Anime = new string[0];
-            Groups = new string[0];
-            Destination = string.Empty;
-        }
+        [JsonProperty(Required = Required.Default, PropertyName = "MustMatchAllCriteria")]
+        public bool MustMatchAllCriteria { get; set; }
         #endregion
 
         #region public methods
@@ -88,22 +75,8 @@ namespace DataSwallow.Program
         {
             var builder = new StringBuilder();
 
-            builder.AppendLine("Configuration");
-            builder.AppendLine("Anime:");
-
-            foreach (var a in Anime)
-            {
-                builder.AppendLine("\t" + a);
-            }
-
-            builder.AppendLine().AppendLine("Fansub Groups:");
-
-            foreach (var g in Groups)
-            {
-                builder.AppendLine("\t" + g);
-            }
-
-            builder.AppendLine().AppendLine("Destination: " + Destination);
+            builder.AppendLine("Media Quality Configuration with: ");
+            builder.AppendLine(string.Format("Video Media = {0} | Video Mode = {1} | Must Match = {2}", VideoMedia, VideoMode, MustMatchAllCriteria));
 
             return builder.ToString();
         }
@@ -117,12 +90,26 @@ namespace DataSwallow.Program
         /// </returns>
         public override bool Equals(object other)
         {
+            return Equals(other as MediaQualityConfiguration);
+        }
+
+        /// <summary>
+        /// Indicates whether the current object is equal to another object of the same type.
+        /// </summary>
+        /// <param name="other">An object to compare with this object.</param>
+        /// <returns>
+        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
+        /// </returns>
+        public bool Equals(MediaQualityConfiguration other)
+        {
             if (EqualsPreamble(other) == false)
             {
                 return false;
             }
 
-            return Equals(other as Configuration);
+            return Equals(VideoMedia, other.VideoMedia)
+                && Equals(VideoMode, other.VideoMode)
+                && MustMatchAllCriteria == other.MustMatchAllCriteria;
         }
 
         /// <summary>
@@ -133,28 +120,9 @@ namespace DataSwallow.Program
         /// </returns>
         public override int GetHashCode()
         {
-            return Anime.GetSequenceHashCode()
-                ^ Groups.GetSequenceHashCode()
-                ^ Destination.GetHashCode();
-        }
-
-        /// <summary>
-        /// Indicates whether the current object is equal to another object of the same type.
-        /// </summary>
-        /// <param name="other">An object to compare with this object.</param>
-        /// <returns>
-        /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
-        /// </returns>
-        public bool Equals(Configuration other)
-        {
-            if (EqualsPreamble(other) == false)
-            {
-                return false;
-            }
-
-            return Enumerable.SequenceEqual<string>(Anime, other.Anime)
-                && Enumerable.SequenceEqual<string>(Groups, other.Groups)
-                && Equals(Destination, other.Destination);
+            return VideoMedia.GetHashCodeIfNotNull()
+                ^ VideoMode.GetHashCodeIfNotNull()
+                ^ MustMatchAllCriteria.GetHashCode();
         }
         #endregion
 

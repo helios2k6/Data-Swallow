@@ -22,46 +22,59 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Utilities;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using YAXLib;
 
-namespace DataSwallow.Source.RSS
+namespace DataSwallow.Program.Configuration.Anime
 {
     /// <summary>
-    /// Represents an RSS Feed
+    /// Contains the configuration of all anime entries
     /// </summary>
-    [YAXSerializeAs("rss")]
-    public sealed class RSSFeed : IEquatable<RSSFeed>
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class AnimeEntriesConfiguration : IEquatable<AnimeEntriesConfiguration>
     {
+        #region public properties
         /// <summary>
-        /// Gets or sets the version.
+        /// Gets or sets the anime entries.
         /// </summary>
         /// <value>
-        /// The version.
+        /// The anime entries.
         /// </value>
-        [YAXSerializeAs("version")]
-        [YAXAttributeForClass]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
-        public double Version { get; set; }
-        /// <summary>
-        /// Gets or sets the channels.
-        /// </summary>
-        /// <value>
-        /// The channels.
-        /// </value>
-        [YAXSerializeAs("channel")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
-        public RSSChannel Channel { get; set; }
+        [JsonProperty(Required = Required.Always, PropertyName = "AnimeEntries")]
+        public AnimeEntryConfiguration[] AnimeEntries { get; set; }
+        #endregion
 
-        private bool EqualsPreamble(object other)
+        #region ctor
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AnimeEntriesConfiguration"/> class.
+        /// </summary>
+        public AnimeEntriesConfiguration()
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            if (GetType() != other.GetType()) return false;
+            AnimeEntries = new AnimeEntryConfiguration[0];
+        }
+        #endregion
 
-            return true;
+        #region public methods
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("Anime Entries Configuration with entries:");
+
+            foreach (var entry in AnimeEntries)
+            {
+                builder.AppendLine(entry.ToString());
+            }
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -71,27 +84,31 @@ namespace DataSwallow.Source.RSS
         /// <returns>
         /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
         /// </returns>
-        public bool Equals(RSSFeed other)
+        public bool Equals(AnimeEntriesConfiguration other)
         {
             if (EqualsPreamble(other) == false)
             {
                 return false;
             }
 
-            return Equals(Version, other.Version)
-                && Equals(Channel, other.Channel);
+            if (AnimeEntries == null)
+            {
+                return other.AnimeEntries == null;
+            }
+
+            return AnimeEntries.SequenceEqual(other.AnimeEntries);
         }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
         /// <returns>
         ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return Equals(obj as RSSFeed);
+            return Equals(other as AnimeEntriesConfiguration);
         }
 
         /// <summary>
@@ -102,23 +119,24 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public override int GetHashCode()
         {
-            return Version.GetHashCode() ^ Channel.GetHashCode();
-        }
+            if (AnimeEntries == null)
+            {
+                return 0;
+            }
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public override string ToString()
+            return AnimeEntries.Aggregate<AnimeEntryConfiguration, int>(0, (accum, entry) => accum ^ entry.GetHashCodeIfNotNull());
+        }
+        #endregion
+
+        #region private methods
+        private bool EqualsPreamble(object other)
         {
-            var builder = new StringBuilder();
-            builder
-                .AppendLine("Version: " + Version)
-                .AppendLine("Channel: " + Channel.ToString());
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (GetType() != other.GetType()) return false;
 
-            return builder.ToString();
+            return true;
         }
+        #endregion
     }
 }

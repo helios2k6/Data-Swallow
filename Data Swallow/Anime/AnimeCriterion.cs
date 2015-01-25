@@ -155,6 +155,5 @@ namespace DataSwallow.Anime
             return false;
         }
         #endregion
-
     }
 }

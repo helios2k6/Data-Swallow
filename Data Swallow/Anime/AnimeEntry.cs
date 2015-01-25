@@ -215,11 +215,6 @@ namespace DataSwallow.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Equals(object other)
         {
-            if (EqualsPreamble(other) == false)
-            {
-                return false;
-            }
-
             return Equals(other as AnimeEntry);
         }
 

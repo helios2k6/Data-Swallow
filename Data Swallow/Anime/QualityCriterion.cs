@@ -37,7 +37,7 @@ namespace DataSwallow.Anime
         #region private fields
         private readonly VideoMode _videoMode;
         private readonly VideoMedia _videoMedia;
-        private bool _bothMustMatch;
+        private bool _allCriteriaMustMatch;
         #endregion
 
         #region ctor
@@ -46,12 +46,12 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="videoMode">The video mode.</param>
         /// <param name="videoMedia">The video media.</param>
-        /// <param name="bothMustMatch">if set to <c>true</c> [both must match].</param>
-        public QualityCriterion(VideoMode videoMode, VideoMedia videoMedia, bool bothMustMatch)
+        /// <param name="allCriteriaMustMatch">if set to <c>true</c> allmedia criteria must match.</param>
+        public QualityCriterion(VideoMode videoMode, VideoMedia videoMedia, bool allCriteriaMustMatch)
         {
             _videoMode = videoMode;
             _videoMedia = videoMedia;
-            _bothMustMatch = bothMustMatch;
+            _allCriteriaMustMatch = allCriteriaMustMatch;
         }
         #endregion
 
@@ -63,7 +63,7 @@ namespace DataSwallow.Anime
         /// <returns>Returns true if the MediaMetadata passes this criterion. False otherwise</returns>
         public bool ApplyCriterion(MediaMetadata mediaMetadata)
         {
-            if (_bothMustMatch)
+            if (_allCriteriaMustMatch)
             {
                 return _videoMode == mediaMetadata.VideoMode && _videoMedia == mediaMetadata.VideoMedia;
             }

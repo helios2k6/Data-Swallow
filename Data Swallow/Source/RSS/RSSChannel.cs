@@ -119,11 +119,6 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public override bool Equals(object obj)
         {
-            if (EqualsPreamble(obj) == false)
-            {
-                return false;
-            }
-
             return Equals(obj as RSSChannel);
         }
 

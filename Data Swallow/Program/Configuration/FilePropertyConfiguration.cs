@@ -22,46 +22,45 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Utilities;
+using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Text;
-using YAXLib;
 
-namespace DataSwallow.Source.RSS
+namespace DataSwallow.Program.Configuration
 {
     /// <summary>
-    /// Represents an RSS Feed
+    /// The configuration for the file properties of any candidate anime file
     /// </summary>
-    [YAXSerializeAs("rss")]
-    public sealed class RSSFeed : IEquatable<RSSFeed>
+    [JsonObject(MemberSerialization.OptIn)]
+    public sealed class FilePropertyConfiguration : IEquatable<FilePropertyConfiguration>
     {
+        #region public properties
         /// <summary>
-        /// Gets or sets the version.
+        /// Gets or sets the extension.
         /// </summary>
         /// <value>
-        /// The version.
+        /// The extension.
         /// </value>
-        [YAXSerializeAs("version")]
-        [YAXAttributeForClass]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
-        public double Version { get; set; }
-        /// <summary>
-        /// Gets or sets the channels.
-        /// </summary>
-        /// <value>
-        /// The channels.
-        /// </value>
-        [YAXSerializeAs("channel")]
-        [YAXErrorIfMissed(YAXExceptionTypes.Error)]
-        public RSSChannel Channel { get; set; }
+        [JsonProperty(Required = Required.Default, PropertyName = "Extension")]
+        public string Extension { get; set; }
+        #endregion
 
-        private bool EqualsPreamble(object other)
+        #region public methods
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
         {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            if (GetType() != other.GetType()) return false;
+            var builder = new StringBuilder();
 
-            return true;
+            builder.AppendLine("File Property Configuration");
+            builder.AppendLine(string.Format("Extension = {0}", Extension));
+
+            return builder.ToString();
         }
 
         /// <summary>
@@ -71,27 +70,26 @@ namespace DataSwallow.Source.RSS
         /// <returns>
         /// true if the current object is equal to the <paramref name="other" /> parameter; otherwise, false.
         /// </returns>
-        public bool Equals(RSSFeed other)
+        public bool Equals(FilePropertyConfiguration other)
         {
             if (EqualsPreamble(other) == false)
             {
                 return false;
             }
 
-            return Equals(Version, other.Version)
-                && Equals(Channel, other.Channel);
+            return Equals(Extension, other.Extension);
         }
 
         /// <summary>
         /// Determines whether the specified <see cref="System.Object" />, is equal to this instance.
         /// </summary>
-        /// <param name="obj">The <see cref="System.Object" /> to compare with this instance.</param>
+        /// <param name="other">The <see cref="System.Object" /> to compare with this instance.</param>
         /// <returns>
         ///   <c>true</c> if the specified <see cref="System.Object" /> is equal to this instance; otherwise, <c>false</c>.
         /// </returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object other)
         {
-            return Equals(obj as RSSFeed);
+            return Equals(other as FilePropertyConfiguration);
         }
 
         /// <summary>
@@ -102,23 +100,19 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public override int GetHashCode()
         {
-            return Version.GetHashCode() ^ Channel.GetHashCode();
+            return Extension.GetHashCodeIfNotNull();
         }
+        #endregion
 
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public override string ToString()
+        #region private methods
+        private bool EqualsPreamble(object other)
         {
-            var builder = new StringBuilder();
-            builder
-                .AppendLine("Version: " + Version)
-                .AppendLine("Channel: " + Channel.ToString());
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            if (GetType() != other.GetType()) return false;
 
-            return builder.ToString();
+            return true;
         }
+        #endregion
     }
 }
