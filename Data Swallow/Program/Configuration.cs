@@ -28,7 +28,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace DataSwallow
+namespace DataSwallow.Program
 {
     /// <summary>
     /// The configuration file POCO

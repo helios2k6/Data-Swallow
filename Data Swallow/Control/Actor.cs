@@ -31,7 +31,7 @@ using System.Threading.Tasks;
 namespace DataSwallow.Control
 {
     /// <summary>
-    /// The base class for all Actors
+    /// The base class for all Actors. This class can only be started once!
     /// </summary>
     /// <typeparam name="TMessage">The type of the message.</typeparam>
     public abstract class Actor<TMessage> : IActor<TMessage>, IDisposable
@@ -47,8 +47,20 @@ namespace DataSwallow.Control
         #region private fields
         private readonly BlockingCollection<Ticket> _messages = new BlockingCollection<Ticket>();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private readonly EventWaitHandle _shutdownSignal = new EventWaitHandle(false, EventResetMode.ManualReset);
 
         private bool _isDisposed;
+        private bool _alreadyStartedOnce;
+        #endregion
+
+        #region public properties
+        /// <summary>
+        /// Gets a value indicating whether this instance is disposed.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsDisposed { get { return _isDisposed; } }
         #endregion
 
         #region public methods
@@ -58,6 +70,8 @@ namespace DataSwallow.Control
         /// <param name="message">The message.</param>
         public void PostAsync(TMessage message)
         {
+            AssertNotDisposed();
+
             var ticket = new Ticket
             {
                 Message = message,
@@ -74,6 +88,8 @@ namespace DataSwallow.Control
         /// <returns>A Task representing the processing of the message</returns>
         public Task PostAndReplyAsync(TMessage message)
         {
+            AssertNotDisposed();
+
             var ticket = new Ticket
             {
                 Message = message,
@@ -91,6 +107,8 @@ namespace DataSwallow.Control
         /// <exception cref="System.NotImplementedException"></exception>
         public void Stop()
         {
+            AssertNotDisposed();
+
             _tokenSource.Cancel();
         }
 
@@ -100,6 +118,14 @@ namespace DataSwallow.Control
         /// <returns>A Task representing the running of this instance</returns>
         public void Start()
         {
+            AssertNotDisposed();
+
+            if(_alreadyStartedOnce)
+            {
+                throw new InvalidOperationException("This actor has already been started once.");
+            }
+
+            _alreadyStartedOnce = true;
             Task.Factory.StartNew(Run);
         }
 
@@ -121,6 +147,17 @@ namespace DataSwallow.Control
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()"/> before calling this.
+        /// </summary>
+        /// <exception cref="System.ObjectDisposedException">Actor</exception>
+        public void AwaitTermination()
+        {
+            AssertNotDisposed();
+
+            _shutdownSignal.WaitOne();
         }
         #endregion
 
@@ -156,6 +193,7 @@ namespace DataSwallow.Control
 
                 if (_messages != null) _messages.Dispose();
                 if (_tokenSource != null) _tokenSource.Dispose();
+                if (_shutdownSignal != null) _shutdownSignal.Dispose();
 
                 _isDisposed = true;
             }
@@ -163,6 +201,11 @@ namespace DataSwallow.Control
         #endregion
 
         #region private methods
+        private void AssertNotDisposed()
+        {
+            if (_isDisposed) throw new ObjectDisposedException("Actor");
+        }
+
         private void CancelRemainingMessages()
         {
             foreach (var ticket in _messages)
@@ -186,28 +229,44 @@ namespace DataSwallow.Control
             });
         }
 
-        private async void Run()
+        private void Run()
         {
-            while (_tokenSource.IsCancellationRequested == false)
+            foreach(var ticket in _messages.GetConsumingEnumerable(_tokenSource.Token))
             {
-                Ticket ticket = await GetNextMessageAsync();
-
-                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)) == false)
+                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)))
                 {
-                    try
-                    {
-                        var messageBody = ticket.Message;
+                    continue;
+                }
 
-                        PreProcessMessage(messageBody);
-                        ProcessMessage(messageBody);
-                        PostProcessMessage(messageBody);
+                try
+                {
+                    var messageBody = ticket.Message;
 
-                        ticket.TCS.TrySetResult(null);
-                    }
-                    catch (Exception e)
-                    {
-                        ticket.TCS.TrySetException(e);
-                    }
+                    PreProcessMessage(messageBody);
+                    ProcessMessage(messageBody);
+                    PostProcessMessage(messageBody);
+
+                    ticket.TCS.TrySetResult(null);
+                }
+                catch (Exception e)
+                {
+                    ticket.TCS.TrySetException(e);
+                }
+            }
+
+            CancelRemainingMessages();
+            _messages.CompleteAdding();
+            _shutdownSignal.Set();
+        }
+
+        private void CancelRemainingTasks()
+        {
+            Ticket ticket;
+            while(_messages.TryTake(out ticket))
+            {
+                if(ticket.TCS != null)
+                {
+                    ticket.TCS.TrySetCanceled();
                 }
             }
         }

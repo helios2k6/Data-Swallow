@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Control;
 using DataSwallow.Stream;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,11 +30,9 @@ using System.Threading.Tasks;
 namespace DataSwallow.Filter
 {
     /// <summary>
-    /// Represents a data filter that takes messages and translates them
+    /// A marker interface to allow objects to hold multiple different types of filters
     /// </summary>
-    /// <typeparam name="TInput">The type of the input.</typeparam>
-    /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public interface IFilter<TInput, TOutput> : IMessageGenerator<TOutput>, IOutputMessageSink<TInput>
+    public interface IFilter
     {
         /// <summary>
         /// Starts this instance.
@@ -43,5 +42,14 @@ namespace DataSwallow.Filter
         /// Stops this instance.
         /// </summary>
         void Stop();
+    }
+
+    /// <summary>
+    /// Represents a data filter that takes messages and translates them
+    /// </summary>
+    /// <typeparam name="TInput">The type of the input.</typeparam>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public interface IFilter<TInput, TOutput> : IOutputMessageSink<TInput>, IMessageGenerator<TOutput>, IFilter
+    {
     }
 }

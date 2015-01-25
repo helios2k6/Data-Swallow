@@ -24,7 +24,7 @@
 
 using System;
 
-namespace DataSwallow.Utilities
+namespace DataSwallow.Persistence
 {
     /// <summary>
     /// Represents a DAO result

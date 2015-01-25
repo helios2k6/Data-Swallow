@@ -36,21 +36,19 @@ namespace DataSwallow.Runtime
     /// Represents the runtime of a topology
     /// </summary>
     /// <typeparam name="TSourceOutput">The type of the source output.</typeparam>
-    /// <typeparam name="TFilterInput">The type of the filter input.</typeparam>
-    /// <typeparam name="TFilterOutput">The type of the filter output.</typeparam>
     /// <typeparam name="TSinkInput">The type of the sink input.</typeparam>
-    public sealed class TopologyRuntime<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput> : ITopologyRuntime
+    public sealed class TopologyRuntime<TSourceOutput, TSinkInput> : ITopologyRuntime
     {
         #region private fields
-        private readonly ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput> _topology;
+        private readonly ITopology<TSourceOutput, TSinkInput> _topology;
         #endregion
 
         #region ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="TopologyRuntime{TSourceOutput, TFilterInput, TFilterOutput, TSinkInput}"/> class.
+        /// Initializes a new instance of the <see cref="TopologyRuntime{TSourceOutput, TSinkInput}"/> class.
         /// </summary>
         /// <param name="topology">The topology.</param>
-        public TopologyRuntime(ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput> topology)
+        public TopologyRuntime(ITopology<TSourceOutput, TSinkInput> topology)
         {
             _topology = topology;
         }
@@ -58,10 +56,10 @@ namespace DataSwallow.Runtime
 
         #region public properties
         /// <summary>
-        /// Gets the running state of the <seealso cref="ITopologyRuntime" />
+        /// Gets the running state of the <see cref="ITopologyRuntime" />
         /// </summary>
         /// <value>
-        /// The running state of the <seealso cref="ITopologyRuntime"/>
+        /// The running state of the <see cref="ITopologyRuntime"/>
         /// </value>
         public TopologyRuntimeState RunningState { get; private set; }
 
@@ -71,7 +69,7 @@ namespace DataSwallow.Runtime
         /// <value>
         /// The topology.
         /// </value>
-        public ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput> Topology 
+        public ITopology<TSourceOutput, TSinkInput> Topology 
         { 
             get { return _topology; } 
         }
@@ -155,7 +153,7 @@ namespace DataSwallow.Runtime
 
         #region private methods
         private void MapAllElements<TTarget>(
-            Func<ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput>, IEnumerable<TTarget>> extractor,
+            Func<ITopology<TSourceOutput, TSinkInput>, IEnumerable<TTarget>> extractor,
             Action<TTarget> actionOnTarget)
         {
             var targets = extractor.Invoke(_topology);
@@ -170,9 +168,9 @@ namespace DataSwallow.Runtime
             MapAllElements<ISink<TSinkInput>>(topology => topology.Sinks, actionOnSink);
         }
 
-        private void MapAllFilters(Action<IFilter<TFilterInput, TFilterOutput>> actionOnFilter)
+        private void MapAllFilters(Action<IFilter> actionOnFilter)
         {
-            MapAllElements<IFilter<TFilterInput, TFilterOutput>>(topology => topology.Filters, actionOnFilter);
+            MapAllElements<IFilter>(topology => topology.Filters, actionOnFilter);
         }
 
         private void MapAllSources(Action<ISource<TSourceOutput>> actionOnSource)

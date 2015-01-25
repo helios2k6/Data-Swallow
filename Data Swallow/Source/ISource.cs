@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Control;
 using DataSwallow.Stream;
 using System;
 using System.Collections.Generic;

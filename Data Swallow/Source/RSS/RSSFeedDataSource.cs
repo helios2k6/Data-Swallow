@@ -78,7 +78,7 @@ namespace DataSwallow.Source.RSS
         /// Initializes a new instance of the <see cref="RSSFeedDataSource"/> class.
         /// </summary>
         /// <param name="feedUrl">The feed URL.</param>
-        /// <param name="pauseTime">The pause time.</param>
+        /// <param name="pauseTime">The pause time in seconds.</param>
         /// <param name="variability">The variability.</param>
         public RSSFeedDataSource(Uri feedUrl, int pauseTime, int variability)
         {
@@ -98,7 +98,7 @@ namespace DataSwallow.Source.RSS
         /// Initializes a new instance of the <see cref="RSSFeedDataSource"/> class.
         /// </summary>
         /// <param name="feedUrl">The feed URL.</param>
-        /// <param name="pauseTime">The pause time.</param>
+        /// <param name="pauseTime">The pause time in seconds.</param>
         public RSSFeedDataSource(Uri feedUrl, int pauseTime)
             : this(feedUrl, pauseTime, 0)
         {

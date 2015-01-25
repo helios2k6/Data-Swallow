@@ -22,14 +22,18 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Anime;
+using DataSwallow.Filter;
 using DataSwallow.Filter.Anime;
+using DataSwallow.Runtime;
+using DataSwallow.Sink;
 using DataSwallow.Source.RSS;
 using DataSwallow.Stream;
-using NodaTime.Text;
+using DataSwallow.Topology;
+using DBreeze;
 using System;
-using System.Threading.Tasks;
 
-namespace DataSwallow
+namespace DataSwallow.Program
 {
     /// <summary>
     /// The bootstrap class for starting this program
@@ -38,6 +42,33 @@ namespace DataSwallow
     {
         private static void Run()
         {
+            using (var engine = new DBreezeEngine(@"E:\File Harbor\dbreeze_exp\"))
+            {
+                var sourceUrl = new Uri("http://www.nyaa.se/?page=rss");
+                var dataSource = new RSSFeedDataSource(sourceUrl, 30);
+
+                var rssAnimeFilter = new RSSAnimeDetectionFilter();
+
+                var dbreezeDao = new DBreezeDao(engine);
+                var criterion = new AnimeCriterion("FFF", "Dog Days", true);
+                var animeProcessingFilter = new AnimeEntryProcessingFilter(dbreezeDao, new[] { criterion });
+
+                var sink = new AnimeEntrySink(@"E:\File Harbor\");
+
+                var sourceToFilter = new OutputStream<RSSFeed>(rssAnimeFilter, 0);
+                dataSource.AddOutputStreamAsync(sourceToFilter, 0);
+
+                var filterToFilter = new OutputStream<AnimeEntry>(animeProcessingFilter, 0);
+                rssAnimeFilter.AddOutputStreamAsync(filterToFilter, 0);
+
+                var filterToSink = new OutputStream<AnimeEntry>(sink, 0);
+                animeProcessingFilter.AddOutputStreamAsync(filterToSink, 0);
+
+                var topology = new FilterTopology<RSSFeed, AnimeEntry>(new[] { dataSource }, new IFilter[] { rssAnimeFilter, animeProcessingFilter }, new[] { sink });
+                var runtime = new TopologyRuntime<RSSFeed, AnimeEntry>(topology);
+
+                runtime.Start();
+            }
         }
 
         /// <summary>

@@ -32,10 +32,10 @@ namespace DataSwallow.Runtime
     public interface ITopologyRuntime
     {
         /// <summary>
-        /// Gets the running state of the <seealso cref="ITopologyRuntime"/>
+        /// Gets the running state of the <see cref="ITopologyRuntime"/>
         /// </summary>
         /// <value>
-        /// The running state of the <seealso cref="ITopologyRuntime"/>
+        /// The running state of the <see cref="ITopologyRuntime"/>
         /// </value>
         TopologyRuntimeState RunningState { get; }
 

@@ -2,7 +2,7 @@
 namespace DataSwallow.Runtime
 {
     /// <summary>
-    /// Represents the runtime state of an <seealso cref="ITopologyRuntime"/>
+    /// Represents the runtime state of an <see cref="ITopologyRuntime"/>
     /// </summary>
     public enum TopologyRuntimeState
     {

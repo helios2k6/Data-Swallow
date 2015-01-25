@@ -51,5 +51,9 @@ namespace DataSwallow.Control
         /// Stops this instance.
         /// </summary>
         void Stop();
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()"/> before calling this.
+        /// </summary>
+        void AwaitTermination();
     }
 }

@@ -34,10 +34,8 @@ namespace DataSwallow.Topology
     /// Represents the topology of a data processing graph
     /// </summary>
     /// <typeparam name="TSourceOutput">The type of the source output.</typeparam>
-    /// <typeparam name="TFilterInput">The type of the filter input.</typeparam>
-    /// <typeparam name="TFilterOutput">The type of the filter output.</typeparam>
     /// <typeparam name="TSinkInput">The type of the sink input.</typeparam>
-    public interface ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput>
+    public interface ITopology<TSourceOutput, TSinkInput>
     {
         /// <summary>
         /// Gets the sources.
@@ -52,7 +50,7 @@ namespace DataSwallow.Topology
         /// <value>
         /// The filters.
         /// </value>
-        IEnumerable<IFilter<TFilterInput, TFilterOutput>> Filters { get; }
+        IEnumerable<IFilter> Filters { get; }
         /// <summary>
         /// Gets the sinks.
         /// </summary>

@@ -35,42 +35,38 @@ namespace DataSwallow.Topology
     /// Represents a Topology
     /// </summary>
     /// <typeparam name="TSourceOutput">The type of the source output.</typeparam>
-    /// <typeparam name="TFilterInput">The type of the filter input.</typeparam>
-    /// <typeparam name="TFilterOutput">The type of the filter output.</typeparam>
     /// <typeparam name="TSinkInput">The type of the sink input.</typeparam>
-    public sealed class Topology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput> : ITopology<TSourceOutput, TFilterInput, TFilterOutput, TSinkInput>
+    public sealed class FilterTopology<TSourceOutput, TSinkInput> : ITopology<TSourceOutput, TSinkInput>
     {
         #region private fields
         private readonly HashSet<ISource<TSourceOutput>> _sources;
-        private readonly HashSet<IFilter<TFilterInput, TFilterOutput>> _filters;
+        private readonly HashSet<IFilter> _filters;
         private readonly HashSet<ISink<TSinkInput>> _sinks;
         #endregion
 
         #region ctor
         /// <summary>
-        /// Initializes a new instance of the <see cref="Topology{TSourceOutput, TFilterInput, TFilterOutput, TSinkInput}"/> class as an
-        /// empty topology
+        /// Initializes a new instance of the <see cref="FilterTopology{TSourceOutput, TSinkInput}"/> class.
         /// </summary>
-        public Topology()
+        public FilterTopology()
         {
             _sources = new HashSet<ISource<TSourceOutput>>();
-            _filters = new HashSet<IFilter<TFilterInput, TFilterOutput>>();
+            _filters = new HashSet<IFilter>();
             _sinks = new HashSet<ISink<TSinkInput>>();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Topology{TSourceOutput, TFilterInput, TFilterOutput, TSinkInput}"/> class with
-        /// the given sources, filters, and sinks.
+        /// Initializes a new instance of the <see cref="FilterTopology{TSourceOutput, TSinkInput}"/> class.
         /// </summary>
         /// <param name="sources">The sources.</param>
         /// <param name="filters">The filters.</param>
         /// <param name="sinks">The sinks.</param>
-        public Topology(IEnumerable<ISource<TSourceOutput>> sources,
-            IEnumerable<IFilter<TFilterInput, TFilterOutput>> filters,
+        public FilterTopology(IEnumerable<ISource<TSourceOutput>> sources,
+            IEnumerable<IFilter> filters,
             IEnumerable<ISink<TSinkInput>> sinks)
         {
             _sources = new HashSet<ISource<TSourceOutput>>(sources);
-            _filters = new HashSet<IFilter<TFilterInput, TFilterOutput>>(filters);
+            _filters = new HashSet<IFilter>(filters);
             _sinks = new HashSet<ISink<TSinkInput>>(sinks);
         }
         #endregion
@@ -93,7 +89,7 @@ namespace DataSwallow.Topology
         /// <value>
         /// The filters.
         /// </value>
-        public IEnumerable<IFilter<TFilterInput, TFilterOutput>> Filters
+        public IEnumerable<IFilter> Filters
         {
             get { return _filters; }
         }

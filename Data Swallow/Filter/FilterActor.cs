@@ -94,11 +94,11 @@ namespace DataSwallow.Filter
         /// <param name="sourcePortNumber">The source port number.</param>
         /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
-        public async Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber)
+        public Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
 
-            await _engine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
+            return _engine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
 
         /// <summary>
@@ -124,11 +124,11 @@ namespace DataSwallow.Filter
         /// <param name="message">The message.</param>
         /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
-        public async Task AcceptAsync(IOutputStreamMessage<TInput> message)
+        public Task AcceptAsync(IOutputStreamMessage<TInput> message)
         {
             if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
 
-            await _engine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
+            return _engine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
         }
 
         /// <summary>

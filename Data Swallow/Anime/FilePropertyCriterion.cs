@@ -51,7 +51,7 @@ namespace DataSwallow.Anime
         /// <summary>
         /// Applies the criterion.
         /// </summary>
-        /// <param name="animeEntry">The <seealso cref="AnimeEntry"/></param>
+        /// <param name="animeEntry">The <see cref="AnimeEntry"/></param>
         /// <returns>True if the criterion is passed. False otherwise</returns>
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {

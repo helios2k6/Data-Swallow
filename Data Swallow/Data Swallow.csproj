@@ -102,20 +102,20 @@
     <Compile Include="Anime\DBreezeDao.cs" />
     <Compile Include="Anime\FilePropertyCriterion.cs" />
     <Compile Include="Anime\QualityCriterion.cs" />
-    <Compile Include="Configuration.cs" />
+    <Compile Include="Program\Configuration.cs" />
     <Compile Include="Control\Actor.cs" />
     <Compile Include="Control\FunctionalStateActor.cs" />
     <Compile Include="Control\FunctionalStatelessActor.cs" />
     <Compile Include="Control\IActor.cs" />
     <Compile Include="Control\Message.cs" />
-    <Compile Include="Driver.cs" />
+    <Compile Include="Program\Driver.cs" />
     <Compile Include="Filter\Anime\AnimeEntryProcessingFilter.cs" />
     <Compile Include="Filter\Anime\RSSAnimeDetectionFilter.cs" />
     <Compile Include="Anime\AnimeEntry.cs" />
     <Compile Include="Filter\Anime\RSSFeedProcessor.cs" />
     <Compile Include="Filter\FilterActor.cs" />
     <Compile Include="Filter\IFilter.cs" />
-    <Compile Include="IMessageGenerator.cs" />
+    <Compile Include="Control\IMessageGenerator.cs" />
     <Compile Include="Runtime\ITopologyRuntime.cs" />
     <Compile Include="Runtime\TopologyRuntime.cs" />
     <Compile Include="Runtime\TopologyRuntimeState.cs" />
@@ -133,13 +133,13 @@
     <Compile Include="Stream\OutputStream.cs" />
     <Compile Include="Stream\OutputStreamMessage.cs" />
     <Compile Include="Topology\ITopology.cs" />
-    <Compile Include="Topology\Topology.cs" />
-    <Compile Include="Utilities\DaoResult.cs" />
+    <Compile Include="Topology\FilterTopology.cs" />
+    <Compile Include="Persistence\DaoResult.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\Functions.cs" />
     <Compile Include="Utilities\ICriterion.cs" />
-    <Compile Include="Utilities\IDao.cs" />
-    <Compile Include="Utilities\IDaoResult.cs" />
+    <Compile Include="Persistence\IDao.cs" />
+    <Compile Include="Persistence\IDaoResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -168,6 +168,7 @@
       <LastGenOutput>Constants.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -24,7 +24,7 @@
 
 using System;
 
-namespace DataSwallow.Utilities
+namespace DataSwallow.Persistence
 {
     /// <summary>
     /// A query result from an <see cref="IDao{TEntry, TKey}"/>

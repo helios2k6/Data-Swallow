@@ -22,36 +22,29 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Stream;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace DataSwallow.Utilities
+namespace DataSwallow.Control
 {
     /// <summary>
-    /// Represents an object that can retrieve an object from a data store
+    /// A message generator
     /// </summary>
-    /// <typeparam name="TEntry">The type of the entry.</typeparam>
-    /// <typeparam name="TKey">The type of the key.</typeparam>
-    public interface IDao<TEntry, TKey>
+    /// <typeparam name="TOutput">The type of the output.</typeparam>
+    public interface IMessageGenerator<TOutput>
     {
         /// <summary>
-        /// Stores the specified entry.
+        /// Adds an IOutputStream asynchronously
         /// </summary>
-        /// <param name="entry">The entry.</param>
-        /// <returns>A Task representing this operation</returns>
-        Task Store(TEntry entry);
+        /// <param name="outputStream">The output stream.</param>
+        /// <param name="sourcePortNumber">The port number.</param>
+        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber);
         /// <summary>
-        /// Deletes the specified entry.
+        /// Gets the output streams asynchronously.
         /// </summary>
-        /// <param name="entry">The entry.</param>
-        /// <returns>A Task representing this operation</returns>
-        Task Delete(TEntry entry);
-        /// <summary>
-        /// Gets the specified key.
-        /// </summary>
-        /// <param name="key">The key.</param>
-        /// <returns>
-        /// The Task representing the query 
-        /// </returns>
-        Task<IDaoResult<TEntry>> Get(TKey key);
+        /// <returns>A Task representing the getting of the output streams</returns>
+        Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync();
     }
 }

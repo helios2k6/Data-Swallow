@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Utilities;
+using DataSwallow.Persistence;
 using DBreeze;
 using System;
 using System.Threading.Tasks;
