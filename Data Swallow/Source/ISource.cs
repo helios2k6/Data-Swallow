@@ -24,6 +24,7 @@
 
 using DataSwallow.Control;
 using DataSwallow.Stream;
+using DataSwallow.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,23 +35,7 @@ namespace DataSwallow.Source
     /// Represents a message source
     /// </summary>
     /// <typeparam name="TOutput">The type of the output.</typeparam>
-    public interface ISource<TOutput> : IMessageGenerator<TOutput>
+    public interface ISource<TOutput> : IMessageGenerator<TOutput>, IStartStoppable, IPauseResumable
     {
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        void Start();
-        /// <summary>
-        /// Resumes this instance.
-        /// </summary>
-        void Resume();
-        /// <summary>
-        /// Pauses this instance.
-        /// </summary>
-        void Pause();
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        void Stop();
     }
 }

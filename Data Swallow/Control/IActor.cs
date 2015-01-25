@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using DataSwallow.Utilities;
 using System.Threading.Tasks;
 
 namespace DataSwallow.Control
@@ -30,7 +31,7 @@ namespace DataSwallow.Control
     /// Represents an Actor object
     /// </summary>
     /// <typeparam name="TMessage">The type of the message.</typeparam>
-    public interface IActor<TMessage>
+    public interface IActor<TMessage> : IStartStoppable
     {
         /// <summary>
         /// Posts the specified message to the Actor asynchronously.
@@ -43,17 +44,5 @@ namespace DataSwallow.Control
         /// <param name="message">The message.</param>
         /// <returns>A Task representing the processing of the message</returns>
         Task PostAndReplyAsync(TMessage message);
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        void Start();
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        void Stop();
-        /// <summary>
-        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()"/> before calling this.
-        /// </summary>
-        void AwaitTermination();
     }
 }

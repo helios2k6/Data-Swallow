@@ -67,12 +67,12 @@ namespace DataSwallow.Anime
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
         public AnimeEntry(
-            string originalInput, 
-            FansubFile fansubFile, 
-            MediaMetadata mediaMetadata, 
-            OffsetDateTime publicationDate, 
-            string guid, 
-            Uri resourceLocation, 
+            string originalInput,
+            FansubFile fansubFile,
+            MediaMetadata mediaMetadata,
+            OffsetDateTime publicationDate,
+            string guid,
+            Uri resourceLocation,
             string source)
         {
             _originalInput = originalInput;
@@ -215,7 +215,7 @@ namespace DataSwallow.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public override bool Equals(object other)
         {
-            if(EqualsPreamble(other) == false)
+            if (EqualsPreamble(other) == false)
             {
                 return false;
             }
@@ -232,7 +232,7 @@ namespace DataSwallow.Anime
         /// <exception cref="System.NotImplementedException"></exception>
         public override int GetHashCode()
         {
-            return OriginalInput.GetHashCode() 
+            return OriginalInput.GetHashCode()
                 ^ FansubFile.GetHashCode()
                 ^ MediaMetadata.GetHashCode()
                 ^ PublicationDate.GetHashCode()

@@ -88,16 +88,16 @@ namespace DataSwallow.Filter.Anime
             var source = channel.Title;
             var results = new List<AnimeEntry>();
 
-            foreach(var item in channel.Items)
+            foreach (var item in channel.Items)
             {
                 AnimeEntry entry;
-                if(TryProcessRSSItem(item, source, out entry))
+                if (TryProcessRSSItem(item, source, out entry))
                 {
                     results.Add(entry);
                 }
             }
 
-            if(results.Any())
+            if (results.Any())
             {
                 entries = results;
                 return true;
@@ -116,7 +116,7 @@ namespace DataSwallow.Filter.Anime
             string guid;
             Uri resourceLocation;
 
-            if(TryGetFansubFile(item, out file)
+            if (TryGetFansubFile(item, out file)
                 && TryGetMediaMetadata(item, out mediaMetadata)
                 && TryGetPubDate(item, out pubDate)
                 && TryGetGuid(item, out guid)
@@ -135,7 +135,7 @@ namespace DataSwallow.Filter.Anime
             var fansubFileString = item.Title;
             file = FansubFileParsers.ParseFansubFile(fansubFileString);
 
-            if(string.IsNullOrWhiteSpace(file.SeriesName)
+            if (string.IsNullOrWhiteSpace(file.SeriesName)
                 || string.IsNullOrWhiteSpace(file.FansubGroup)
                 || file.EpisodeNumber < 0)
             {
@@ -158,7 +158,7 @@ namespace DataSwallow.Filter.Anime
             var pattern = OffsetDateTimePattern.CreateWithInvariantCulture(DateTimePatternRFC822);
             var parseResult = pattern.Parse(item.PublicationDate);
 
-            if(parseResult.Success)
+            if (parseResult.Success)
             {
                 time = parseResult.Value;
 

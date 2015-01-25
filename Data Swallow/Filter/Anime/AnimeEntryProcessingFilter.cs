@@ -86,7 +86,7 @@ namespace DataSwallow.Filter.Anime
         {
             //Check to see if the entry exists
             var doesEntryExist = await DoesEntryAlreadyExist(entry);
-            if(doesEntryExist)
+            if (doesEntryExist)
             {
                 return;
             }
@@ -95,7 +95,7 @@ namespace DataSwallow.Filter.Anime
             await _dao.Store(entry);
 
             //See if it matches any criterion
-            if(DoesMatchAnyCriterion(entry))
+            if (DoesMatchAnyCriterion(entry))
             {
                 foreach (var kvp in outputStreams)
                 {

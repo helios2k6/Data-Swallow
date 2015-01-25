@@ -69,9 +69,9 @@ namespace DataSwallow.Runtime
         /// <value>
         /// The topology.
         /// </value>
-        public ITopology<TSourceOutput, TSinkInput> Topology 
-        { 
-            get { return _topology; } 
+        public ITopology<TSourceOutput, TSinkInput> Topology
+        {
+            get { return _topology; }
         }
         #endregion
 
@@ -82,7 +82,7 @@ namespace DataSwallow.Runtime
         /// <exception cref="System.NotImplementedException"></exception>
         public void Start()
         {
-            if(RunningState != TopologyRuntimeState.NotStarted)
+            if (RunningState != TopologyRuntimeState.NotStarted)
             {
                 return;
             }
@@ -106,11 +106,11 @@ namespace DataSwallow.Runtime
         /// <exception cref="System.NotImplementedException"></exception>
         public void Stop()
         {
-            if(RunningState == TopologyRuntimeState.Stopped)
+            if (RunningState == TopologyRuntimeState.Stopped)
             {
                 return;
             }
-            
+
             RunningState = TopologyRuntimeState.Stopped;
 
             MapAllSources(source => source.Stop());
@@ -124,11 +124,11 @@ namespace DataSwallow.Runtime
         /// <exception cref="System.NotImplementedException"></exception>
         public void Pause()
         {
-            if(RunningState != TopologyRuntimeState.Started)
+            if (RunningState != TopologyRuntimeState.Started)
             {
                 return;
             }
-            
+
             RunningState = TopologyRuntimeState.Paused;
 
             MapAllSources(source => source.Pause());
@@ -140,7 +140,7 @@ namespace DataSwallow.Runtime
         /// <exception cref="System.NotImplementedException"></exception>
         public void Resume()
         {
-            if(RunningState != TopologyRuntimeState.Paused)
+            if (RunningState != TopologyRuntimeState.Paused)
             {
                 return;
             }
@@ -148,6 +148,16 @@ namespace DataSwallow.Runtime
             RunningState = TopologyRuntimeState.Started;
 
             MapAllSources(source => source.Resume());
+        }
+
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()" /> before calling this.
+        /// </summary>
+        public void AwaitTermination()
+        {
+            MapAllSources(source => source.AwaitTermination());
+            MapAllFilters(filter => filter.AwaitTermination());
+            MapAllSinks(sink => sink.AwaitTermination());
         }
         #endregion
 
@@ -157,7 +167,7 @@ namespace DataSwallow.Runtime
             Action<TTarget> actionOnTarget)
         {
             var targets = extractor.Invoke(_topology);
-            foreach(var target in targets)
+            foreach (var target in targets)
             {
                 actionOnTarget.Invoke(target);
             }
@@ -178,6 +188,5 @@ namespace DataSwallow.Runtime
             MapAllElements<ISource<TSourceOutput>>(topology => topology.Sources, actionOnSource);
         }
         #endregion
-
     }
 }

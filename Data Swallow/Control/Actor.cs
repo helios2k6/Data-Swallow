@@ -120,7 +120,7 @@ namespace DataSwallow.Control
         {
             AssertNotDisposed();
 
-            if(_alreadyStartedOnce)
+            if (_alreadyStartedOnce)
             {
                 throw new InvalidOperationException("This actor has already been started once.");
             }
@@ -231,7 +231,7 @@ namespace DataSwallow.Control
 
         private void Run()
         {
-            foreach(var ticket in _messages.GetConsumingEnumerable(_tokenSource.Token))
+            foreach (var ticket in _messages.GetConsumingEnumerable(_tokenSource.Token))
             {
                 if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)))
                 {
@@ -262,9 +262,9 @@ namespace DataSwallow.Control
         private void CancelRemainingTasks()
         {
             Ticket ticket;
-            while(_messages.TryTake(out ticket))
+            while (_messages.TryTake(out ticket))
             {
-                if(ticket.TCS != null)
+                if (ticket.TCS != null)
                 {
                     ticket.TCS.TrySetCanceled();
                 }

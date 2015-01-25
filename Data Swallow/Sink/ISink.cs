@@ -23,6 +23,7 @@
  */
 
 using DataSwallow.Stream;
+using DataSwallow.Utilities;
 using System.Threading.Tasks;
 
 namespace DataSwallow.Sink
@@ -31,15 +32,7 @@ namespace DataSwallow.Sink
     /// Represents a message sink
     /// </summary>
     /// <typeparam name="TInput">The type of the input.</typeparam>
-    public interface ISink<TInput> : IOutputMessageSink<TInput>
+    public interface ISink<TInput> : IOutputMessageSink<TInput>, IStartStoppable
     {
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        void Start();
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        void Stop();
     }
 }

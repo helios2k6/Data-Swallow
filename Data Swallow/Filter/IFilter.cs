@@ -24,6 +24,7 @@
 
 using DataSwallow.Control;
 using DataSwallow.Stream;
+using DataSwallow.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,16 +33,8 @@ namespace DataSwallow.Filter
     /// <summary>
     /// A marker interface to allow objects to hold multiple different types of filters
     /// </summary>
-    public interface IFilter
+    public interface IFilter : IStartStoppable
     {
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        void Start();
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        void Stop();
     }
 
     /// <summary>

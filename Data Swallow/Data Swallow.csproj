@@ -140,6 +140,8 @@
     <Compile Include="Utilities\ICriterion.cs" />
     <Compile Include="Persistence\IDao.cs" />
     <Compile Include="Persistence\IDaoResult.cs" />
+    <Compile Include="Utilities\IPauseResumable.cs" />
+    <Compile Include="Utilities\IStartStoppable.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

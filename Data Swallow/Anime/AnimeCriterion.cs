@@ -141,7 +141,7 @@ namespace DataSwallow.Anime
             var comparison = distance - SmudgeFactor;
             var comparisonMagnitude = Math.Abs(comparison);
 
-            if(comparison >= 0.0 && comparisonMagnitude >= Epsilon)
+            if (comparison >= 0.0 && comparisonMagnitude >= Epsilon)
             {
                 return true;
             }

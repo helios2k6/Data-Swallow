@@ -57,7 +57,7 @@ namespace DataSwallow.Control
         /// Initializes a new instance of the <see cref="FunctionalStatelessActor{TMessage}"/> class.
         /// </summary>
         /// <param name="processAction">The process action.</param>
-        public FunctionalStatelessActor(Action<TMessage> processAction) 
+        public FunctionalStatelessActor(Action<TMessage> processAction)
             : this(Functions.GetNoOpAction<TMessage>(), processAction, Functions.GetNoOpAction<TMessage>())
         {
         }

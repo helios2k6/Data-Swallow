@@ -63,7 +63,7 @@ namespace DataSwallow.Anime
         /// <returns>Returns true if the MediaMetadata passes this criterion. False otherwise</returns>
         public bool ApplyCriterion(MediaMetadata mediaMetadata)
         {
-            if(_bothMustMatch)
+            if (_bothMustMatch)
             {
                 return _videoMode == mediaMetadata.VideoMode && _videoMedia == mediaMetadata.VideoMedia;
             }

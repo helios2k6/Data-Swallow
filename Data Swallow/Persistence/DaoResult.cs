@@ -68,9 +68,9 @@ namespace DataSwallow.Persistence
         /// <exception cref="System.InvalidOperationException">When Success is false</exception>
         public TResult Value
         {
-            get 
-            { 
-                if(_success == false)
+            get
+            {
+                if (_success == false)
                 {
                     throw new InvalidOperationException();
                 }

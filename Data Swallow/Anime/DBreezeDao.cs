@@ -118,7 +118,7 @@ namespace DataSwallow.Anime
                     using (var transaction = _databaseEngine.GetTransaction())
                     {
                         var row = transaction.Select<string, AnimeEntry>(Constants.AnimeEntryTable, key);
-                        if(row.Exists)
+                        if (row.Exists)
                         {
                             return DaoResult<AnimeEntry>.CreateSuccess(row.Value);
                         }
@@ -126,7 +126,7 @@ namespace DataSwallow.Anime
                         return DaoResult<AnimeEntry>.CreateFailure();
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     return DaoResult<AnimeEntry>.CreateFailure(e);
                 }

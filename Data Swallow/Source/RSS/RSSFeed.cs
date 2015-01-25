@@ -73,7 +73,7 @@ namespace DataSwallow.Source.RSS
         /// </returns>
         public bool Equals(RSSFeed other)
         {
-            if(EqualsPreamble(other) == false)
+            if (EqualsPreamble(other) == false)
             {
                 return false;
             }

@@ -60,9 +60,9 @@ namespace DataSwallow.Filter.Anime
         protected override void DigestMessage(RSSFeed feed, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
         {
             IEnumerable<AnimeEntry> entries;
-            if(RSSFeedProcessor.Instance.TryGetAnimeEntries(feed, out entries))
+            if (RSSFeedProcessor.Instance.TryGetAnimeEntries(feed, out entries))
             {
-                foreach(var entry in entries)
+                foreach (var entry in entries)
                 {
                     foreach (var stream in outputStreams)
                     {

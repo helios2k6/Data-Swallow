@@ -78,6 +78,8 @@ namespace DataSwallow.Sink
         /// <returns>A Task representing this action</returns>
         public void Start()
         {
+            AssertNotDisposed();
+
             _engine.Start();
         }
 
@@ -86,7 +88,19 @@ namespace DataSwallow.Sink
         /// </summary>
         public void Stop()
         {
+            AssertNotDisposed();
+
             _engine.Stop();
+        }
+
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()" /> before calling this.
+        /// </summary>
+        public void AwaitTermination()
+        {
+            AssertNotDisposed();
+
+            _engine.AwaitTermination();
         }
 
         /// <summary>
@@ -96,6 +110,8 @@ namespace DataSwallow.Sink
         /// <returns></returns>
         public Task AcceptAsync(IOutputStreamMessage<AnimeEntry> message)
         {
+            AssertNotDisposed();
+
             return _engine.PostAndReplyAsync(message.Payload);
         }
 
@@ -113,6 +129,14 @@ namespace DataSwallow.Sink
         #endregion
 
         #region private methods
+        private void AssertNotDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("AnimeEntrySink");
+            }
+        }
+
         private void Process(AnimeEntry entry)
         {
             var torrentFile = _client.GetByteArrayAsync(entry.ResourceLocation).Result;
@@ -125,7 +149,7 @@ namespace DataSwallow.Sink
             catch (Exception)
             {
                 //TODO: Should log here
-            } 
+            }
         }
         #endregion
     }

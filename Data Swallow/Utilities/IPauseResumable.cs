@@ -22,22 +22,20 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Utilities;
-using System.Threading.Tasks;
-
-namespace DataSwallow.Runtime
+namespace DataSwallow.Utilities
 {
     /// <summary>
-    /// An object that represents the runtime of a topology
+    /// Represents an object that can be paused and resumed
     /// </summary>
-    public interface ITopologyRuntime : IStartStoppable, IPauseResumable
+    public interface IPauseResumable
     {
         /// <summary>
-        /// Gets the running state of the <see cref="ITopologyRuntime"/>
+        /// Resumes this instance.
         /// </summary>
-        /// <value>
-        /// The running state of the <see cref="ITopologyRuntime"/>
-        /// </value>
-        TopologyRuntimeState RunningState { get; }
+        void Resume();
+        /// <summary>
+        /// Pauses this instance.
+        /// </summary>
+        void Pause();
     }
 }

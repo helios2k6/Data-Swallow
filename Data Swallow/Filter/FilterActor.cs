@@ -76,6 +76,8 @@ namespace DataSwallow.Filter
         /// <returns></returns>
         public void Start()
         {
+            AssertNotDisposed();
+
             _engine.Start();
         }
 
@@ -84,7 +86,19 @@ namespace DataSwallow.Filter
         /// </summary>
         public void Stop()
         {
+            AssertNotDisposed();
+
             _engine.Stop();
+        }
+
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()" /> before calling this.
+        /// </summary>
+        public void AwaitTermination()
+        {
+            AssertNotDisposed();
+
+            _engine.AwaitTermination();
         }
 
         /// <summary>
@@ -96,7 +110,7 @@ namespace DataSwallow.Filter
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber)
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+            AssertNotDisposed();
 
             return _engine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
@@ -108,7 +122,7 @@ namespace DataSwallow.Filter
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+            AssertNotDisposed();
 
             var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<TOutput>, int>>>();
             var message = CreateGetOutputStreamsMessage(tcs);
@@ -126,7 +140,7 @@ namespace DataSwallow.Filter
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
         public Task AcceptAsync(IOutputStreamMessage<TInput> message)
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSAnimeDetectionFilter");
+            AssertNotDisposed();
 
             return _engine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
         }
@@ -158,7 +172,7 @@ namespace DataSwallow.Filter
         {
             if (_isDisposed) return;
 
-            if(isDisposing)
+            if (isDisposing)
             {
                 _engine.Dispose();
                 _isDisposed = true;
@@ -167,6 +181,14 @@ namespace DataSwallow.Filter
         #endregion
 
         #region private methods
+        private void AssertNotDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("FilterActor");
+            }
+        }
+
         private void Process(Message<Type, Payload> message)
         {
             switch (message.MessageType)

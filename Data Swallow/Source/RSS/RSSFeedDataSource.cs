@@ -109,7 +109,7 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <param name="feedUrl">The feed URL.</param>
         public RSSFeedDataSource(Uri feedUrl)
-            : this(feedUrl, 60, 0)
+            : this(feedUrl, 60)
         {
         }
         #endregion
@@ -122,7 +122,7 @@ namespace DataSwallow.Source.RSS
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public Task<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> GetOutputStreamsAsync()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>>();
             var message = CreateGetOutputStreamsMessage(tcs);
@@ -141,7 +141,7 @@ namespace DataSwallow.Source.RSS
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public void Start()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             _actorEngine.Start();
             _actorEngine.PostAsync(StartMessage);
@@ -153,7 +153,7 @@ namespace DataSwallow.Source.RSS
         /// <returns>A Task representing the resuming of this instance</returns>
         public void Resume()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             _actorEngine.PostAndReplyAsync(ResumeMessage);
         }
@@ -165,7 +165,7 @@ namespace DataSwallow.Source.RSS
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public void Pause()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             _actorEngine.PostAndReplyAsync(PauseMessage);
         }
@@ -177,9 +177,19 @@ namespace DataSwallow.Source.RSS
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public void Stop()
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             _actorEngine.PostAndReplyAsync(StopMessage);
+        }
+
+        /// <summary>
+        /// Blocks the current thread, awaiting for all messages to be processed. Call <see cref="Stop()" /> before calling this.
+        /// </summary>
+        public void AwaitTermination()
+        {
+            AssertNotDisposed();
+
+            _actorEngine.AwaitTermination();
         }
 
         /// <summary>
@@ -193,7 +203,7 @@ namespace DataSwallow.Source.RSS
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
         public Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
         {
-            if (_isDisposed) throw new ObjectDisposedException("RSSFeedDataSource");
+            AssertNotDisposed();
 
             return _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
@@ -212,6 +222,14 @@ namespace DataSwallow.Source.RSS
         #endregion
 
         #region private methods
+        private void AssertNotDisposed()
+        {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException("RSSFeedDataSource");
+            }
+        }
+
         private void HandleAddOutputStreamMessage(Message<MessageType, MessagePayload> message)
         {
             _outputStreams[message.Payload.PortNumber] = message.Payload.OutputStream;
@@ -232,7 +250,7 @@ namespace DataSwallow.Source.RSS
             try
             {
                 var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
-                if(rssFeed != null)
+                if (rssFeed != null)
                 {
                     foreach (var kvp in _outputStreams)
                     {
@@ -242,9 +260,9 @@ namespace DataSwallow.Source.RSS
                 }
 
                 //TODO: if the rss feed is null, then something went wrong (the link could be down or w/e)
-                //In that case, we will just reping the server later, so schedule that
+                //In that case, we will just re-ping the server later, so schedule that
             }
-            catch(Exception)
+            catch (Exception)
             {
                 //TODO: Unable to deserialize the stream. Could be from a bad URI. Warn and resechedule
             }
@@ -291,6 +309,7 @@ namespace DataSwallow.Source.RSS
         private void HandleStopMessage()
         {
             _state = State.Stopped;
+            _actorEngine.Stop();
         }
 
         private void Process(Message<MessageType, MessagePayload> message)

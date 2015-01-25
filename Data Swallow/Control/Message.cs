@@ -104,7 +104,8 @@ namespace DataSwallow.Control
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="name">The name.</param>
-        public Message(TMessageType type, string name) : base(type, null, name)
+        public Message(TMessageType type, string name)
+            : base(type, null, name)
         {
         }
         #endregion
