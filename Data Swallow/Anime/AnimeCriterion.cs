@@ -25,6 +25,7 @@
 using DataSwallow.Utilities;
 using SimMetricsApi;
 using SimMetricsMetricUtilities;
+using Strilanc.Value;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,8 +84,8 @@ namespace DataSwallow.Anime
         private const double SmudgeFactor = 0.80;
         private const double Epsilon = 0.000001;
 
-        private readonly string _fansubGroup;
-        private readonly string _series;
+        private readonly May<string> _fansubGroup;
+        private readonly May<string> _series;
         private readonly bool _useFuzzyMatch;
         #endregion
 
@@ -95,7 +96,7 @@ namespace DataSwallow.Anime
         /// <param name="fansubGroup">The fansub group.</param>
         /// <param name="series">The series.</param>
         /// <param name="useFuzzyMatch">Whether or not to use string distances to match</param>
-        public AnimeCriterion(string fansubGroup, string series, bool useFuzzyMatch)
+        public AnimeCriterion(May<string> fansubGroup, May<string> series, bool useFuzzyMatch)
         {
             _fansubGroup = fansubGroup;
             _series = series;
@@ -117,7 +118,7 @@ namespace DataSwallow.Anime
         #endregion
 
         #region private methods
-        private bool ApplyCriterion(string criterion, string entry)
+        private bool ApplyCriterion(May<string> criterion, string entry)
         {
             if (_useFuzzyMatch)
             {
@@ -129,12 +130,17 @@ namespace DataSwallow.Anime
             }
         }
 
-        private bool ApplyCriterionExact(string criterion, string entry)
+        private bool ApplyCriterionExact(May<string> criterion, string entry)
         {
-            return criterion.Equals(entry, StringComparison.Ordinal);
+            return criterion.Match(crit => crit.Equals(entry, StringComparison.Ordinal), true);
         }
 
-        private bool ApplyCriterionFuzzy(string criterion, string entry)
+        private bool ApplyCriterionFuzzy(May<string> criterion, string entry)
+        {
+            return criterion.Match(crit => ApplyCriterionFuzzyImpl(crit, entry), true);
+        }
+
+        private bool ApplyCriterionFuzzyImpl(string criterion, string entry)
         {
             var distance = StringMetricsCalculator.Instance.MeasureSimilarityIgnoreCase(criterion, entry);
 

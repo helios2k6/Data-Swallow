@@ -50,5 +50,15 @@ namespace DataSwallow.Utilities
         {
             return (_, state) => state;
         }
+
+
+        /// <summary>
+        /// Consumes any value, does nothing, and returns nothing
+        /// </summary>
+        /// <typeparam name="T">The type of input</typeparam>
+        /// <param name="t">The input</param>
+        public static void Ignore<T>(T t)
+        {
+        }
     }
 }

@@ -23,12 +23,9 @@
  */
 
 using DataSwallow.Anime;
-using DataSwallow.Control;
 using DataSwallow.Source.RSS;
 using DataSwallow.Stream;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Filter.Anime
 {

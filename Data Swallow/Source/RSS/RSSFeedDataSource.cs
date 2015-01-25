@@ -24,9 +24,11 @@
 
 using DataSwallow.Control;
 using DataSwallow.Stream;
+using log4net;
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -59,6 +61,8 @@ namespace DataSwallow.Source.RSS
         private static readonly Message<MessageType, MessagePayload> PauseMessage = new Message<MessageType, MessagePayload>(MessageType.Pause, new MessagePayload(), "Pause");
         private static readonly Message<MessageType, MessagePayload> ResumeMessage = new Message<MessageType, MessagePayload>(MessageType.Resume, new MessagePayload(), "Resume");
         private static readonly Message<MessageType, MessagePayload> FetchMessage = new Message<MessageType, MessagePayload>(MessageType.Fetch, new MessagePayload(), "Fetch");
+
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(RSSFeedDataSource));
 
         private readonly Uri _feedUrl;
         private readonly int _pauseTime;
@@ -143,6 +147,8 @@ namespace DataSwallow.Source.RSS
         {
             AssertNotDisposed();
 
+            Logger.Debug("Starting RSSFeedDataSource");
+
             _actorEngine.Start();
             _actorEngine.PostAsync(StartMessage);
         }
@@ -154,6 +160,8 @@ namespace DataSwallow.Source.RSS
         public void Resume()
         {
             AssertNotDisposed();
+            
+            Logger.Debug("Resuming RSSFeedDataSource");
 
             _actorEngine.PostAndReplyAsync(ResumeMessage);
         }
@@ -167,6 +175,8 @@ namespace DataSwallow.Source.RSS
         {
             AssertNotDisposed();
 
+            Logger.Debug("Pausing RSSFeedDataSource");
+
             _actorEngine.PostAndReplyAsync(PauseMessage);
         }
 
@@ -179,6 +189,8 @@ namespace DataSwallow.Source.RSS
         {
             AssertNotDisposed();
 
+            Logger.Debug("Stopping RSSFeedDataSource");
+
             _actorEngine.PostAndReplyAsync(StopMessage);
         }
 
@@ -188,6 +200,8 @@ namespace DataSwallow.Source.RSS
         public void AwaitTermination()
         {
             AssertNotDisposed();
+
+            Logger.Debug("Awaiting Termination of RSSFeedDataSource");
 
             _actorEngine.AwaitTermination();
         }
@@ -204,6 +218,8 @@ namespace DataSwallow.Source.RSS
         public Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
         {
             AssertNotDisposed();
+
+            Logger.DebugFormat("Adding Output Stream to RSSFeedDataSource on port {0}", sourcePortNumber);
 
             return _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
         }
@@ -242,7 +258,11 @@ namespace DataSwallow.Source.RSS
             var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
             var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
 
+            Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
+
             Thread.Sleep(waitInTimeSpan);
+
+            Logger.Debug("RSSFeedDataSource fetching RSS feed");
 
             var getTask = _client.GetStringAsync(_feedUrl);
             var contents = getTask.Result;
@@ -258,13 +278,10 @@ namespace DataSwallow.Source.RSS
                         stream.PutAsync(rssFeed);
                     }
                 }
-
-                //TODO: if the rss feed is null, then something went wrong (the link could be down or w/e)
-                //In that case, we will just re-ping the server later, so schedule that
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //TODO: Unable to deserialize the stream. Could be from a bad URI. Warn and resechedule
+                Logger.Error("Could not deserialize RSS feed!", e);
             }
 
             //Keep looping and reposting this message if everything is good to go
@@ -338,6 +355,7 @@ namespace DataSwallow.Source.RSS
                     HandleStopMessage();
                     break;
                 default:
+                    Logger.ErrorFormat("Received unknown message {0}", message.MessageType);
                     throw new InvalidOperationException("Unknown message type");
             }
         }

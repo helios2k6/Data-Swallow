@@ -31,7 +31,10 @@ using DataSwallow.Source.RSS;
 using DataSwallow.Stream;
 using DataSwallow.Topology;
 using DBreeze;
+using log4net.Config;
+using Strilanc.Value;
 using System;
+using System.IO;
 
 namespace DataSwallow.Program
 {
@@ -45,12 +48,12 @@ namespace DataSwallow.Program
             using (var engine = new DBreezeEngine(@"E:\File Harbor\dbreeze_exp\"))
             {
                 var sourceUrl = new Uri("http://www.nyaa.se/?page=rss");
-                var dataSource = new RSSFeedDataSource(sourceUrl, 30);
+                var dataSource = new RSSFeedDataSource(sourceUrl, 5);
 
                 var rssAnimeFilter = new RSSAnimeDetectionFilter();
 
                 var dbreezeDao = new DBreezeDao(engine);
-                var criterion = new AnimeCriterion("FFF", "Dog Days", true);
+                var criterion = new AnimeCriterion(May.NoValue, "Kuroko's Basketball", true);
                 var animeProcessingFilter = new AnimeEntryProcessingFilter(dbreezeDao, new[] { criterion });
 
                 var sink = new AnimeEntrySink(@"E:\File Harbor\");
@@ -68,7 +71,13 @@ namespace DataSwallow.Program
                 var runtime = new TopologyRuntime<RSSFeed, AnimeEntry>(topology);
 
                 runtime.Start();
+                runtime.AwaitTermination(); //Waits forever, never to return
             }
+        }
+
+        private static void ConfigureLogger()
+        {
+            XmlConfigurator.Configure(new FileInfo("log4net_config.xml"));
         }
 
         /// <summary>
@@ -77,6 +86,8 @@ namespace DataSwallow.Program
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
+            ConfigureLogger();
+            Run();
         }
     }
 }

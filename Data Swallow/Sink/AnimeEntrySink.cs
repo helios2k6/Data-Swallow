@@ -25,6 +25,7 @@
 using DataSwallow.Anime;
 using DataSwallow.Control;
 using DataSwallow.Stream;
+using log4net;
 using System;
 using System.IO;
 using System.Net.Http;
@@ -38,6 +39,7 @@ namespace DataSwallow.Sink
     public sealed class AnimeEntrySink : ISink<AnimeEntry>, IDisposable
     {
         #region private fields
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(AnimeEntrySink));
         private static readonly string TorrentExtension = ".torrent";
 
         private readonly string _destinationFolder;
@@ -140,15 +142,15 @@ namespace DataSwallow.Sink
         private void Process(AnimeEntry entry)
         {
             var torrentFile = _client.GetByteArrayAsync(entry.ResourceLocation).Result;
-            var path = Path.Combine(_destinationFolder, entry.OriginalInput, TorrentExtension);
+            var path = Path.Combine(_destinationFolder, entry.OriginalInput + TorrentExtension);
 
             try
             {
                 File.WriteAllBytes(path, torrentFile);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //TODO: Should log here
+                Logger.Error(string.Format("Unable to write torrent file: {0}", path), e);
             }
         }
         #endregion

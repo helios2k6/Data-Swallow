@@ -26,6 +26,7 @@ using DataSwallow.Anime;
 using DataSwallow.Persistence;
 using DataSwallow.Stream;
 using DataSwallow.Utilities;
+using log4net;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +39,8 @@ namespace DataSwallow.Filter.Anime
     public sealed class AnimeEntryProcessingFilter : FilterActor<AnimeEntry, AnimeEntry>
     {
         #region private fields
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(AnimeEntryProcessingFilter));
+
         private readonly IDao<AnimeEntry, string> _dao;
         private readonly IEnumerable<ICriterion<AnimeEntry>> _criterions;
         #endregion
@@ -91,6 +94,8 @@ namespace DataSwallow.Filter.Anime
                 return;
             }
 
+            Logger.DebugFormat("Received Anime Entry: {0}", entry);
+
             //Add the entry to the database
             await _dao.Store(entry);
 
@@ -99,7 +104,8 @@ namespace DataSwallow.Filter.Anime
             {
                 foreach (var kvp in outputStreams)
                 {
-                    Ignore(kvp.Value.PutAsync(entry));
+                    Logger.DebugFormat("Accepting Anime Entry: {0}", entry);
+                    Functions.Ignore(kvp.Value.PutAsync(entry));
                 }
             }
         }
@@ -114,11 +120,6 @@ namespace DataSwallow.Filter.Anime
         private bool DoesMatchAnyCriterion(AnimeEntry entry)
         {
             return _criterions.Any(t => t.ApplyCriterion(entry));
-        }
-
-        private static void Ignore(object _)
-        {
-            //For real, do nothing
         }
         #endregion
     }

@@ -26,6 +26,7 @@ using DataSwallow.Anime;
 using DataSwallow.Source.RSS;
 using FansubFileNameParser;
 using FansubFileNameParser.Metadata;
+using log4net;
 using NodaTime;
 using NodaTime.Text;
 using System;
@@ -40,7 +41,8 @@ namespace DataSwallow.Filter.Anime
     public sealed class RSSFeedProcessor
     {
         #region private fields
-        private static string DateTimePatternRFC822 = "ddd, dd MMM yyyy HH:mm:ss o<+HHmm>";
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(RSSFeedProcessor));
+        private static readonly string DateTimePatternRFC822 = "ddd, dd MMM yyyy HH:mm:ss o<+HHmm>";
         #endregion
 
         #region ctor
@@ -90,6 +92,7 @@ namespace DataSwallow.Filter.Anime
 
             foreach (var item in channel.Items)
             {
+                Logger.DebugFormat("Analying RSS Channel Item: {0}", item);
                 AnimeEntry entry;
                 if (TryProcessRSSItem(item, source, out entry))
                 {
