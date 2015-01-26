@@ -23,19 +23,17 @@
  */
 
 using DataSwallow.Anime;
-using DataSwallow.Filter;
-using DataSwallow.Filter.Anime;
-using DataSwallow.Persistence;
+using DataSwallow.Program.Configuration;
 using DataSwallow.Runtime;
-using DataSwallow.Sink;
 using DataSwallow.Source.RSS;
-using DataSwallow.Stream;
 using DataSwallow.Topology;
-using DBreeze;
+using log4net;
 using log4net.Config;
-using Strilanc.Value;
+using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
+using System.Threading;
 
 namespace DataSwallow.Program
 {
@@ -44,52 +42,96 @@ namespace DataSwallow.Program
     /// </summary>
     public static class Driver
     {
-        private static void Run()
-        {
-            using (var engine = new DBreezeEngine(@"E:\File Harbor\dbreeze_exp\"))
-            {
-                var sourceUrl = new Uri("http://www.nyaa.se/?page=rss");
-                var dataSource = new RSSFeedDataSource(sourceUrl, 5);
+        #region private static fields
+        private static readonly int MajorVersion = 1;
+        private static readonly int MinorVersion = 0;
 
-                var rssAnimeFilter = new RSSAnimeDetectionFilter();
-
-                var dbreezeDao = new DBreezeDao(engine);
-                var criterion = new AnimeCriterion(May.NoValue, "Kuroko's Basketball", true);
-                var animeProcessingFilter = new AnimeEntryProcessingFilter(dbreezeDao, new[] { criterion });
-
-                var sink = new AnimeEntrySink(@"E:\File Harbor\");
-
-                var sourceToFilter = new OutputStream<RSSFeed>(rssAnimeFilter, 0);
-                dataSource.AddOutputStreamAsync(sourceToFilter, 0);
-
-                var filterToFilter = new OutputStream<AnimeEntry>(animeProcessingFilter, 0);
-                rssAnimeFilter.AddOutputStreamAsync(filterToFilter, 0);
-
-                var filterToSink = new OutputStream<AnimeEntry>(sink, 0);
-                animeProcessingFilter.AddOutputStreamAsync(filterToSink, 0);
-
-                var topology = new FilterTopology<RSSFeed, AnimeEntry>(new[] { dataSource }, new IFilter[] { rssAnimeFilter, animeProcessingFilter }, new[] { sink });
-                var runtime = new TopologyRuntime<RSSFeed, AnimeEntry>(topology);
-
-                runtime.Start();
-                runtime.AwaitTermination(); //Waits forever, never to return
-            }
-        }
-
-        private static void ConfigureLogger()
-        {
-            var fileInfo = new FileInfo(@"Program\log4net_config.xml");
-            XmlConfigurator.Configure(fileInfo);
-        }
-
+        private static int CancelRequests = 0;
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Driver));
+        #endregion
+        #region public methods
         /// <summary>
         /// The main entry point
         /// </summary>
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
-            ConfigureLogger();
-            Run();
+            if (args.Length < 1)
+            {
+                PrintHelp();
+                return;
+            }
+
+            try
+            {
+                var configurationFile = LoadConfigurationFile(args[0]);
+                var runtime = InitializeRuntime(configurationFile);
+                StartRuntimeAndWait(runtime);
+            }
+            catch (Exception e)
+            {
+                PrintHelp();
+                Console.WriteLine("An error occured: " + e.ToString());
+                Logger.Fatal("An error occured while configuring the application", e);
+            }
         }
+        #endregion
+
+        #region private methods
+        private static void HookupControlCEvent(ITopologyRuntime runtime)
+        {
+            Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, arg) =>
+            {
+                runtime.Stop();
+
+                if (Interlocked.Increment(ref CancelRequests) < 1)
+                {
+                    Logger.Fatal("Stop signal received. Shutting down cleanly. Hit Ctrl+C again if you want to force shutdown.");
+                    arg.Cancel = true;
+                }
+                else
+                {
+                    Logger.Fatal("Stop signal received multiple times. Force-exiting process! Clean shutdown not achieved!");
+                }
+            });
+        }
+
+        private static void StartRuntimeAndWait(ITopologyRuntime runtime)
+        {
+            runtime.Start();
+            runtime.AwaitTermination();
+        }
+
+        private static ITopologyRuntime InitializeRuntime(ConfigurationFile configuration)
+        {
+            var topology = CreateTopology(configuration);
+            return new TopologyRuntime<RSSFeed, AnimeEntry>(topology);
+        }
+
+        private static void PrintHelp()
+        {
+            var builder = new StringBuilder();
+
+            builder.AppendFormat("Data Swallow v{0}.{1}", MajorVersion, MinorVersion).AppendLine();
+            builder.Append("Usage: <this program> <configuration file>");
+
+            Console.WriteLine(builder.ToString());
+        }
+
+        private static void ConfigureLogger()
+        {
+            XmlConfigurator.Configure(new FileInfo(@"log4net_config.xml"));
+        }
+
+        private static ConfigurationFile LoadConfigurationFile(string filePath)
+        {
+            return JsonConvert.DeserializeObject<ConfigurationFile>(File.ReadAllText(filePath));
+        }
+
+        private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration)
+        {
+            return null;
+        }
+        #endregion
     }
 }
