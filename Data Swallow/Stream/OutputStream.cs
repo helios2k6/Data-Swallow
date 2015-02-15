@@ -67,7 +67,7 @@ namespace DataSwallow.Stream
         /// </summary>
         /// <param name="output">The output.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public async Task PutAsync(TOutput output)
+        public Task PutAsync(TOutput output)
         {
             var message = new OutputStreamMessage<TOutput>
             {
@@ -75,7 +75,7 @@ namespace DataSwallow.Stream
                 TargetPort = _portNumber
             };
 
-            await _sink.AcceptAsync(message);
+            return _sink.AcceptAsync(message);
         }
         #endregion
     }

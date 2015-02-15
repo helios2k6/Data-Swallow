@@ -94,17 +94,17 @@ namespace DataSwallow.Filter.Anime
                 return;
             }
 
-            Logger.DebugFormat("Received Anime Entry: {0}", entry);
+            Logger.DebugFormat("Received Anime Entry: {0}", entry.ToString());
 
             //Add the entry to the database
             await _dao.Store(entry);
 
             //See if it matches any criterion
-            if (DoesMatchAnyCriterion(entry))
+            if (DoesMatchAllCriterion(entry))
             {
                 foreach (var kvp in outputStreams)
                 {
-                    Logger.DebugFormat("Accepting Anime Entry: {0}", entry);
+                    Logger.DebugFormat("Accepting Anime Entry: {0}", entry.ToString());
                     Functions.Ignore(kvp.Value.PutAsync(entry));
                 }
             }
@@ -117,9 +117,9 @@ namespace DataSwallow.Filter.Anime
             return existingEntry.Success;
         }
 
-        private bool DoesMatchAnyCriterion(AnimeEntry entry)
+        private bool DoesMatchAllCriterion(AnimeEntry entry)
         {
-            return _criterions.Any(t => t.ApplyCriterion(entry));
+            return _criterions.All(t => t.ApplyCriterion(entry));
         }
         #endregion
     }

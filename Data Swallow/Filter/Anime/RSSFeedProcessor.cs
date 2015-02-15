@@ -31,6 +31,7 @@ using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DataSwallow.Filter.Anime
@@ -92,7 +93,7 @@ namespace DataSwallow.Filter.Anime
 
             foreach (var item in channel.Items)
             {
-                Logger.DebugFormat("Analying RSS Channel Item: {0}", item);
+                Logger.DebugFormat("Analyzing RSS Channel Item: {0}", item);
                 AnimeEntry entry;
                 if (TryProcessRSSItem(item, source, out entry))
                 {
@@ -135,18 +136,27 @@ namespace DataSwallow.Filter.Anime
 
         private bool TryGetFansubFile(RSSChannelItem item, out FansubFile file)
         {
-            var fansubFileString = item.Title;
-            file = FansubFileParsers.ParseFansubFile(fansubFileString);
-
-            if (string.IsNullOrWhiteSpace(file.SeriesName)
-                || string.IsNullOrWhiteSpace(file.FansubGroup)
-                || file.EpisodeNumber < 0)
+            file = default(FansubFile);
+            try
             {
-                file = default(FansubFile);
-                return false;
+                var fansubFileString = item.Title;
+                file = FansubFileParsers.ParseFansubFile(fansubFileString);
+
+                if (string.IsNullOrWhiteSpace(file.SeriesName)
+                    || string.IsNullOrWhiteSpace(file.FansubGroup)
+                    || file.EpisodeNumber < 0)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format("Could not parse RSS Channel Item {0}", item.Title), e);
             }
 
-            return true;
+            return false;
         }
 
         private bool TryGetMediaMetadata(RSSChannelItem item, out MediaMetadata mediaMetadata)

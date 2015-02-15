@@ -78,6 +78,7 @@ namespace DataSwallow.Program
 
             try
             {
+                ConfigureLogger();
                 var configurationFile = LoadConfigurationFile(args[0]);
                 using (var dbreezeEngine = new DBreezeEngine(configurationFile.ProgramConfiguration.DatabaseFolder))
                 {
@@ -150,21 +151,26 @@ namespace DataSwallow.Program
             var sink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
 
             //Hook up sources to RSS->Anime Entry filter
+            int sourcePortCounter = 0;
             foreach (var s in sources)
             {
                 var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance, 0);
-                s.AddOutputStreamAsync(outputStream, 0);
+                s.AddOutputStreamAsync(outputStream, sourcePortCounter);
+                sourcePortCounter++;
             }
 
+            int rssToAnimeDetectorPortCounter = 0;
             foreach (var f in filters)
             {
                 //Hook up RSS->Anime entry filter to detection filter
                 var outputStream = new OutputStream<AnimeEntry>(f, 0);
-                RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(outputStream, 0);
+                RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(outputStream, rssToAnimeDetectorPortCounter);
 
                 //Hook up filters to sink
                 var toSinkOutputStream = new OutputStream<AnimeEntry>(sink, 0);
-                f.AddOutputStreamAsync(toSinkOutputStream, 0);
+                f.AddOutputStreamAsync(toSinkOutputStream, rssToAnimeDetectorPortCounter);
+
+                rssToAnimeDetectorPortCounter++;
             }
 
             var filtersRecastedUp = filters.Cast<IFilter>().Concat(RSSAnimeDetectionFilter.Instance.AsEnumerable());
@@ -176,14 +182,14 @@ namespace DataSwallow.Program
             DBreezeEngine engine)
         {
             var dao = new DBreezeDao(engine);
-            return configuration.AnimeEntries.Select(t => CreateAnimeFilter(t, dao));
+            return configuration.AnimeEntries.Select(t => CreateAnimeFilter(t, dao)).ToList();
         }
 
         private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntryConfiguration entry, IDao<AnimeEntry, string> dao)
         {
             var animeInfoCriterion = new AnimeCriterion(
-                entry.AnimeConfiguration.AnimeName.ToMaybe(),
                 entry.AnimeConfiguration.FansubGroup.ToMaybe(),
+                entry.AnimeConfiguration.AnimeName.ToMaybe(),
                 entry.AnimeConfiguration.UseFuzzy);
 
             var filePropertyCriterion = new FilePropertyCriterion(entry.FileConfiguration.Extension.ToMaybe());
@@ -200,8 +206,11 @@ namespace DataSwallow.Program
 
         private static IEnumerable<ISource<RSSFeed>> CreateDataSources()
         {
-            yield return new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"));
-            yield return new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"));
+            return new[] 
+            {
+                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 0),
+                //new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"))
+            };
         }
         #endregion
     }
