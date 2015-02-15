@@ -18,7 +18,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -36,7 +36,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -54,7 +54,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -72,7 +72,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -90,7 +90,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -108,7 +108,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -126,7 +126,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -144,7 +144,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -162,7 +162,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -180,7 +180,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 },
             },
             {
@@ -198,7 +198,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -216,7 +216,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -234,7 +234,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -252,7 +252,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -270,7 +270,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -288,7 +288,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -306,7 +306,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -324,7 +324,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -342,7 +342,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -360,7 +360,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -378,7 +378,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -396,7 +396,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -414,7 +414,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -432,7 +432,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -450,7 +450,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -468,7 +468,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -486,7 +486,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -504,7 +504,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"Unknown",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
             {
@@ -522,7 +522,7 @@
                 {
                     "VideoMedia":"Unknown",
                     "VideoMode":"SevenTwentyProgressive",
-                    "MustMatchAllCriteria":false
+                    "MustMatchAllCriteria":true
                 }
             },
          ]

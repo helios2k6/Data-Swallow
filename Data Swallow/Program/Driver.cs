@@ -166,6 +166,11 @@ namespace DataSwallow.Program
                 animeFilter,
                 RSSAnimeDetectionFilter.Instance
             };
+
+            //Hook up sink
+            var filterToSink = new OutputStream<AnimeEntry>(animeSink, 0);
+            animeFilter.AddOutputStreamAsync(filterToSink, 0);
+
             return new FilterTopology<RSSFeed, AnimeEntry>(dataSources, filtersUpcasted, animeSink.AsEnumerable());
         }
 
@@ -200,8 +205,8 @@ namespace DataSwallow.Program
         {
             return new[] 
             {
-                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 0),
-                //new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"))
+                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 15),
+                new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"), 15)
             };
         }
         #endregion
