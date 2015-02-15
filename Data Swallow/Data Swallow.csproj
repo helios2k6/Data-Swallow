@@ -155,7 +155,7 @@
     <Compile Include="Persistence\IDaoResult.cs" />
     <Compile Include="Utilities\IPauseResumable.cs" />
     <Compile Include="Utilities\IStartStoppable.cs" />
-    <Compile Include="Utilities\ObjectExtensions.cs" />
+    <Compile Include="Utilities\BaseExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
