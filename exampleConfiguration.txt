@@ -1,0 +1,31 @@
+{
+    "AnimeConfiguration": 
+    {
+        "AnimeEntries":
+         [
+            {
+                "AnimeConfiguration":
+                {
+                    "AnimeName":"",
+                    "FansubGroup":"",
+                    "UseFuzzy":true
+                },
+                "FileConfiguration":
+                {
+                    "Extension":".mkv"
+                },
+                "MediaConfiguration":
+                {
+                    "VideoMedia":"Unknown",
+                    "VideoMode":"Unknown",
+                    "MustMatchAllCriteria":false
+                }
+            }
+         ]
+    },
+    "ProgramConfiguration":
+    {
+        "TorrentFileDestination":"",
+        "DatabaseFolder":""
+    }
+}

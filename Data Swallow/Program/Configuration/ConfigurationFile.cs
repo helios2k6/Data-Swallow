@@ -44,6 +44,7 @@ namespace DataSwallow.Program.Configuration
         /// <value>
         /// The anime configuration.
         /// </value>
+        [JsonProperty(Required = Required.Always, PropertyName = "AnimeConfiguration")]
         public AnimeEntriesConfiguration AnimeConfiguration { get; set; }
 
         /// <summary>
@@ -52,6 +53,7 @@ namespace DataSwallow.Program.Configuration
         /// <value>
         /// The program configuration.
         /// </value>
+        [JsonProperty(Required = Required.Always, PropertyName = "ProgramConfiguration")]
         public ProgramConfiguration ProgramConfiguration { get; set; }
         #endregion
 
