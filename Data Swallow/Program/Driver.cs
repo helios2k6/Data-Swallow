@@ -146,46 +146,38 @@ namespace DataSwallow.Program
 
         private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration, DBreezeEngine engine)
         {
-            var sources = CreateDataSources();
-            var filters = CreateAnimeFilters(configuration.AnimeConfiguration, engine);
-            var sink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
+            var dataSources = CreateDataSources();
+            var animeFilter = CreateAnimeFilter(configuration.AnimeConfiguration, engine);
+            var animeSink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
 
             //Hook up sources to RSS->Anime Entry filter
-            int sourcePortCounter = 0;
-            foreach (var s in sources)
+            foreach (var dataSource in dataSources)
             {
                 var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance, 0);
-                s.AddOutputStreamAsync(outputStream, sourcePortCounter);
-                sourcePortCounter++;
+                dataSource.AddOutputStreamAsync(outputStream, 0);
             }
 
-            int rssToAnimeDetectorPortCounter = 0;
-            foreach (var f in filters)
+            RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(
+                new OutputStream<AnimeEntry>(animeFilter, 0),
+                0);
+
+            var filtersUpcasted = new List<IFilter>
             {
-                //Hook up RSS->Anime entry filter to detection filter
-                var outputStream = new OutputStream<AnimeEntry>(f, 0);
-                RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(outputStream, rssToAnimeDetectorPortCounter);
-
-                //Hook up filters to sink
-                var toSinkOutputStream = new OutputStream<AnimeEntry>(sink, 0);
-                f.AddOutputStreamAsync(toSinkOutputStream, rssToAnimeDetectorPortCounter);
-
-                rssToAnimeDetectorPortCounter++;
-            }
-
-            var filtersRecastedUp = filters.Cast<IFilter>().Concat(RSSAnimeDetectionFilter.Instance.AsEnumerable());
-            return new FilterTopology<RSSFeed, AnimeEntry>(sources, filtersRecastedUp, sink.AsEnumerable());
+                animeFilter,
+                RSSAnimeDetectionFilter.Instance
+            };
+            return new FilterTopology<RSSFeed, AnimeEntry>(dataSources, filtersUpcasted, animeSink.AsEnumerable());
         }
 
-        private static IEnumerable<IFilter<AnimeEntry, AnimeEntry>> CreateAnimeFilters(
-            AnimeEntriesConfiguration configuration,
-            DBreezeEngine engine)
+        private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntriesConfiguration entry, DBreezeEngine engine)
         {
-            var dao = new DBreezeDao(engine);
-            return configuration.AnimeEntries.Select(t => CreateAnimeFilter(t, dao)).ToList();
+            return new AnimeEntryProcessingFilter(
+                new DBreezeDao(engine),
+                entry.AnimeEntries.Select(CreateGroupCriterion).ToList(),
+                false);
         }
 
-        private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntryConfiguration entry, IDao<AnimeEntry, string> dao)
+        private static ICriterion<AnimeEntry> CreateGroupCriterion(AnimeEntryConfiguration entry)
         {
             var animeInfoCriterion = new AnimeCriterion(
                 entry.AnimeConfiguration.FansubGroup.ToMaybe(),
@@ -201,7 +193,7 @@ namespace DataSwallow.Program
 
             var qualityPropertyCriterion = new QualityCriterion(videoMode, videoMedia, entry.MediaConfiguration.MustMatchAllCriteria);
 
-            return new AnimeEntryProcessingFilter(dao, new ICriterion<AnimeEntry>[] { animeInfoCriterion, filePropertyCriterion, qualityPropertyCriterion });
+            return new GroupCriterion<AnimeEntry>(new ICriterion<AnimeEntry>[] { animeInfoCriterion, filePropertyCriterion, qualityPropertyCriterion });
         }
 
         private static IEnumerable<ISource<RSSFeed>> CreateDataSources()

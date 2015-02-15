@@ -149,6 +149,7 @@
     <Compile Include="Persistence\DaoResult.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\Functions.cs" />
+    <Compile Include="Utilities\GroupCriterion.cs" />
     <Compile Include="Utilities\ICriterion.cs" />
     <Compile Include="Persistence\IDao.cs" />
     <Compile Include="Persistence\IDaoResult.cs" />

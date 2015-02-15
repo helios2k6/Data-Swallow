@@ -54,6 +54,14 @@
             </summary>
             <returns>The hash code</returns>
         </member>
+        <member name="M:FansubFileNameParser.FansubFile.ToString">
+            <summary>
+            Returns a <see cref="T:System.String"/> that represents this instance.
+            </summary>
+            <returns>
+            A <see cref="T:System.String"/> that represents this instance.
+            </returns>
+        </member>
         <member name="M:FansubFileNameParser.FansubFile.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
             <summary>
             Gets the data used for serializing this object
