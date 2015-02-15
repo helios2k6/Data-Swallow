@@ -59,8 +59,8 @@ namespace DataSwallow.Anime
         /// <summary>
         /// Applies the criterion.
         /// </summary>
-        /// <param name="mediaMetadata">The media metadata.</param>
-        /// <returns>Returns true if the MediaMetadata passes this criterion. False otherwise</returns>
+        /// <param name="animeEntry">The anime entry to filter.</param>
+        /// <returns>Returns true if the AnimeEntry passes this criterion. False otherwise</returns>
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {
             var mediaCheck = CheckVideoMedia(animeEntry.MediaMetadata.VideoMedia);
