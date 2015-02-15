@@ -24,7 +24,7 @@
 
 using DataSwallow.Utilities;
 using FansubFileNameParser.Metadata;
-using Strilanc.Value;
+using Functional.Maybe;
 using System;
 
 namespace DataSwallow.Anime
@@ -35,7 +35,7 @@ namespace DataSwallow.Anime
     public sealed class FilePropertyCriterion : ICriterion<AnimeEntry>
     {
         #region private fields
-        private readonly May<string> _extension;
+        private readonly Maybe<string> _extension;
         #endregion
 
         #region ctor
@@ -43,7 +43,7 @@ namespace DataSwallow.Anime
         /// Initializes a new instance of the <see cref="FilePropertyCriterion"/> class.
         /// </summary>
         /// <param name="extension">The extension.</param>
-        public FilePropertyCriterion(May<string> extension)
+        public FilePropertyCriterion(Maybe<string> extension)
         {
             _extension = extension;
         }
@@ -57,7 +57,9 @@ namespace DataSwallow.Anime
         /// <returns>True if the criterion is passed. False otherwise</returns>
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {
-            return _extension.Match(ext => ext.Equals(animeEntry.FansubFile.Extension, StringComparison.OrdinalIgnoreCase), true);
+            return _extension.SelectOrElse(
+                    ext => ext.Equals(animeEntry.FansubFile.Extension, StringComparison.OrdinalIgnoreCase), 
+                    () => true);
         }
         #endregion
     }

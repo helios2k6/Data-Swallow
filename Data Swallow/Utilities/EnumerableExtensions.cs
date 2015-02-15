@@ -43,6 +43,17 @@ namespace DataSwallow.Utilities
         {
             return @this.Aggregate<TElement, int>(0, HashCodeFolder<TElement>);
         }
+
+        /// <summary>
+        /// Returns an object as an IEnumerable of one element (itself)
+        /// </summary>
+        /// <typeparam name="T">The type of this</typeparam>
+        /// <param name="t">This reference</param>
+        /// <returns>An IEnumerable with this as its only element</returns>
+        public static IEnumerable<T> AsEnumerable<T>(this T t)
+        {
+            yield return t;
+        }
         #endregion
 
         #region private methods

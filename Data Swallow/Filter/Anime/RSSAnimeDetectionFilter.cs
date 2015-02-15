@@ -34,6 +34,17 @@ namespace DataSwallow.Filter.Anime
     /// </summary>
     public sealed class RSSAnimeDetectionFilter : FilterActor<RSSFeed, AnimeEntry>
     {
+        #region public static fields
+        /// <summary>
+        /// The singleton instance of this class
+        /// </summary>
+        public static readonly RSSAnimeDetectionFilter Instance = new RSSAnimeDetectionFilter();
+        #endregion
+
+        #region ctor
+        private RSSAnimeDetectionFilter() { }
+        #endregion
+
         #region public methods
         /// <summary>
         /// Returns a <see cref="System.String" /> that represents this instance.

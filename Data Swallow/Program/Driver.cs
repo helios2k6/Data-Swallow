@@ -23,15 +23,28 @@
  */
 
 using DataSwallow.Anime;
+using DataSwallow.Filter;
+using DataSwallow.Filter.Anime;
+using DataSwallow.Persistence;
 using DataSwallow.Program.Configuration;
+using DataSwallow.Program.Configuration.Anime;
 using DataSwallow.Runtime;
+using DataSwallow.Sink;
+using DataSwallow.Source;
 using DataSwallow.Source.RSS;
+using DataSwallow.Stream;
 using DataSwallow.Topology;
+using DataSwallow.Utilities;
+using DBreeze;
+using FansubFileNameParser.Metadata;
+using Functional.Maybe;
 using log4net;
 using log4net.Config;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -49,6 +62,7 @@ namespace DataSwallow.Program
         private static int CancelRequests = 0;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Driver));
         #endregion
+
         #region public methods
         /// <summary>
         /// The main entry point
@@ -65,8 +79,10 @@ namespace DataSwallow.Program
             try
             {
                 var configurationFile = LoadConfigurationFile(args[0]);
-                var runtime = InitializeRuntime(configurationFile);
-                StartRuntimeAndWait(runtime);
+                using (var dbreezeEngine = new DBreezeEngine(configurationFile.ProgramConfiguration.DatabaseFolder))
+                {
+                    StartRuntimeAndWait(InitializeRuntime(configurationFile, dbreezeEngine));
+                }
             }
             catch (Exception e)
             {
@@ -102,10 +118,9 @@ namespace DataSwallow.Program
             runtime.AwaitTermination();
         }
 
-        private static ITopologyRuntime InitializeRuntime(ConfigurationFile configuration)
+        private static ITopologyRuntime InitializeRuntime(ConfigurationFile configuration, DBreezeEngine engine)
         {
-            var topology = CreateTopology(configuration);
-            return new TopologyRuntime<RSSFeed, AnimeEntry>(topology);
+            return new TopologyRuntime<RSSFeed, AnimeEntry>(CreateTopology(configuration, engine));
         }
 
         private static void PrintHelp()
@@ -128,9 +143,65 @@ namespace DataSwallow.Program
             return JsonConvert.DeserializeObject<ConfigurationFile>(File.ReadAllText(filePath));
         }
 
-        private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration)
+        private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration, DBreezeEngine engine)
         {
-            return null;
+            var sources = CreateDataSources();
+            var filters = CreateAnimeFilters(configuration.AnimeConfiguration, engine);
+            var sink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
+
+            //Hook up sources to RSS->Anime Entry filter
+            foreach (var s in sources)
+            {
+                var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance, 0);
+                s.AddOutputStreamAsync(outputStream, 0);
+            }
+
+            foreach (var f in filters)
+            {
+                //Hook up RSS->Anime entry filter to detection filter
+                var outputStream = new OutputStream<AnimeEntry>(f, 0);
+                RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(outputStream, 0);
+
+                //Hook up filters to sink
+                var toSinkOutputStream = new OutputStream<AnimeEntry>(sink, 0);
+                f.AddOutputStreamAsync(toSinkOutputStream, 0);
+            }
+
+            var filtersRecastedUp = filters.Cast<IFilter>().Concat(RSSAnimeDetectionFilter.Instance.AsEnumerable());
+            return new FilterTopology<RSSFeed, AnimeEntry>(sources, filtersRecastedUp, sink.AsEnumerable());
+        }
+
+        private static IEnumerable<IFilter<AnimeEntry, AnimeEntry>> CreateAnimeFilters(
+            AnimeEntriesConfiguration configuration,
+            DBreezeEngine engine)
+        {
+            var dao = new DBreezeDao(engine);
+            return configuration.AnimeEntries.Select(t => CreateAnimeFilter(t, dao));
+        }
+
+        private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntryConfiguration entry, IDao<AnimeEntry, string> dao)
+        {
+            var animeInfoCriterion = new AnimeCriterion(
+                entry.AnimeConfiguration.AnimeName.ToMaybe(),
+                entry.AnimeConfiguration.FansubGroup.ToMaybe(),
+                entry.AnimeConfiguration.UseFuzzy);
+
+            var filePropertyCriterion = new FilePropertyCriterion(entry.FileConfiguration.Extension.ToMaybe());
+
+            VideoMode videoMode = VideoMode.Unknown;
+            VideoMedia videoMedia = VideoMedia.Unknown;
+            Enum.TryParse<VideoMode>(entry.MediaConfiguration.VideoMode, out videoMode);
+            Enum.TryParse<VideoMedia>(entry.MediaConfiguration.VideoMedia, out videoMedia);
+
+            var qualityPropertyCriterion = new QualityCriterion(videoMode, videoMedia, entry.MediaConfiguration.MustMatchAllCriteria);
+
+            return new AnimeEntryProcessingFilter(dao, new ICriterion<AnimeEntry>[] { animeInfoCriterion, filePropertyCriterion, qualityPropertyCriterion });
+        }
+
+        private static IEnumerable<ISource<RSSFeed>> CreateDataSources()
+        {
+            yield return new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"));
+            yield return new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"));
         }
         #endregion
     }

@@ -32,7 +32,7 @@ namespace DataSwallow.Anime
     /// <summary>
     /// A criterion that encapsulates whether a file passes a certain quality threshold
     /// </summary>
-    public sealed class QualityCriterion : ICriterion<MediaMetadata>
+    public sealed class QualityCriterion : ICriterion<AnimeEntry>
     {
         #region private fields
         private readonly VideoMode _videoMode;
@@ -61,14 +61,16 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="mediaMetadata">The media metadata.</param>
         /// <returns>Returns true if the MediaMetadata passes this criterion. False otherwise</returns>
-        public bool ApplyCriterion(MediaMetadata mediaMetadata)
+        public bool ApplyCriterion(AnimeEntry animeEntry)
         {
+            var mediaCheck = CheckVideoMedia(animeEntry.MediaMetadata.VideoMedia);
+            var modeCheck = CheckVideoMode(animeEntry.MediaMetadata.VideoMode);
             if (_allCriteriaMustMatch)
             {
-                return _videoMode == mediaMetadata.VideoMode && _videoMedia == mediaMetadata.VideoMedia;
+                return mediaCheck && modeCheck;
             }
 
-            return _videoMode == mediaMetadata.VideoMode || _videoMedia == mediaMetadata.VideoMedia;
+            return mediaCheck || modeCheck;
         }
 
         /// <summary>
@@ -85,6 +87,18 @@ namespace DataSwallow.Anime
                 Enum.GetName(typeof(VideoMedia), _videoMedia));
 
             return builder.ToString();
+        }
+        #endregion
+
+        #region private methods
+        private bool CheckVideoMode(VideoMode otherVideoMode)
+        {
+            return _videoMode == VideoMode.Unknown || _videoMode == otherVideoMode;
+        }
+
+        private bool CheckVideoMedia(VideoMedia otherVideoMedia)
+        {
+            return _videoMedia == VideoMedia.Unknown || _videoMedia == otherVideoMedia;
         }
         #endregion
     }

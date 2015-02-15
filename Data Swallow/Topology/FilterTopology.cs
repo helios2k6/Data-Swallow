@@ -61,7 +61,8 @@ namespace DataSwallow.Topology
         /// <param name="sources">The sources.</param>
         /// <param name="filters">The filters.</param>
         /// <param name="sinks">The sinks.</param>
-        public FilterTopology(IEnumerable<ISource<TSourceOutput>> sources,
+        public FilterTopology(
+            IEnumerable<ISource<TSourceOutput>> sources,
             IEnumerable<IFilter> filters,
             IEnumerable<ISink<TSinkInput>> sinks)
         {
