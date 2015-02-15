@@ -205,8 +205,8 @@ namespace DataSwallow.Program
         {
             return new[] 
             {
-                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 15),
-                new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"), 15)
+                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 180),
+                new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"), 180)
             };
         }
         #endregion
