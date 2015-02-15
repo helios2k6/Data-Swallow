@@ -56,6 +56,9 @@ namespace DataSwallow.Source.RSS
         #endregion
 
         #region private fields
+        private static readonly int DefaultVariability = 4;
+        private static readonly int DefaultPauseTimeInSeconds = 60;
+
         private static readonly Message<MessageType, MessagePayload> StartMessage = new Message<MessageType, MessagePayload>(MessageType.Start, new MessagePayload(), "Start");
         private static readonly Message<MessageType, MessagePayload> StopMessage = new Message<MessageType, MessagePayload>(MessageType.Stop, new MessagePayload(), "Stop");
         private static readonly Message<MessageType, MessagePayload> PauseMessage = new Message<MessageType, MessagePayload>(MessageType.Pause, new MessagePayload(), "Pause");
@@ -104,7 +107,7 @@ namespace DataSwallow.Source.RSS
         /// <param name="feedUrl">The feed URL.</param>
         /// <param name="pauseTime">The pause time in seconds.</param>
         public RSSFeedDataSource(Uri feedUrl, int pauseTime)
-            : this(feedUrl, pauseTime, 0)
+            : this(feedUrl, pauseTime, DefaultVariability)
         {
         }
 
@@ -113,7 +116,7 @@ namespace DataSwallow.Source.RSS
         /// </summary>
         /// <param name="feedUrl">The feed URL.</param>
         public RSSFeedDataSource(Uri feedUrl)
-            : this(feedUrl, 60)
+            : this(feedUrl, DefaultPauseTimeInSeconds)
         {
         }
         #endregion
