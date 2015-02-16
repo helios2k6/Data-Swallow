@@ -82,7 +82,9 @@ namespace DataSwallow.Program
                 var configurationFile = LoadConfigurationFile(args[0]);
                 using (var dbreezeEngine = new DBreezeEngine(configurationFile.ProgramConfiguration.DatabaseFolder))
                 {
-                    StartRuntimeAndWait(InitializeRuntime(configurationFile, dbreezeEngine));
+                    var runtime = InitializeRuntime(configurationFile, dbreezeEngine);
+                    HookupControlCEvent(runtime);
+                    StartRuntimeAndWait(runtime);
                 }
             }
             catch (Exception e)
