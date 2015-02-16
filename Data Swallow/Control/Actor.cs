@@ -64,15 +64,6 @@ namespace DataSwallow.Control
         /// <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
         /// </value>
         public bool IsDisposed { get { return _isDisposed; } }
-
-        /// <summary>
-        /// Gets the stop token. This token represents the cancellation token that this actor
-        /// is using to signal that it has been stopped.
-        /// </summary>
-        /// <value>
-        /// The stop token.
-        /// </value>
-        public CancellationToken StopToken { get { return _tokenSource.Token; } }
         #endregion
 
         #region public methods

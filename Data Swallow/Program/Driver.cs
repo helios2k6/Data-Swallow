@@ -101,10 +101,9 @@ namespace DataSwallow.Program
         {
             Console.CancelKeyPress += new ConsoleCancelEventHandler((sender, arg) =>
             {
-                runtime.Stop();
-
                 if (Interlocked.Increment(ref CancelRequests) <= 1)
                 {
+                    runtime.Stop();
                     Logger.Fatal("Stop signal received. Shutting down cleanly. Hit Ctrl+C again if you want to force shutdown.");
                     arg.Cancel = true;
                 }

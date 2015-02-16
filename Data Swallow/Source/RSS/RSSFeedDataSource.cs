@@ -72,6 +72,7 @@ namespace DataSwallow.Source.RSS
         private readonly YAXSerializer _serializer;
         private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
         private readonly ISet<IOutputStream<RSSFeed>> _outputStreams;
+        private readonly CancellationTokenSource _stopTokenSource;
 
         private State _state;
         private bool _isDisposed;
@@ -96,6 +97,7 @@ namespace DataSwallow.Source.RSS
 
             _actorEngine = new FunctionalStatelessActor<Message<MessageType, MessagePayload>>(Process);
             _outputStreams = new HashSet<IOutputStream<RSSFeed>>();
+            _stopTokenSource = new CancellationTokenSource();
         }
 
         /// <summary>
@@ -175,6 +177,8 @@ namespace DataSwallow.Source.RSS
             Logger.Debug("Stopping RSSFeedDataSource");
 
             _actorEngine.Post(StopMessage);
+
+            _stopTokenSource.Cancel();
         }
 
         /// <summary>
@@ -211,6 +215,7 @@ namespace DataSwallow.Source.RSS
             _isDisposed = true;
             _actorEngine.Dispose();
             _client.Dispose();
+            _stopTokenSource.Dispose();
         }
         #endregion
 
@@ -237,7 +242,7 @@ namespace DataSwallow.Source.RSS
 
             Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
 
-            await Task.Delay(waitInTimeSpan, _actorEngine.StopToken);
+            await Task.Delay(waitInTimeSpan, _stopTokenSource.Token);
 
             Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
 
