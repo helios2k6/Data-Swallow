@@ -25,6 +25,7 @@
 using DataSwallow.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace DataSwallow.Program.Configuration
@@ -58,7 +59,7 @@ namespace DataSwallow.Program.Configuration
             var builder = new StringBuilder();
 
             builder.AppendLine("File Property Configuration");
-            builder.AppendLine(string.Format("Extension = {0}", Extension));
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "Extension = {0}", Extension));
 
             return builder.ToString();
         }

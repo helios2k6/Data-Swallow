@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using System.Globalization;
 namespace DataSwallow.Stream
 {
     /// <summary>
@@ -31,13 +32,6 @@ namespace DataSwallow.Stream
     public sealed class OutputStreamMessage<T> : IOutputStreamMessage<T>
     {
         #region public properties
-        /// <summary>
-        /// Gets or sets the target port.
-        /// </summary>
-        /// <value>
-        /// The target port.
-        /// </value>
-        public int TargetPort { get; set; }
         /// <summary>
         /// Gets or sets the payload.
         /// </summary>
@@ -57,7 +51,7 @@ namespace DataSwallow.Stream
         /// <exception cref="System.NotImplementedException"></exception>
         public override string ToString()
         {
-            return string.Format("Output Stream Message with {0} at port number {1}", Payload, TargetPort);
+            return string.Format(CultureInfo.InvariantCulture, "Output Stream Message with {0}", Payload);
         }
         #endregion
     }

@@ -56,8 +56,8 @@ namespace DataSwallow.Program
     public static class Driver
     {
         #region private static fields
-        private static readonly int MajorVersion = 1;
-        private static readonly int MinorVersion = 0;
+        private const int MajorVersion = 1;
+        private const int MinorVersion = 0;
 
         private static int CancelRequests = 0;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Driver));
@@ -103,7 +103,7 @@ namespace DataSwallow.Program
             {
                 runtime.Stop();
 
-                if (Interlocked.Increment(ref CancelRequests) < 1)
+                if (Interlocked.Increment(ref CancelRequests) <= 1)
                 {
                     Logger.Fatal("Stop signal received. Shutting down cleanly. Hit Ctrl+C again if you want to force shutdown.");
                     arg.Cancel = true;
@@ -155,13 +155,11 @@ namespace DataSwallow.Program
             //Hook up sources to RSS->Anime Entry filter
             foreach (var dataSource in dataSources)
             {
-                var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance, 0);
-                dataSource.AddOutputStreamAsync(outputStream, 0);
+                var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance);
+                dataSource.AddOutputStream(outputStream);
             }
 
-            RSSAnimeDetectionFilter.Instance.AddOutputStreamAsync(
-                new OutputStream<AnimeEntry>(animeFilter, 0),
-                0);
+            RSSAnimeDetectionFilter.Instance.AddOutputStream(new OutputStream<AnimeEntry>(animeFilter));
 
             var filtersUpcasted = new List<IFilter>
             {
@@ -170,8 +168,8 @@ namespace DataSwallow.Program
             };
 
             //Hook up sink
-            var filterToSink = new OutputStream<AnimeEntry>(animeSink, 0);
-            animeFilter.AddOutputStreamAsync(filterToSink, 0);
+            var filterToSink = new OutputStream<AnimeEntry>(animeSink);
+            animeFilter.AddOutputStream(filterToSink);
 
             return new FilterTopology<RSSFeed, AnimeEntry>(dataSources, filtersUpcasted, animeSink.AsEnumerable());
         }

@@ -31,13 +31,6 @@ namespace DataSwallow.Stream
     public interface IOutputStreamMessage<T>
     {
         /// <summary>
-        /// Gets the target port.
-        /// </summary>
-        /// <value>
-        /// The target port.
-        /// </value>
-        int TargetPort { get; }
-        /// <summary>
         /// Gets the payload.
         /// </summary>
         /// <value>

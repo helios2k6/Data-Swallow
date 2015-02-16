@@ -33,10 +33,9 @@ namespace DataSwallow.Stream
     public interface IOutputStream<TOutput>
     {
         /// <summary>
-        /// Puts the specified output.
+        /// Posts the specified output to the IOutputStream
         /// </summary>
         /// <param name="output">The output.</param>
-        /// <returns>A Task representing the submitting of the data</returns>
-        Task PutAsync(TOutput output);
+        void Post(TOutput output);
     }
 }

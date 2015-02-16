@@ -39,12 +39,6 @@ namespace DataSwallow.Control
         /// Adds an IOutputStream asynchronously
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="sourcePortNumber">The port number.</param>
-        Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber);
-        /// <summary>
-        /// Gets the output streams asynchronously.
-        /// </summary>
-        /// <returns>A Task representing the getting of the output streams</returns>
-        Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync();
+        void AddOutputStream(IOutputStream<TOutput> outputStream);
     }
 }

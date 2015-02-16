@@ -38,13 +38,13 @@ namespace DataSwallow.Anime
     public sealed class AnimeEntry : IEquatable<AnimeEntry>, ISerializable
     {
         #region private fields
-        private static readonly string OriginalInputKey = "OriginalInput";
-        private static readonly string FansubFileKey = "FansubFile";
-        private static readonly string MediaMetadataKey = "MediaMetadata";
-        private static readonly string PublicationDateKey = "PublicationDate";
-        private static readonly string GuidKey = "Guid";
-        private static readonly string ResourceLocationKey = "ResourceLocation";
-        private static readonly string SourceKey = "Source";
+        private const string OriginalInputKey = "OriginalInput";
+        private const string FansubFileKey = "FansubFile";
+        private const string MediaMetadataKey = "MediaMetadata";
+        private const string PublicationDateKey = "PublicationDate";
+        private const string GuidKey = "Guid";
+        private const string ResourceLocationKey = "ResourceLocation";
+        private const string SourceKey = "Source";
 
         private readonly string _originalInput;
         private readonly FansubFile _fansubFile;

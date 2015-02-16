@@ -31,6 +31,7 @@ using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace DataSwallow.Filter.Anime
@@ -38,24 +39,11 @@ namespace DataSwallow.Filter.Anime
     /// <summary>
     /// A RSSFeed -> AnimeEntry processing engine
     /// </summary>
-    public sealed class RSSFeedProcessor
+    public static class RSSFeedProcessor
     {
         #region private fields
         private static readonly ILog Logger = LogManager.GetLogger(typeof(RSSFeedProcessor));
-        private static readonly string DateTimePatternRFC822 = "ddd, dd MMM yyyy HH:mm:ss o<+HHmm>";
-        #endregion
-
-        #region ctor
-        private RSSFeedProcessor()
-        {
-        }
-        #endregion
-
-        #region public properties
-        /// <summary>
-        /// The singleton instance
-        /// </summary>
-        public static readonly RSSFeedProcessor Instance = new RSSFeedProcessor();
+        private const string DateTimePatternRFC822 = "ddd, dd MMM yyyy HH:mm:ss o<+HHmm>";
         #endregion
 
         #region public methods
@@ -65,25 +53,14 @@ namespace DataSwallow.Filter.Anime
         /// <param name="feed">The feed.</param>
         /// <param name="entries">The entries.</param>
         /// <returns>True on success. False otherwise</returns>
-        public bool TryGetAnimeEntries(RSSFeed feed, out IEnumerable<AnimeEntry> entries)
+        public static bool TryGetAnimeEntries(RSSFeed feed, out IEnumerable<AnimeEntry> entries)
         {
             return TryProcessRSSChannel(feed.Channel, out entries);
-        }
-
-        /// <summary>
-        /// Returns a <see cref="System.String" /> that represents this instance.
-        /// </summary>
-        /// <returns>
-        /// A <see cref="System.String" /> that represents this instance.
-        /// </returns>
-        public override string ToString()
-        {
-            return "RSS Feed Processor";
         }
         #endregion
 
         #region private methods
-        private bool TryProcessRSSChannel(RSSChannel channel, out IEnumerable<AnimeEntry> entries)
+        private static bool TryProcessRSSChannel(RSSChannel channel, out IEnumerable<AnimeEntry> entries)
         {
             entries = default(IEnumerable<AnimeEntry>);
 
@@ -109,7 +86,7 @@ namespace DataSwallow.Filter.Anime
             return false;
         }
 
-        private bool TryProcessRSSItem(RSSChannelItem item, string source, out AnimeEntry entry)
+        private static bool TryProcessRSSItem(RSSChannelItem item, string source, out AnimeEntry entry)
         {
             entry = default(AnimeEntry);
 
@@ -133,7 +110,7 @@ namespace DataSwallow.Filter.Anime
             return false;
         }
 
-        private bool TryGetFansubFile(RSSChannelItem item, out FansubFile file)
+        private static bool TryGetFansubFile(RSSChannelItem item, out FansubFile file)
         {
             file = default(FansubFile);
             try
@@ -152,18 +129,18 @@ namespace DataSwallow.Filter.Anime
             }
             catch (Exception e)
             {
-                Logger.Error(string.Format("Could not parse RSS Channel Item {0}", item.Title), e);
+                Logger.Error(string.Format(CultureInfo.InvariantCulture, "Could not parse RSS Channel Item {0}", item.Title), e);
             }
 
             return false;
         }
 
-        private bool TryGetMediaMetadata(RSSChannelItem item, out MediaMetadata mediaMetadata)
+        private static bool TryGetMediaMetadata(RSSChannelItem item, out MediaMetadata mediaMetadata)
         {
             return MediaMetadataParser.TryParseMediaMetadata(item.Title, out mediaMetadata);
         }
 
-        private bool TryGetPubDate(RSSChannelItem item, out OffsetDateTime time)
+        private static bool TryGetPubDate(RSSChannelItem item, out OffsetDateTime time)
         {
             time = default(OffsetDateTime);
 
@@ -180,7 +157,7 @@ namespace DataSwallow.Filter.Anime
             return false;
         }
 
-        private bool TryGetGuid(RSSChannelItem item, out string guid)
+        private static bool TryGetGuid(RSSChannelItem item, out string guid)
         {
             guid = default(string);
 
@@ -193,7 +170,7 @@ namespace DataSwallow.Filter.Anime
             return true;
         }
 
-        private bool TryGetResourceLocation(RSSChannelItem item, out Uri resourceLocation)
+        private static bool TryGetResourceLocation(RSSChannelItem item, out Uri resourceLocation)
         {
             resourceLocation = default(Uri);
 

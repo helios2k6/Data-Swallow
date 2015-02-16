@@ -25,6 +25,7 @@
 using DataSwallow.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace DataSwallow.Program.Configuration
@@ -67,8 +68,8 @@ namespace DataSwallow.Program.Configuration
             var builder = new StringBuilder();
 
             builder.AppendLine("Program Configuration");
-            builder.AppendLine(string.Format("Torrent File Destination: {0}", TorrentFileDestination));
-            builder.AppendLine(string.Format("Database Folder: {0}", DatabaseFolder));
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "Torrent File Destination: {0}", TorrentFileDestination));
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "Database Folder: {0}", DatabaseFolder));
 
             return builder.ToString();
         }

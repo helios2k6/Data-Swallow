@@ -38,16 +38,9 @@ namespace DataSwallow.Anime
     public sealed class AnimeCriterion : ICriterion<AnimeEntry>
     {
         #region private classes
-        private sealed class StringMetricsCalculator
+        private static class StringMetricsCalculator
         {
-            private static readonly Lazy<StringMetricsCalculator> _instanceLazy = new Lazy<StringMetricsCalculator>(() => new StringMetricsCalculator());
-
-            public static StringMetricsCalculator Instance
-            {
-                get { return _instanceLazy.Value; }
-            }
-
-            private IList<AbstractStringMetric> CreateMetricsList()
+            private static IList<AbstractStringMetric> CreateMetricsList()
             {
                 return new List<AbstractStringMetric>
                 {
@@ -60,17 +53,17 @@ namespace DataSwallow.Anime
                 };
             }
 
-            private double GetSimilatiry(string a, string b)
+            private static double GetSimilatiry(string a, string b)
             {
                 return CreateMetricsList().Average(c => c.GetSimilarity(a, b));
             }
 
-            public double MeasureSimilarity(string a, string b)
+            public static double MeasureSimilarity(string a, string b)
             {
                 return GetSimilatiry(a, b);
             }
 
-            public double MeasureSimilarityIgnoreCase(string a, string b)
+            public static double MeasureSimilarityIgnoreCase(string a, string b)
             {
                 string aUpper = a.ToUpperInvariant();
                 string bUpper = b.ToUpperInvariant();
@@ -130,23 +123,23 @@ namespace DataSwallow.Anime
             }
         }
 
-        private bool ApplyCriterionExact(Maybe<string> criterion, string entry)
+        private static bool ApplyCriterionExact(Maybe<string> criterion, string entry)
         {
             return criterion.SelectOrElse(
                 crit => crit.Equals(entry, StringComparison.Ordinal), 
                 () => true);
         }
 
-        private bool ApplyCriterionFuzzy(Maybe<string> criterion, string entry)
+        private static bool ApplyCriterionFuzzy(Maybe<string> criterion, string entry)
         {
             return criterion.SelectOrElse(
                 crit => ApplyCriterionFuzzyImpl(crit, entry), 
                 () => true);
         }
 
-        private bool ApplyCriterionFuzzyImpl(string criterion, string entry)
+        private static bool ApplyCriterionFuzzyImpl(string criterion, string entry)
         {
-            var distance = StringMetricsCalculator.Instance.MeasureSimilarityIgnoreCase(criterion, entry);
+            var distance = StringMetricsCalculator.MeasureSimilarityIgnoreCase(criterion, entry);
 
             var comparison = distance - SmudgeFactor;
             var comparisonMagnitude = Math.Abs(comparison);

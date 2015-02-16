@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+using log4net;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -45,6 +46,8 @@ namespace DataSwallow.Control
         #endregion
 
         #region private fields
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(Actor<TMessage>));
+
         private readonly BlockingCollection<Ticket> _messages = new BlockingCollection<Ticket>();
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
         private readonly EventWaitHandle _shutdownSignal = new EventWaitHandle(false, EventResetMode.ManualReset);
@@ -61,6 +64,15 @@ namespace DataSwallow.Control
         /// <c>true</c> if this instance is disposed; otherwise, <c>false</c>.
         /// </value>
         public bool IsDisposed { get { return _isDisposed; } }
+
+        /// <summary>
+        /// Gets the stop token. This token represents the cancellation token that this actor
+        /// is using to signal that it has been stopped.
+        /// </summary>
+        /// <value>
+        /// The stop token.
+        /// </value>
+        public CancellationToken StopToken { get { return _tokenSource.Token; } }
         #endregion
 
         #region public methods
@@ -68,7 +80,7 @@ namespace DataSwallow.Control
         /// Posts the specified message.
         /// </summary>
         /// <param name="message">The message.</param>
-        public void PostAsync(TMessage message)
+        public void Post(TMessage message)
         {
             AssertNotDisposed();
 
@@ -78,27 +90,7 @@ namespace DataSwallow.Control
                 TCS = new TaskCompletionSource<object>(),
             };
 
-            _messages.Add(ticket);
-        }
-
-        /// <summary>
-        /// Posts the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>A Task representing the processing of the message</returns>
-        public Task PostAndReplyAsync(TMessage message)
-        {
-            AssertNotDisposed();
-
-            var ticket = new Ticket
-            {
-                Message = message,
-                TCS = new TaskCompletionSource<object>(),
-            };
-
-            _messages.Add(ticket);
-
-            return ticket.TCS.Task;
+            AddToMessagePool(ticket);
         }
 
         /// <summary>
@@ -122,6 +114,7 @@ namespace DataSwallow.Control
 
             if (_alreadyStartedOnce)
             {
+                Logger.Error("The logger has already been started. It cannot be started twice.");
                 throw new InvalidOperationException("This actor has already been started once.");
             }
 
@@ -201,9 +194,18 @@ namespace DataSwallow.Control
         #endregion
 
         #region private methods
+        private void AddToMessagePool(Ticket ticket)
+        {
+            _messages.TryAdd(ticket, 100, _tokenSource.Token);
+        }
+
         private void AssertNotDisposed()
         {
-            if (_isDisposed) throw new ObjectDisposedException("Actor");
+            if (_isDisposed)
+            {
+                Logger.Error("The actor received a message after being disposed.");
+                throw new ObjectDisposedException("Actor");
+            }
         }
 
         private void CancelRemainingMessages()
@@ -214,46 +216,40 @@ namespace DataSwallow.Control
             }
         }
 
-        private Task<Ticket> GetNextMessageAsync()
-        {
-            return Task.Factory.StartNew<Ticket>(() =>
-            {
-                try
-                {
-                    return _messages.Take(_tokenSource.Token);
-                }
-                catch (TaskCanceledException)
-                {
-                    return default(Ticket);
-                }
-            });
-        }
-
         private void Run()
         {
-            foreach (var ticket in _messages.GetConsumingEnumerable(_tokenSource.Token))
+            try
             {
-                if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)))
+                foreach (var ticket in _messages.GetConsumingEnumerable(_tokenSource.Token))
                 {
-                    continue;
-                }
+                    if (EqualityComparer<Ticket>.Default.Equals(ticket, default(Ticket)))
+                    {
+                        continue;
+                    }
 
-                try
-                {
-                    var messageBody = ticket.Message;
+                    try
+                    {
+                        var messageBody = ticket.Message;
 
-                    PreProcessMessage(messageBody);
-                    ProcessMessage(messageBody);
-                    PostProcessMessage(messageBody);
+                        PreProcessMessage(messageBody);
+                        ProcessMessage(messageBody);
+                        PostProcessMessage(messageBody);
 
-                    ticket.TCS.TrySetResult(null);
-                }
-                catch (Exception e)
-                {
-                    ticket.TCS.TrySetException(e);
+                        ticket.TCS.TrySetResult(null);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error("An exception occurred during an Actor task", e);
+                        ticket.TCS.TrySetException(e);
+                    }
                 }
             }
-
+            catch (OperationCanceledException canceledException)
+            {
+                Logger.Info("Actor task loop was cancelled", canceledException);
+            }
+            
+            Logger.Debug("Actor shutting down");
             CancelRemainingMessages();
             _messages.CompleteAdding();
             _shutdownSignal.Set();

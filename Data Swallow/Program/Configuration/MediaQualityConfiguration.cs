@@ -25,6 +25,7 @@
 using DataSwallow.Utilities;
 using Newtonsoft.Json;
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace DataSwallow.Program.Configuration
@@ -76,7 +77,7 @@ namespace DataSwallow.Program.Configuration
             var builder = new StringBuilder();
 
             builder.AppendLine("Media Quality Configuration with: ");
-            builder.AppendLine(string.Format("Video Media = {0} | Video Mode = {1} | Must Match = {2}", VideoMedia, VideoMode, MustMatchAllCriteria));
+            builder.AppendLine(string.Format(CultureInfo.InvariantCulture, "Video Media = {0} | Video Mode = {1} | Must Match = {2}", VideoMedia, VideoMode, MustMatchAllCriteria));
 
             return builder.ToString();
         }

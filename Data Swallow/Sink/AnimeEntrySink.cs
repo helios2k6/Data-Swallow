@@ -27,6 +27,7 @@ using DataSwallow.Control;
 using DataSwallow.Stream;
 using log4net;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -40,7 +41,7 @@ namespace DataSwallow.Sink
     {
         #region private fields
         private static readonly ILog Logger = LogManager.GetLogger(typeof(AnimeEntrySink));
-        private static readonly string TorrentExtension = ".torrent";
+        private const string TorrentExtension = ".torrent";
 
         private readonly string _destinationFolder;
         private readonly FunctionalStatelessActor<AnimeEntry> _engine;
@@ -110,11 +111,11 @@ namespace DataSwallow.Sink
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns></returns>
-        public Task AcceptAsync(IOutputStreamMessage<AnimeEntry> message)
+        public void Accept(IOutputStreamMessage<AnimeEntry> message)
         {
             AssertNotDisposed();
 
-            return _engine.PostAndReplyAsync(message.Payload);
+            _engine.Post(message.Payload);
         }
 
         /// <summary>
@@ -150,7 +151,7 @@ namespace DataSwallow.Sink
             }
             catch (Exception e)
             {
-                Logger.Error(string.Format("Unable to write torrent file: {0}", path), e);
+                Logger.Error(string.Format(CultureInfo.InvariantCulture, "Unable to write torrent file: {0}", path), e);
             }
         }
         #endregion

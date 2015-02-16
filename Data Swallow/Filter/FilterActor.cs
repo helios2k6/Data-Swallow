@@ -38,12 +38,11 @@ namespace DataSwallow.Filter
     public abstract class FilterActor<TInput, TOutput> : IFilter<TInput, TOutput>, IDisposable
     {
         #region private classes
-        private enum Type { Accept, AddOutputStream, GetOutputStreams }
+        private enum Type { Accept, AddOutputStream }
 
         private sealed class Payload
         {
             public IOutputStream<TOutput> OutputStream { get; set; }
-            public int PortNumber { get; set; }
 
             public TaskCompletionSource<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> TCS { get; set; }
 
@@ -53,7 +52,7 @@ namespace DataSwallow.Filter
 
         #region private fields
         private readonly FunctionalStatelessActor<Message<Type, Payload>> _engine;
-        private readonly IDictionary<int, IOutputStream<TOutput>> _outputStreams;
+        private readonly ISet<IOutputStream<TOutput>> _outputStreams;
 
         private bool _isDisposed;
         #endregion
@@ -62,10 +61,10 @@ namespace DataSwallow.Filter
         /// <summary>
         /// Initializes a new instance of the <see cref="FilterActor{TInput, TOutput}"/> class.
         /// </summary>
-        public FilterActor()
+        protected FilterActor()
         {
             _engine = new FunctionalStatelessActor<Message<Type, Payload>>(Process);
-            _outputStreams = new Dictionary<int, IOutputStream<TOutput>>();
+            _outputStreams = new HashSet<IOutputStream<TOutput>>();
         }
         #endregion
 
@@ -102,34 +101,15 @@ namespace DataSwallow.Filter
         }
 
         /// <summary>
-        /// Adds the output stream asynchronously.
+        /// Adds the output stream to the filter
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="sourcePortNumber">The source port number.</param>
-        /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
-        public Task AddOutputStreamAsync(IOutputStream<TOutput> outputStream, int sourcePortNumber)
+        public void AddOutputStream(IOutputStream<TOutput> outputStream)
         {
             AssertNotDisposed();
 
-            return _engine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
-        }
-
-        /// <summary>
-        /// Gets the output streams asynchronously.
-        /// </summary>
-        /// <returns>A Task representing this operation</returns>
-        /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
-        public Task<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> GetOutputStreamsAsync()
-        {
-            AssertNotDisposed();
-
-            var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<TOutput>, int>>>();
-            var message = CreateGetOutputStreamsMessage(tcs);
-
-            _engine.PostAsync(message);
-
-            return tcs.Task;
+            _engine.Post(CreateAddOutputStream(outputStream));
         }
 
         /// <summary>
@@ -138,11 +118,11 @@ namespace DataSwallow.Filter
         /// <param name="message">The message.</param>
         /// <returns>A Task representing this operation</returns>
         /// <exception cref="System.ObjectDisposedException">RSSAnimeDetectionFilter</exception>
-        public Task AcceptAsync(IOutputStreamMessage<TInput> message)
+        public void Accept(IOutputStreamMessage<TInput> message)
         {
             AssertNotDisposed();
 
-            return _engine.PostAndReplyAsync(CreateAcceptAsyncMessage(message));
+            _engine.Post(CreateAcceptAsyncMessage(message));
         }
 
         /// <summary>
@@ -160,9 +140,8 @@ namespace DataSwallow.Filter
         /// Digests the message.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <param name="portNumber">The port number.</param>
         /// <param name="outputStreams">The output streams.</param>
-        protected abstract void DigestMessage(TInput input, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<TOutput>>> outputStreams);
+        protected abstract void DigestMessage(TInput input, IEnumerable<IOutputStream<TOutput>> outputStreams);
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
@@ -199,9 +178,6 @@ namespace DataSwallow.Filter
                 case Type.AddOutputStream:
                     HandleAddOutputStreamMessage(message);
                     break;
-                case Type.GetOutputStreams:
-                    HandleGetOutputStreamsMessage(message);
-                    break;
                 default:
                     throw new InvalidOperationException();
             }
@@ -210,26 +186,13 @@ namespace DataSwallow.Filter
         private void HandleAcceptMessage(Payload payload)
         {
             TInput input = payload.Message.Payload;
-            int targetPort = payload.Message.TargetPort;
 
-            DigestMessage(input, targetPort, _outputStreams);
+            DigestMessage(input, _outputStreams);
         }
 
         private void HandleAddOutputStreamMessage(Message<Type, Payload> message)
         {
-            _outputStreams[message.Payload.PortNumber] = message.Payload.OutputStream;
-        }
-
-        private void HandleGetOutputStreamsMessage(Message<Type, Payload> message)
-        {
-            var list = new List<Tuple<IOutputStream<TOutput>, int>>();
-
-            foreach (var kvp in _outputStreams)
-            {
-                list.Add(Tuple.Create(kvp.Value, kvp.Key));
-            }
-
-            message.Payload.TCS.TrySetResult(list);
+            _outputStreams.Add(message.Payload.OutputStream);
         }
 
         private static Message<Type, Payload> CreateAcceptAsyncMessage(IOutputStreamMessage<TInput> message)
@@ -242,25 +205,14 @@ namespace DataSwallow.Filter
             return new Message<Type, Payload>(Type.Accept, payload, "Accept");
         }
 
-        private static Message<Type, Payload> CreateAddOutputStream(IOutputStream<TOutput> outputStream, int sourcePort)
+        private static Message<Type, Payload> CreateAddOutputStream(IOutputStream<TOutput> outputStream)
         {
             var payload = new Payload
             {
                 OutputStream = outputStream,
-                PortNumber = sourcePort
             };
 
             return new Message<Type, Payload>(Type.AddOutputStream, payload, "Add Output Stream");
-        }
-
-        private static Message<Type, Payload> CreateGetOutputStreamsMessage(TaskCompletionSource<IEnumerable<Tuple<IOutputStream<TOutput>, int>>> tcs)
-        {
-            var payload = new Payload
-            {
-                TCS = tcs
-            };
-
-            return new Message<Type, Payload>(Type.GetOutputStreams, payload, "Get Output Streams");
         }
         #endregion
     }

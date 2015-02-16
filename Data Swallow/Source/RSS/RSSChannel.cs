@@ -122,7 +122,7 @@ namespace DataSwallow.Source.RSS
             return Equals(obj as RSSChannel);
         }
 
-        private int CalculateHashCode(object obj)
+        private static int CalculateHashCode(object obj)
         {
             if (obj == null)
             {

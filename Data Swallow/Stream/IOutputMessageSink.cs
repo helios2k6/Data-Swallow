@@ -37,6 +37,6 @@ namespace DataSwallow.Stream
         /// </summary>
         /// <param name="message">The message.</param>
         /// <returns>A Task representing the accepting of the message</returns>
-        Task AcceptAsync(IOutputStreamMessage<TPayload> message);
+        void Accept(IOutputStreamMessage<TPayload> message);
     }
 }

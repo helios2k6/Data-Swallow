@@ -79,19 +79,18 @@ namespace DataSwallow.Filter.Anime
         /// Digests the message.
         /// </summary>
         /// <param name="input">The input.</param>
-        /// <param name="portNumber">The port number.</param>
         /// <param name="outputStreams">The output streams.</param>
-        protected override void DigestMessage(AnimeEntry input, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        protected override void DigestMessage(AnimeEntry input,IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
-            DigestMessageImpl(input, outputStreams);
+            DigestMessageImpl(input, outputStreams).Wait();
         }
         #endregion
 
         #region private methods
-        private void DigestMessageImpl(AnimeEntry entry, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        private async Task DigestMessageImpl(AnimeEntry entry, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
             //Check to see if the entry exists
-            var doesEntryExist = DoesEntryAlreadyExist(entry).Result;
+            var doesEntryExist = await DoesEntryAlreadyExist(entry);
             if (doesEntryExist)
             {
                 return;
@@ -100,15 +99,15 @@ namespace DataSwallow.Filter.Anime
             Logger.DebugFormat("Received Anime Entry: {0}", entry);
 
             //Add the entry to the database
-            _dao.Store(entry).Wait();
+            await _dao.Store(entry);
 
             //See if it matches any criterion
             if (DoesPassCriterions(entry))
             {
-                foreach (var kvp in outputStreams)
+                foreach (var outputStream in outputStreams)
                 {
                     Logger.DebugFormat("Accepting Anime Entry: {0}", entry);
-                    kvp.Value.PutAsync(entry);
+                    outputStream.Post(entry);
                 }
             }
         }

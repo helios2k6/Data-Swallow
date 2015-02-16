@@ -63,18 +63,17 @@ namespace DataSwallow.Filter.Anime
         /// Digests the message.
         /// </summary>
         /// <param name="feed">The feed.</param>
-        /// <param name="portNumber">The port number.</param>
         /// <param name="outputStreams">The output streams.</param>
-        protected override void DigestMessage(RSSFeed feed, int portNumber, IEnumerable<KeyValuePair<int, IOutputStream<AnimeEntry>>> outputStreams)
+        protected override void DigestMessage(RSSFeed feed, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
             IEnumerable<AnimeEntry> entries;
-            if (RSSFeedProcessor.Instance.TryGetAnimeEntries(feed, out entries))
+            if (RSSFeedProcessor.TryGetAnimeEntries(feed, out entries))
             {
                 foreach (var entry in entries)
                 {
                     foreach (var stream in outputStreams)
                     {
-                        stream.Value.PutAsync(entry);
+                        stream.Post(entry);
                     }
                 }
             }

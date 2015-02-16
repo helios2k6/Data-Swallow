@@ -44,20 +44,17 @@ namespace DataSwallow.Source.RSS
         #region private classes
         private enum State { HasNotStarted, Playing, Paused, Stopped }
 
-        private enum MessageType { Start, Stop, Pause, Resume, AddOutputStream, GetOutputStreams, Fetch }
+        private enum MessageType { Start, Stop, Pause, Resume, AddOutputStream, Fetch }
 
         private sealed class MessagePayload
         {
             public IOutputStream<RSSFeed> OutputStream { get; set; }
-            public int PortNumber { get; set; }
-
-            public TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> TCS { get; set; }
         }
         #endregion
 
         #region private fields
-        private static readonly int DefaultVariability = 4;
-        private static readonly int DefaultPauseTimeInSeconds = 60;
+        private const int DefaultVariability = 4;
+        private const int DefaultPauseTimeInSeconds = 60;
 
         private static readonly Message<MessageType, MessagePayload> StartMessage = new Message<MessageType, MessagePayload>(MessageType.Start, new MessagePayload(), "Start");
         private static readonly Message<MessageType, MessagePayload> StopMessage = new Message<MessageType, MessagePayload>(MessageType.Stop, new MessagePayload(), "Stop");
@@ -74,7 +71,7 @@ namespace DataSwallow.Source.RSS
         private readonly HttpClient _client;
         private readonly YAXSerializer _serializer;
         private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
-        private readonly IDictionary<int, IOutputStream<RSSFeed>> _outputStreams;
+        private readonly ISet<IOutputStream<RSSFeed>> _outputStreams;
 
         private State _state;
         private bool _isDisposed;
@@ -98,7 +95,7 @@ namespace DataSwallow.Source.RSS
             _state = State.HasNotStarted;
 
             _actorEngine = new FunctionalStatelessActor<Message<MessageType, MessagePayload>>(Process);
-            _outputStreams = new Dictionary<int, IOutputStream<RSSFeed>>();
+            _outputStreams = new HashSet<IOutputStream<RSSFeed>>();
         }
 
         /// <summary>
@@ -123,23 +120,6 @@ namespace DataSwallow.Source.RSS
 
         #region public methods
         /// <summary>
-        /// Gets the output streams asynchronously.
-        /// </summary>
-        /// <returns>A Task representing the retrieval of the output streams</returns>
-        /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public Task<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> GetOutputStreamsAsync()
-        {
-            AssertNotDisposed();
-
-            var tcs = new TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>>();
-            var message = CreateGetOutputStreamsMessage(tcs);
-
-            _actorEngine.PostAsync(message);
-
-            return tcs.Task;
-        }
-
-        /// <summary>
         /// Starts this instance.
         /// </summary>
         /// <returns>
@@ -153,7 +133,7 @@ namespace DataSwallow.Source.RSS
             Logger.Debug("Starting RSSFeedDataSource");
 
             _actorEngine.Start();
-            _actorEngine.PostAsync(StartMessage);
+            _actorEngine.Post(StartMessage);
         }
 
         /// <summary>
@@ -166,7 +146,7 @@ namespace DataSwallow.Source.RSS
             
             Logger.Debug("Resuming RSSFeedDataSource");
 
-            _actorEngine.PostAndReplyAsync(ResumeMessage);
+            _actorEngine.Post(ResumeMessage);
         }
 
         /// <summary>
@@ -180,7 +160,7 @@ namespace DataSwallow.Source.RSS
 
             Logger.Debug("Pausing RSSFeedDataSource");
 
-            _actorEngine.PostAndReplyAsync(PauseMessage);
+            _actorEngine.Post(PauseMessage);
         }
 
         /// <summary>
@@ -194,7 +174,7 @@ namespace DataSwallow.Source.RSS
 
             Logger.Debug("Stopping RSSFeedDataSource");
 
-            _actorEngine.PostAndReplyAsync(StopMessage);
+            _actorEngine.Post(StopMessage);
         }
 
         /// <summary>
@@ -213,18 +193,12 @@ namespace DataSwallow.Source.RSS
         /// Adds the output stream asynchronous.
         /// </summary>
         /// <param name="outputStream">The output stream.</param>
-        /// <param name="sourcePortNumber">The port number.</param>
-        /// <returns>
-        /// A Task representing the adding of the Output Stream
-        /// </returns>
         /// <exception cref="System.ObjectDisposedException">RSSFeedDataSource</exception>
-        public Task AddOutputStreamAsync(IOutputStream<RSSFeed> outputStream, int sourcePortNumber)
+        public void AddOutputStream(IOutputStream<RSSFeed> outputStream)
         {
             AssertNotDisposed();
 
-            Logger.DebugFormat("Adding Output Stream to RSSFeedDataSource on port {0}", sourcePortNumber);
-
-            return _actorEngine.PostAndReplyAsync(CreateAddOutputStream(outputStream, sourcePortNumber));
+            _actorEngine.Post(CreateAddOutputStream(outputStream));
         }
 
         /// <summary>
@@ -251,10 +225,10 @@ namespace DataSwallow.Source.RSS
 
         private void HandleAddOutputStreamMessage(Message<MessageType, MessagePayload> message)
         {
-            _outputStreams[message.Payload.PortNumber] = message.Payload.OutputStream;
+            _outputStreams.Add(message.Payload.OutputStream);
         }
 
-        private void HandleFetchMessage()
+        private async Task HandleFetchMessage()
         {
             if (_state != State.Playing) return;
 
@@ -263,7 +237,7 @@ namespace DataSwallow.Source.RSS
 
             Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
 
-            Thread.Sleep(waitInTimeSpan);
+            await Task.Delay(waitInTimeSpan, _actorEngine.StopToken);
 
             Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
 
@@ -275,10 +249,9 @@ namespace DataSwallow.Source.RSS
                 var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
                 if (rssFeed != null)
                 {
-                    foreach (var kvp in _outputStreams)
+                    foreach (var outputStream in _outputStreams)
                     {
-                        var stream = kvp.Value;
-                        stream.PutAsync(rssFeed);
+                        outputStream.Post(rssFeed);
                     }
                 }
             }
@@ -288,19 +261,7 @@ namespace DataSwallow.Source.RSS
             }
 
             //Keep looping and reposting this message if everything is good to go
-            _actorEngine.PostAsync(FetchMessage);
-        }
-
-        private void HandleGetOutputStreamsMessage(Message<MessageType, MessagePayload> message)
-        {
-            var streams = new List<Tuple<IOutputStream<RSSFeed>, int>>();
-
-            foreach (var kvp in _outputStreams)
-            {
-                streams.Add(Tuple.Create(kvp.Value, kvp.Key));
-            }
-
-            message.Payload.TCS.TrySetResult(streams);
+            _actorEngine.Post(FetchMessage);
         }
 
         private void HandlePauseMessage()
@@ -313,7 +274,7 @@ namespace DataSwallow.Source.RSS
             if (_state == State.Paused)
             {
                 _state = State.Playing;
-                _actorEngine.PostAsync(FetchMessage);
+                _actorEngine.Post(FetchMessage);
             }
         }
 
@@ -322,7 +283,7 @@ namespace DataSwallow.Source.RSS
             if (_state == State.HasNotStarted)
             {
                 _state = State.Playing;
-                _actorEngine.PostAsync(FetchMessage);
+                _actorEngine.Post(FetchMessage);
             }
         }
 
@@ -340,10 +301,7 @@ namespace DataSwallow.Source.RSS
                     HandleAddOutputStreamMessage(message);
                     break;
                 case MessageType.Fetch:
-                    HandleFetchMessage();
-                    break;
-                case MessageType.GetOutputStreams:
-                    HandleGetOutputStreamsMessage(message);
+                    HandleFetchMessage().Wait();
                     break;
                 case MessageType.Pause:
                     HandlePauseMessage();
@@ -363,25 +321,14 @@ namespace DataSwallow.Source.RSS
             }
         }
 
-        private static Message<MessageType, MessagePayload> CreateAddOutputStream(IOutputStream<RSSFeed> outputStream, int sourcePort)
+        private static Message<MessageType, MessagePayload> CreateAddOutputStream(IOutputStream<RSSFeed> outputStream)
         {
             var payload = new MessagePayload
             {
                 OutputStream = outputStream,
-                PortNumber = sourcePort
             };
 
             return new Message<MessageType, MessagePayload>(MessageType.AddOutputStream, payload, "Add Output Stream");
-        }
-
-        private static Message<MessageType, MessagePayload> CreateGetOutputStreamsMessage(TaskCompletionSource<IEnumerable<Tuple<IOutputStream<RSSFeed>, int>>> tcs)
-        {
-            var payload = new MessagePayload
-            {
-                TCS = tcs
-            };
-
-            return new Message<MessageType, MessagePayload>(MessageType.GetOutputStreams, payload, "Get Output Streams");
         }
         #endregion
     }

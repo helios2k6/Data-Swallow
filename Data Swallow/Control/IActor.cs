@@ -34,15 +34,9 @@ namespace DataSwallow.Control
     public interface IActor<TMessage> : IStartStoppable
     {
         /// <summary>
-        /// Posts the specified message to the Actor asynchronously.
+        /// Posts the specified message to the Actor.
         /// </summary>
         /// <param name="message">The message.</param>
-        void PostAsync(TMessage message);
-        /// <summary>
-        /// Posts the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>A Task representing the processing of the message</returns>
-        Task PostAndReplyAsync(TMessage message);
+        void Post(TMessage message);
     }
 }

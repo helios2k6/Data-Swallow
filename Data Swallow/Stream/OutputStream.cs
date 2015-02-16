@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-using System.Threading.Tasks;
+using System.Globalization;
 namespace DataSwallow.Stream
 {
     /// <summary>
@@ -33,7 +33,6 @@ namespace DataSwallow.Stream
     {
         #region private fields
         private readonly IOutputMessageSink<TOutput> _sink;
-        private readonly int _portNumber;
         #endregion
 
         #region ctor
@@ -41,11 +40,9 @@ namespace DataSwallow.Stream
         /// Initializes a new instance of the <see cref="OutputStream{TOutput}"/> class.
         /// </summary>
         /// <param name="sink">The sink.</param>
-        /// <param name="portNumber">The port number.</param>
-        public OutputStream(IOutputMessageSink<TOutput> sink, int portNumber)
+        public OutputStream(IOutputMessageSink<TOutput> sink)
         {
             _sink = sink;
-            _portNumber = portNumber;
         }
         #endregion
 
@@ -59,7 +56,7 @@ namespace DataSwallow.Stream
         /// <exception cref="System.NotImplementedException"></exception>
         public override string ToString()
         {
-            return string.Format("Output Stream for {0} at port {1}", _sink, _portNumber);
+            return string.Format(CultureInfo.InvariantCulture, "Output Stream for {0}", _sink);
         }
 
         /// <summary>
@@ -67,15 +64,14 @@ namespace DataSwallow.Stream
         /// </summary>
         /// <param name="output">The output.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        public Task PutAsync(TOutput output)
+        public void Post(TOutput output)
         {
             var message = new OutputStreamMessage<TOutput>
             {
                 Payload = output,
-                TargetPort = _portNumber
             };
 
-            return _sink.AcceptAsync(message);
+            _sink.Accept(message);
         }
         #endregion
     }

@@ -26,6 +26,7 @@ using DataSwallow.Anime;
 using DBreeze;
 using log4net;
 using System;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -138,7 +139,7 @@ namespace DataSwallow.Persistence
                 }
                 catch (Exception e)
                 {
-                    Logger.Error(string.Format("An error occurred while getting the key {0}", key), e);
+                    Logger.Error(string.Format(CultureInfo.InvariantCulture, "An error occurred while getting the key {0}", key), e);
                     return DaoResult<AnimeEntry>.CreateFailure(e);
                 }
             });
@@ -146,7 +147,7 @@ namespace DataSwallow.Persistence
         #endregion
 
         #region private methods
-        private byte[] SerializeAnimeEntry(AnimeEntry entry)
+        private static byte[] SerializeAnimeEntry(AnimeEntry entry)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -156,7 +157,7 @@ namespace DataSwallow.Persistence
             }
         }
 
-        private AnimeEntry DeserializeAnimeEntry(byte[] blob)
+        private static AnimeEntry DeserializeAnimeEntry(byte[] blob)
         {
             using (var memoryStream = new MemoryStream(blob))
             {
@@ -165,7 +166,7 @@ namespace DataSwallow.Persistence
             }
         }
 
-        private void Wrap(Action action)
+        private static void Wrap(Action action)
         {
             try
             {
