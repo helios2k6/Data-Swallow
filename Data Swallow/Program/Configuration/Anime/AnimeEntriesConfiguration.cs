@@ -38,13 +38,13 @@ namespace DataSwallow.Program.Configuration.Anime
     {
         #region public properties
         /// <summary>
-        /// Gets or sets the anime entries.
+        /// Gets or sets the anime releases.
         /// </summary>
         /// <value>
-        /// The anime entries.
+        /// The anime releases.
         /// </value>
-        [JsonProperty(Required = Required.Always, PropertyName = "AnimeEntries")]
-        public AnimeEntryConfiguration[] AnimeEntries { get; set; }
+        [JsonProperty(Required = Required.Always, PropertyName = "AnimeReleases")]
+        public string[] AnimeReleases { get; set; }
         #endregion
 
         #region ctor
@@ -53,7 +53,7 @@ namespace DataSwallow.Program.Configuration.Anime
         /// </summary>
         public AnimeEntriesConfiguration()
         {
-            AnimeEntries = new AnimeEntryConfiguration[0];
+            AnimeReleases = new string[0];
         }
         #endregion
 
@@ -69,7 +69,7 @@ namespace DataSwallow.Program.Configuration.Anime
             var builder = new StringBuilder();
             builder.AppendLine("Anime Entries Configuration with entries:");
 
-            foreach (var entry in AnimeEntries)
+            foreach (var entry in AnimeReleases)
             {
                 builder.AppendLine(entry.ToString());
             }
@@ -91,12 +91,12 @@ namespace DataSwallow.Program.Configuration.Anime
                 return false;
             }
 
-            if (AnimeEntries == null)
+            if (AnimeReleases == null)
             {
-                return other.AnimeEntries == null;
+                return other.AnimeReleases == null;
             }
 
-            return AnimeEntries.SequenceEqual(other.AnimeEntries);
+            return AnimeReleases.SequenceEqual(other.AnimeReleases);
         }
 
         /// <summary>
@@ -119,12 +119,12 @@ namespace DataSwallow.Program.Configuration.Anime
         /// </returns>
         public override int GetHashCode()
         {
-            if (AnimeEntries == null)
+            if (AnimeReleases == null)
             {
                 return 0;
             }
 
-            return AnimeEntries.Aggregate<AnimeEntryConfiguration, int>(0, (accum, entry) => accum ^ entry.GetHashCodeIfNotNull());
+            return AnimeReleases.Aggregate<string, int>(0, (accum, entry) => accum ^ entry.GetHashCodeIfNotNull());
         }
         #endregion
 

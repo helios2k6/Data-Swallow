@@ -43,7 +43,6 @@ namespace DataSwallow.Filter.Anime
 
         private readonly IDao<AnimeEntry, string> _dao;
         private readonly IEnumerable<ICriterion<AnimeEntry>> _criterions;
-        private readonly bool _allCriterionsMustPass;
         #endregion
 
         #region ctor
@@ -52,12 +51,10 @@ namespace DataSwallow.Filter.Anime
         /// </summary>
         /// <param name="dao">The DAO.</param>
         /// <param name="criterions">The criterions.</param>
-        /// <param name="allCriterionsMustPass">Whether all criterions must pass in order for this filter to accept an AnimeEntry</param>
-        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<ICriterion<AnimeEntry>> criterions, bool allCriterionsMustPass)
+        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<ICriterion<AnimeEntry>> criterions)
         {
             _dao = dao;
             _criterions = criterions;
-            _allCriterionsMustPass = allCriterionsMustPass;
         }
         #endregion
 
@@ -80,7 +77,7 @@ namespace DataSwallow.Filter.Anime
         /// </summary>
         /// <param name="input">The input.</param>
         /// <param name="outputStreams">The output streams.</param>
-        protected override void DigestMessage(AnimeEntry input,IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
+        protected override void DigestMessage(AnimeEntry input, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
             DigestMessageImpl(input, outputStreams).Wait();
         }
@@ -121,11 +118,6 @@ namespace DataSwallow.Filter.Anime
 
         private bool DoesPassCriterions(AnimeEntry entry)
         {
-            if (_allCriterionsMustPass)
-            {
-                return _criterions.All(t => t.ApplyCriterion(entry));
-            }
-
             return _criterions.Any(t => t.ApplyCriterion(entry));
         }
         #endregion

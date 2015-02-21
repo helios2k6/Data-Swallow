@@ -135,6 +135,14 @@
             <param name="fileName">The file name</param>
             <returns>A string with the front fansub tag and the leading tags removed</returns>
         </member>
+        <member name="M:FansubFileNameParser.FansubFileParsers.TryParseFansubFile(System.String,FansubFileNameParser.FansubFile@)">
+            <summary>
+            Tries the parse fansub file.
+            </summary>
+            <param name="fileName">Name of the file.</param>
+            <param name="fansubFile">The fansub file.</param>
+            <returns>True if the parse was successful. False otherwise.</returns>
+        </member>
         <member name="M:FansubFileNameParser.FansubFileParsers.ParseFansubFile(System.String)">
             <summary>
             Parse a file name that corresponds to one of the common fansub naming formats. 

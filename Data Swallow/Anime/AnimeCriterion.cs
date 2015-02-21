@@ -24,11 +24,7 @@
 
 using DataSwallow.Utilities;
 using Functional.Maybe;
-using SimMetricsApi;
-using SimMetricsMetricUtilities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace DataSwallow.Anime
 {
@@ -37,49 +33,9 @@ namespace DataSwallow.Anime
     /// </summary>
     public sealed class AnimeCriterion : ICriterion<AnimeEntry>
     {
-        #region private classes
-        private static class StringMetricsCalculator
-        {
-            private static IList<AbstractStringMetric> CreateMetricsList()
-            {
-                return new List<AbstractStringMetric>
-                {
-                    new JaroWinkler(),
-                    new Levenstein(),
-                    new MongeElkan(),
-                    new NeedlemanWunch(),
-                    new QGramsDistance(),
-                    new SmithWatermanGotoh(),
-                };
-            }
-
-            private static double GetSimilatiry(string a, string b)
-            {
-                return CreateMetricsList().Average(c => c.GetSimilarity(a, b));
-            }
-
-            public static double MeasureSimilarity(string a, string b)
-            {
-                return GetSimilatiry(a, b);
-            }
-
-            public static double MeasureSimilarityIgnoreCase(string a, string b)
-            {
-                string aUpper = a.ToUpperInvariant();
-                string bUpper = b.ToUpperInvariant();
-
-                return MeasureSimilarity(aUpper, bUpper);
-            }
-        }
-        #endregion
-
         #region private fields
-        private const double SmudgeFactor = 0.80;
-        private const double Epsilon = 0.000001;
-
         private readonly Maybe<string> _fansubGroup;
         private readonly Maybe<string> _series;
-        private readonly bool _useFuzzyMatch;
         #endregion
 
         #region ctor
@@ -88,16 +44,27 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="fansubGroup">The fansub group.</param>
         /// <param name="series">The series.</param>
-        /// <param name="useFuzzyMatch">Whether or not to use string distances to match</param>
-        public AnimeCriterion(Maybe<string> fansubGroup, Maybe<string> series, bool useFuzzyMatch)
+        public AnimeCriterion(Maybe<string> fansubGroup, Maybe<string> series)
         {
             _fansubGroup = fansubGroup;
             _series = series;
-            _useFuzzyMatch = useFuzzyMatch;
         }
         #endregion
 
         #region public methods
+        /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("Anime Criterion with [{0}] {1}",
+                _fansubGroup.ReturnToStringAuto(),
+                _series.ReturnToStringAuto());
+        }
+
         /// <summary>
         /// Applies the criterion.
         /// </summary>
@@ -113,43 +80,9 @@ namespace DataSwallow.Anime
         #region private methods
         private bool ApplyCriterion(Maybe<string> criterion, string entry)
         {
-            if (_useFuzzyMatch)
-            {
-                return ApplyCriterionFuzzy(criterion, entry);
-            }
-            else
-            {
-                return ApplyCriterionExact(criterion, entry);
-            }
-        }
-
-        private static bool ApplyCriterionExact(Maybe<string> criterion, string entry)
-        {
             return criterion.SelectOrElse(
-                crit => crit.Equals(entry, StringComparison.Ordinal), 
+                crit => crit.Equals(entry, StringComparison.Ordinal),
                 () => true);
-        }
-
-        private static bool ApplyCriterionFuzzy(Maybe<string> criterion, string entry)
-        {
-            return criterion.SelectOrElse(
-                crit => ApplyCriterionFuzzyImpl(crit, entry), 
-                () => true);
-        }
-
-        private static bool ApplyCriterionFuzzyImpl(string criterion, string entry)
-        {
-            var distance = StringMetricsCalculator.MeasureSimilarityIgnoreCase(criterion, entry);
-
-            var comparison = distance - SmudgeFactor;
-            var comparisonMagnitude = Math.Abs(comparison);
-
-            if (comparison >= 0.0 && comparisonMagnitude >= Epsilon)
-            {
-                return true;
-            }
-
-            return false;
         }
         #endregion
     }

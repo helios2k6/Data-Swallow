@@ -51,6 +51,16 @@ namespace DataSwallow.Anime
 
         #region public methods
         /// <summary>
+        /// Returns a <see cref="System.String" /> that represents this instance.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="System.String" /> that represents this instance.
+        /// </returns>
+        public override string ToString()
+        {
+            return string.Format("File Property Criterion with {0}", _extension.ReturnToStringAuto());
+        }
+        /// <summary>
         /// Applies the criterion.
         /// </summary>
         /// <param name="animeEntry">The <see cref="AnimeEntry"/></param>

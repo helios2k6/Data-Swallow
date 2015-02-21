@@ -24,7 +24,9 @@
 
 using DataSwallow.Utilities;
 using FansubFileNameParser.Metadata;
+using Functional.Maybe;
 using System;
+using System.Linq;
 using System.Text;
 
 namespace DataSwallow.Anime
@@ -35,9 +37,11 @@ namespace DataSwallow.Anime
     public sealed class QualityCriterion : ICriterion<AnimeEntry>
     {
         #region private fields
-        private readonly VideoMode _videoMode;
-        private readonly VideoMedia _videoMedia;
-        private bool _allCriteriaMustMatch;
+        private readonly Maybe<VideoMode> _videoMode;
+        private readonly Maybe<VideoMedia> _videoMedia;
+        private readonly Maybe<Resolution> _resolution;
+        private readonly Maybe<AudioCodec> _audioCodec;
+        private readonly Maybe<PixelBitDepth> _bitDepth;
         #endregion
 
         #region ctor
@@ -46,12 +50,21 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="videoMode">The video mode.</param>
         /// <param name="videoMedia">The video media.</param>
-        /// <param name="allCriteriaMustMatch">if set to <c>true</c> allmedia criteria must match.</param>
-        public QualityCriterion(VideoMode videoMode, VideoMedia videoMedia, bool allCriteriaMustMatch)
+        /// <param name="resolution">The resolution.</param>
+        /// <param name="audioCodec">The audio codec.</param>
+        /// <param name="bitDepth">The bit depth.</param>
+        public QualityCriterion(
+            Maybe<VideoMode> videoMode,
+            Maybe<VideoMedia> videoMedia,
+            Maybe<Resolution> resolution,
+            Maybe<AudioCodec> audioCodec,
+            Maybe<PixelBitDepth> bitDepth)
         {
             _videoMode = videoMode;
             _videoMedia = videoMedia;
-            _allCriteriaMustMatch = allCriteriaMustMatch;
+            _resolution = resolution;
+            _audioCodec = audioCodec;
+            _bitDepth = bitDepth;
         }
         #endregion
 
@@ -63,14 +76,12 @@ namespace DataSwallow.Anime
         /// <returns>Returns true if the AnimeEntry passes this criterion. False otherwise</returns>
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {
-            var mediaCheck = CheckVideoMedia(animeEntry.MediaMetadata.VideoMedia);
-            var modeCheck = CheckVideoMode(animeEntry.MediaMetadata.VideoMode);
-            if (_allCriteriaMustMatch)
-            {
-                return mediaCheck && modeCheck;
-            }
-
-            return mediaCheck || modeCheck;
+            var metadata = animeEntry.MediaMetadata;
+            return CheckCriterion(_videoMode, metadata.VideoMode, VideoMode.Unknown)
+                && CheckCriterion(_videoMedia, metadata.VideoMedia, VideoMedia.Unknown)
+                && CheckCriterion(_resolution, metadata.Resolution, null)
+                && CheckCriterion(_audioCodec, metadata.AudioCodec, AudioCodec.Unknown)
+                && CheckCriterion(_bitDepth, metadata.PixelBitDepth, PixelBitDepth.Unknown);
         }
 
         /// <summary>
@@ -83,22 +94,32 @@ namespace DataSwallow.Anime
         {
             var builder = new StringBuilder();
             builder.AppendFormat("Quality Criterion with Video Mode {0} and Video Media {1}",
-                Enum.GetName(typeof(VideoMode), _videoMode),
-                Enum.GetName(typeof(VideoMedia), _videoMedia));
+                GetStringForEnum(_videoMode),
+                GetStringForEnum(_videoMedia));
 
             return builder.ToString();
         }
         #endregion
 
         #region private methods
-        private bool CheckVideoMode(VideoMode otherVideoMode)
+        private static string GetStringForEnum<T>(Maybe<T> maybe) where T : struct
         {
-            return _videoMode == VideoMode.Unknown || _videoMode == otherVideoMode;
+            return maybe.SelectOrElse(t => Enum.GetName(typeof(T), t), () => Maybe<T>.Nothing.ToString());
         }
 
-        private bool CheckVideoMedia(VideoMedia otherVideoMedia)
+        private static bool CheckCriterion<T>(Maybe<T> left, T right, T allClearValue)
         {
-            return _videoMedia == VideoMedia.Unknown || _videoMedia == otherVideoMedia;
+            return CheckCriterion(left, right, allClearValue.ToMaybe());
+        }
+
+        private static bool CheckCriterion<T>(Maybe<T> left, T right, Maybe<T> allClearValue)
+        {
+            if (left.IsNothing() && allClearValue.SelectOrElse(t => Equals(t, right), () => false))
+            {
+                return true;
+            }
+
+            return left.SelectOrElse(t => Equals(t, right), () => false);
         }
         #endregion
     }

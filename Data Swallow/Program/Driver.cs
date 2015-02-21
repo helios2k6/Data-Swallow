@@ -36,6 +36,7 @@ using DataSwallow.Stream;
 using DataSwallow.Topology;
 using DataSwallow.Utilities;
 using DBreeze;
+using FansubFileNameParser;
 using FansubFileNameParser.Metadata;
 using Functional.Maybe;
 using log4net;
@@ -177,34 +178,39 @@ namespace DataSwallow.Program
         {
             return new AnimeEntryProcessingFilter(
                 new DBreezeDao(engine),
-                entry.AnimeEntries.Select(CreateGroupCriterion).ToList(),
-                false);
+                entry.AnimeReleases.Select(CreateGroupCriterion).ToList());
         }
 
-        private static ICriterion<AnimeEntry> CreateGroupCriterion(AnimeEntryConfiguration entry)
+        private static ICriterion<AnimeEntry> CreateGroupCriterion(string entry)
         {
-            var animeInfoCriterion = new AnimeCriterion(
-                entry.AnimeConfiguration.FansubGroup.ToMaybe(),
-                entry.AnimeConfiguration.AnimeName.ToMaybe(),
-                entry.AnimeConfiguration.UseFuzzy);
+            FansubFile fansubFile;
+            MediaMetadata metadata;
 
-            var filePropertyCriterion = new FilePropertyCriterion(entry.FileConfiguration.Extension.ToMaybe());
+            if (FansubFileParsers.TryParseFansubFile(entry, out fansubFile) &&
+                MediaMetadataParser.TryParseMediaMetadata(entry, out metadata))
+            {
+                var animeCrition = new AnimeCriterion(fansubFile.FansubGroup.ToMaybe(), fansubFile.SeriesName.ToMaybe());
 
-            VideoMode videoMode = VideoMode.Unknown;
-            VideoMedia videoMedia = VideoMedia.Unknown;
-            Enum.TryParse<VideoMode>(entry.MediaConfiguration.VideoMode, out videoMode);
-            Enum.TryParse<VideoMedia>(entry.MediaConfiguration.VideoMedia, out videoMedia);
+                var qualityCriterion = new QualityCriterion(
+                    metadata.VideoMode.ToMaybe(), 
+                    metadata.VideoMedia.ToMaybe(),
+                    metadata.Resolution.ToMaybe(),
+                    metadata.AudioCodec.ToMaybe(),
+                    metadata.PixelBitDepth.ToMaybe());
 
-            var qualityPropertyCriterion = new QualityCriterion(videoMode, videoMedia, entry.MediaConfiguration.MustMatchAllCriteria);
+                var filePropertyCriterion = new FilePropertyCriterion(fansubFile.Extension.ToMaybe());
 
-            return new GroupCriterion<AnimeEntry>(new ICriterion<AnimeEntry>[] { animeInfoCriterion, filePropertyCriterion, qualityPropertyCriterion });
+                return new GroupCriterion<AnimeEntry>(new ICriterion<AnimeEntry>[] { animeCrition, qualityCriterion, filePropertyCriterion });
+            }
+
+            return AllFailCriterion<AnimeEntry>.Instance;
         }
 
         private static IEnumerable<ISource<RSSFeed>> CreateDataSources()
         {
             return new[] 
             {
-                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 180),
+                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 0),
                 new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"), 180)
             };
         }

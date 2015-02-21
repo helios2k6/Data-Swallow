@@ -81,9 +81,6 @@
     <Reference Include="NodaTime">
       <HintPath>..\packages\NodaTime.1.3.0\lib\net35-Client\NodaTime.dll</HintPath>
     </Reference>
-    <Reference Include="SimMetrics">
-      <HintPath>..\packages\SimMetrics.1.1.4118.23231\lib\SimMetrics.dll</HintPath>
-    </Reference>
     <Reference Include="Sprache">
       <HintPath>..\Third Party\Sprache.dll</HintPath>
     </Reference>
@@ -110,16 +107,12 @@
     <Compile Include="Anime\FilePropertyCriterion.cs" />
     <Compile Include="Anime\QualityCriterion.cs" />
     <Compile Include="Program\Configuration\Anime\AnimeEntriesConfiguration.cs" />
-    <Compile Include="Program\Configuration\Anime\AnimeEntryConfiguration.cs" />
-    <Compile Include="Program\Configuration\Anime\AnimeInfoConfiguration.cs" />
     <Compile Include="Program\Configuration\ConfigurationFile.cs" />
     <Compile Include="Control\Actor.cs" />
     <Compile Include="Control\FunctionalStateActor.cs" />
     <Compile Include="Control\FunctionalStatelessActor.cs" />
     <Compile Include="Control\IActor.cs" />
     <Compile Include="Control\Message.cs" />
-    <Compile Include="Program\Configuration\FilePropertyConfiguration.cs" />
-    <Compile Include="Program\Configuration\MediaQualityConfiguration.cs" />
     <Compile Include="Program\Configuration\ProgramConfiguration.cs" />
     <Compile Include="Program\Driver.cs" />
     <Compile Include="Filter\Anime\AnimeEntryProcessingFilter.cs" />
@@ -148,6 +141,7 @@
     <Compile Include="Topology\ITopology.cs" />
     <Compile Include="Topology\FilterTopology.cs" />
     <Compile Include="Persistence\DaoResult.cs" />
+    <Compile Include="Utilities\AllFailCriterion.cs" />
     <Compile Include="Utilities\EnumerableExtensions.cs" />
     <Compile Include="Utilities\Functions.cs" />
     <Compile Include="Utilities\GroupCriterion.cs" />
@@ -157,6 +151,7 @@
     <Compile Include="Utilities\IPauseResumable.cs" />
     <Compile Include="Utilities\IStartStoppable.cs" />
     <Compile Include="Utilities\BaseExtensions.cs" />
+    <Compile Include="Utilities\MaybeExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
