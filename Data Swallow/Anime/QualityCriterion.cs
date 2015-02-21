@@ -77,11 +77,11 @@ namespace DataSwallow.Anime
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {
             var metadata = animeEntry.MediaMetadata;
-            return CheckCriterion(_videoMode, metadata.VideoMode, VideoMode.Unknown)
-                && CheckCriterion(_videoMedia, metadata.VideoMedia, VideoMedia.Unknown)
-                && CheckCriterion(_resolution, metadata.Resolution, null)
-                && CheckCriterion(_audioCodec, metadata.AudioCodec, AudioCodec.Unknown)
-                && CheckCriterion(_bitDepth, metadata.PixelBitDepth, PixelBitDepth.Unknown);
+            return CheckCriterion(_videoMode, metadata.VideoMode)
+                && CheckCriterion(_videoMedia, metadata.VideoMedia)
+                && CheckCriterion(_resolution, metadata.Resolution)
+                && CheckCriterion(_audioCodec, metadata.AudioCodec)
+                && CheckCriterion(_bitDepth, metadata.PixelBitDepth);
         }
 
         /// <summary>
@@ -107,19 +107,16 @@ namespace DataSwallow.Anime
             return maybe.SelectOrElse(t => Enum.GetName(typeof(T), t), () => Maybe<T>.Nothing.ToString());
         }
 
-        private static bool CheckCriterion<T>(Maybe<T> left, T right, T allClearValue)
+        private static bool CheckCriterion<T>(Maybe<T> reference, Maybe<T> target)
         {
-            return CheckCriterion(left, right, allClearValue.ToMaybe());
-        }
-
-        private static bool CheckCriterion<T>(Maybe<T> left, T right, Maybe<T> allClearValue)
-        {
-            if (left.IsNothing() && allClearValue.SelectOrElse(t => Equals(t, right), () => false))
+            if (reference.IsNothing())
             {
                 return true;
             }
 
-            return left.SelectOrElse(t => Equals(t, right), () => false);
+            return (from l in reference
+                    from r in target
+                    select Equals(l, r)).OrElseDefault();
         }
         #endregion
     }

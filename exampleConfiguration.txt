@@ -36,6 +36,6 @@
     "ProgramConfiguration":
     {
         "TorrentFileDestination":"E:\\File Harbor\\",
-        "DatabaseFolder":"E:\\Encoding Platform\\TEMP_DB\\"
+        "DatabaseFolder":"E:\\File Harbor\\TEMP_DB\\"
     }
 }

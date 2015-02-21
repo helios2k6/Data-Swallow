@@ -58,7 +58,7 @@ namespace DataSwallow.Program
     {
         #region private static fields
         private const int MajorVersion = 1;
-        private const int MinorVersion = 0;
+        private const int MinorVersion = 5;
 
         private static int CancelRequests = 0;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Driver));
