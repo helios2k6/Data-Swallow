@@ -93,14 +93,13 @@ namespace DataSwallow.Filter.Anime
                 return;
             }
 
-            Logger.DebugFormat("Received Anime Entry: {0}", entry);
-
             //Add the entry to the database
             await _dao.Store(entry);
 
             //See if it matches any criterion
             if (DoesPassCriterions(entry))
             {
+                Logger.DebugFormat("Received Anime Entry: {0}", entry);
                 foreach (var outputStream in outputStreams)
                 {
                     outputStream.Post(entry);
