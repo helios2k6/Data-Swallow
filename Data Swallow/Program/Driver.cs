@@ -148,7 +148,7 @@ namespace DataSwallow.Program
 
         private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration, DBreezeEngine engine)
         {
-            var dataSources = CreateDataSources();
+            var dataSources = CreateDataSources(configuration.AnimeConfiguration.RSSFeeds);
             var animeFilter = CreateAnimeFilter(configuration.AnimeConfiguration, engine);
             var animeSink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
 
@@ -192,11 +192,11 @@ namespace DataSwallow.Program
                 var animeCrition = new AnimeCriterion(fansubFile.FansubGroup.ToMaybe(), fansubFile.SeriesName.ToMaybe());
 
                 var qualityCriterion = new QualityCriterion(
-                    metadata.VideoMode.ToMaybe(), 
-                    metadata.VideoMedia.ToMaybe(),
-                    metadata.Resolution.ToMaybe(),
-                    metadata.AudioCodec.ToMaybe(),
-                    metadata.PixelBitDepth.ToMaybe());
+                    metadata.VideoMode,
+                    metadata.VideoMedia,
+                    metadata.Resolution,
+                    metadata.AudioCodec,
+                    metadata.PixelBitDepth);
 
                 var filePropertyCriterion = new FilePropertyCriterion(fansubFile.Extension.ToMaybe());
 
@@ -206,13 +206,9 @@ namespace DataSwallow.Program
             return AllFailCriterion<AnimeEntry>.Instance;
         }
 
-        private static IEnumerable<ISource<RSSFeed>> CreateDataSources()
+        private static IEnumerable<ISource<RSSFeed>> CreateDataSources(string[] rssFeeds)
         {
-            return new[] 
-            {
-                new RSSFeedDataSource(new Uri(@"http://www.nyaa.se/?page=rss"), 15),
-                new RSSFeedDataSource(new Uri(@"http://haruhichan.com/feed/feed.php?mode=rss"), 15)
-            };
+            return rssFeeds.Select(t => new RSSFeedDataSource(new Uri(t), 15)).ToList();
         }
         #endregion
     }

@@ -28,7 +28,6 @@ using log4net;
 using NodaTime;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -145,7 +144,7 @@ namespace DataSwallow.Source.RSS
         public void Resume()
         {
             AssertNotDisposed();
-            
+
             Logger.Debug("Resuming RSSFeedDataSource");
 
             _actorEngine.Post(ResumeMessage);

@@ -26,7 +26,6 @@ using DataSwallow.Utilities;
 using FansubFileNameParser.Metadata;
 using Functional.Maybe;
 using System;
-using System.Linq;
 using System.Text;
 
 namespace DataSwallow.Anime

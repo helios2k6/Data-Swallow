@@ -31,7 +31,6 @@ using NodaTime;
 using NodaTime.Text;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace DataSwallow.Filter.Anime
@@ -69,7 +68,6 @@ namespace DataSwallow.Filter.Anime
 
             foreach (var item in channel.Items)
             {
-                Logger.DebugFormat("Analyzing RSS Channel Item: {0}", item);
                 AnimeEntry entry;
                 if (TryProcessRSSItem(item, source, out entry))
                 {
@@ -96,7 +94,7 @@ namespace DataSwallow.Filter.Anime
             string guid;
             Uri resourceLocation;
 
-            if (TryGetFansubFile(item, out file)
+            if (FansubFileParsers.TryParseFansubFile(item.Title, out file)
                 && TryGetMediaMetadata(item, out mediaMetadata)
                 && TryGetPubDate(item, out pubDate)
                 && TryGetGuid(item, out guid)
@@ -107,31 +105,7 @@ namespace DataSwallow.Filter.Anime
                 return true;
             }
 
-            return false;
-        }
-
-        private static bool TryGetFansubFile(RSSChannelItem item, out FansubFile file)
-        {
-            file = default(FansubFile);
-            try
-            {
-                var fansubFileString = item.Title;
-                file = FansubFileParsers.ParseFansubFile(fansubFileString);
-
-                if (string.IsNullOrWhiteSpace(file.SeriesName)
-                    || string.IsNullOrWhiteSpace(file.FansubGroup)
-                    || file.EpisodeNumber < 0)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.Error(string.Format(CultureInfo.InvariantCulture, "Could not parse RSS Channel Item {0}", item.Title), e);
-            }
-
+            Logger.DebugFormat("Could not parse RSS item: {0}", item);
             return false;
         }
 

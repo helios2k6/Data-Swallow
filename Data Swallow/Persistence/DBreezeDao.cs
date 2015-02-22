@@ -84,8 +84,8 @@ namespace DataSwallow.Persistence
                     using (var transaction = _databaseEngine.GetTransaction())
                     {
                         transaction.Insert<string, byte[]>(
-                            Constants.AnimeEntryTable, 
-                            entry.Guid, 
+                            Constants.AnimeEntryTable,
+                            entry.Guid,
                             SerializeAnimeEntry(entry)
                         );
 

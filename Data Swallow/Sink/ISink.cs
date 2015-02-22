@@ -24,7 +24,6 @@
 
 using DataSwallow.Stream;
 using DataSwallow.Utilities;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Sink
 {

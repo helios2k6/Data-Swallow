@@ -45,6 +45,15 @@ namespace DataSwallow.Program.Configuration.Anime
         /// </value>
         [JsonProperty(Required = Required.Always, PropertyName = "AnimeReleases")]
         public string[] AnimeReleases { get; set; }
+
+        /// <summary>
+        /// Gets or sets the RSS feeds.
+        /// </summary>
+        /// <value>
+        /// The RSS feeds.
+        /// </value>
+        [JsonProperty(Required = Required.Always, PropertyName = "RSSFeeds")]
+        public string[] RSSFeeds { get; set; }
         #endregion
 
         #region ctor

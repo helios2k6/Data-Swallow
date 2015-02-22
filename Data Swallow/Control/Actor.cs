@@ -237,9 +237,9 @@ namespace DataSwallow.Control
             }
             catch (OperationCanceledException canceledException)
             {
-                Logger.Info("Actor task loop was cancelled", canceledException);
+                Logger.Debug("Actor task loop was cancelled", canceledException);
             }
-            
+
             Logger.Debug("Actor shutting down");
             CancelRemainingMessages();
             _messages.CompleteAdding();

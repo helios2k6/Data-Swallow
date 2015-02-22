@@ -23,6 +23,7 @@
  */
 
 using System.Globalization;
+
 namespace DataSwallow.Stream
 {
     /// <summary>

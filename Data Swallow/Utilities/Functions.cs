@@ -23,6 +23,7 @@
  */
 
 using System;
+
 namespace DataSwallow.Utilities
 {
     /// <summary>

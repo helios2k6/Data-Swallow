@@ -32,6 +32,11 @@
             "[DameDesuYo] Tokyo Ghoul Root A - 01 (1280x720 10bit AAC) [2878F633].mkv",
             "[HorribleSubs] Tokyo Ghoul Root A - 01 [720p].mkv",
         ],
+        "RSSFeeds":
+        [
+            "http://haruhichan.com/feed/feed.php?mode=rss",
+            "http://www.nyaa.se/?page=rss"
+        ]
     },
     "ProgramConfiguration":
     {

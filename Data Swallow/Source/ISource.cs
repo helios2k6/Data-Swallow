@@ -23,11 +23,7 @@
  */
 
 using DataSwallow.Control;
-using DataSwallow.Stream;
 using DataSwallow.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Source
 {

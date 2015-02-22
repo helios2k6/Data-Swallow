@@ -26,7 +26,6 @@ using DataSwallow.Program.Configuration.Anime;
 using DataSwallow.Utilities;
 using Newtonsoft.Json;
 using System;
-using System.Linq;
 using System.Text;
 
 namespace DataSwallow.Program.Configuration

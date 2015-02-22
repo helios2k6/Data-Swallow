@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  */
 
-using DataSwallow.Utilities;
 using System;
 
 namespace DataSwallow.Control

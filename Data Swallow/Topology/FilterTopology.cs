@@ -25,9 +25,7 @@
 using DataSwallow.Filter;
 using DataSwallow.Sink;
 using DataSwallow.Source;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Topology
 {

@@ -103,7 +103,6 @@ namespace DataSwallow.Filter.Anime
             {
                 foreach (var outputStream in outputStreams)
                 {
-                    Logger.DebugFormat("Accepting Anime Entry: {0}", entry);
                     outputStream.Post(entry);
                 }
             }

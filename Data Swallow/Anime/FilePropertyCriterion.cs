@@ -23,7 +23,6 @@
  */
 
 using DataSwallow.Utilities;
-using FansubFileNameParser.Metadata;
 using Functional.Maybe;
 using System;
 
@@ -68,7 +67,7 @@ namespace DataSwallow.Anime
         public bool ApplyCriterion(AnimeEntry animeEntry)
         {
             return _extension.SelectOrElse(
-                    ext => ext.Equals(animeEntry.FansubFile.Extension, StringComparison.OrdinalIgnoreCase), 
+                    ext => ext.Equals(animeEntry.FansubFile.Extension, StringComparison.OrdinalIgnoreCase),
                     () => true);
         }
         #endregion

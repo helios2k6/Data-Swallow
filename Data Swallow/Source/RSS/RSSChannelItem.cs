@@ -25,6 +25,7 @@
 using System;
 using System.Text;
 using YAXLib;
+
 namespace DataSwallow.Source.RSS
 {
     /// <summary>

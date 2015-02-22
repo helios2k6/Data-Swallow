@@ -26,9 +26,9 @@ using DataSwallow.Filter;
 using DataSwallow.Sink;
 using DataSwallow.Source;
 using DataSwallow.Topology;
+using log4net;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Runtime
 {
@@ -41,6 +41,7 @@ namespace DataSwallow.Runtime
     {
         #region private fields
         private readonly ITopology<TSourceOutput, TSinkInput> _topology;
+        private readonly ILog Logger = LogManager.GetLogger(typeof(TopologyRuntime<TSourceOutput, TSinkInput>));
         #endregion
 
         #region ctor
@@ -98,6 +99,8 @@ namespace DataSwallow.Runtime
             MapAllSinks(sink => sink.Start());
             MapAllFilters(filter => filter.Start());
             MapAllSources(source => source.Start());
+
+            Logger.Debug("Starting topology");
         }
 
         /// <summary>
@@ -116,6 +119,8 @@ namespace DataSwallow.Runtime
             MapAllSources(source => source.Stop());
             MapAllFilters(filter => filter.Stop());
             MapAllSinks(sink => sink.Stop());
+
+            Logger.Debug("Stopping topology");
         }
 
         /// <summary>
@@ -132,6 +137,8 @@ namespace DataSwallow.Runtime
             RunningState = TopologyRuntimeState.Paused;
 
             MapAllSources(source => source.Pause());
+
+            Logger.Debug("Pausing topology");
         }
 
         /// <summary>
@@ -148,6 +155,8 @@ namespace DataSwallow.Runtime
             RunningState = TopologyRuntimeState.Started;
 
             MapAllSources(source => source.Resume());
+
+            Logger.Debug("Resuming topology");
         }
 
         /// <summary>
@@ -155,6 +164,8 @@ namespace DataSwallow.Runtime
         /// </summary>
         public void AwaitTermination()
         {
+            Logger.Debug("Awaiting topology termination");
+
             MapAllSources(source => source.AwaitTermination());
             MapAllFilters(filter => filter.AwaitTermination());
             MapAllSinks(sink => sink.AwaitTermination());
