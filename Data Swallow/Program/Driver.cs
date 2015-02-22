@@ -105,12 +105,13 @@ namespace DataSwallow.Program
                 if (Interlocked.Increment(ref CancelRequests) <= 1)
                 {
                     runtime.Stop();
-                    Logger.Fatal("Stop signal received. Shutting down cleanly. Hit Ctrl+C again if you want to force shutdown.");
+                    Logger.Debug("Stop signal received.");
+                    Console.WriteLine("Stop signal received. Shutting down cleanly. Hit Ctrl+C again if you want to force shutdown.");
                     arg.Cancel = true;
                 }
                 else
                 {
-                    Logger.Fatal("Stop signal received multiple times. Force-exiting process! Clean shutdown not achieved!");
+                    Logger.Debug("Stop signal received multiple times. Force-exiting process! Clean shutdown not achieved!");
                 }
             });
         }

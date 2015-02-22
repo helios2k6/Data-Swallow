@@ -228,9 +228,14 @@ namespace DataSwallow.Control
 
                         ticket.TCS.TrySetResult(null);
                     }
+                    catch (TaskCanceledException)
+                    {
+                        Logger.Debug("The actor was cancelled");
+                        ticket.TCS.TrySetCanceled();
+                    }
                     catch (Exception e)
                     {
-                        Logger.Error("An exception occurred during an Actor task", e);
+                        Logger.Fatal("An exception was thrown during an Actor task", e);
                         ticket.TCS.TrySetException(e);
                     }
                 }
