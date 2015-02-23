@@ -30,7 +30,6 @@ using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Threading.Tasks;
 
 namespace DataSwallow.Persistence
 {
