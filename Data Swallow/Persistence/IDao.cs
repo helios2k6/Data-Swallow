@@ -38,13 +38,13 @@ namespace DataSwallow.Persistence
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns>A Task representing this operation</returns>
-        Task Store(TEntry entry);
+        void Store(TEntry entry);
         /// <summary>
         /// Deletes the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns>A Task representing this operation</returns>
-        Task Delete(TEntry entry);
+        void Delete(TEntry entry);
         /// <summary>
         /// Gets the specified key.
         /// </summary>
@@ -52,6 +52,6 @@ namespace DataSwallow.Persistence
         /// <returns>
         /// The Task representing the query 
         /// </returns>
-        Task<IDaoResult<TEntry>> Get(TKey key);
+        IDaoResult<TEntry> Get(TKey key);
     }
 }

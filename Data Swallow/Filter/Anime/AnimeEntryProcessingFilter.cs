@@ -75,26 +75,18 @@ namespace DataSwallow.Filter.Anime
         /// <summary>
         /// Digests the message.
         /// </summary>
-        /// <param name="input">The input.</param>
+        /// <param name="entry">The AnimeEntry.</param>
         /// <param name="outputStreams">The output streams.</param>
-        protected override void DigestMessage(AnimeEntry input, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
-        {
-            DigestMessageImpl(input, outputStreams).Wait();
-        }
-        #endregion
-
-        #region private methods
-        private async Task DigestMessageImpl(AnimeEntry entry, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
+        protected override void DigestMessage(AnimeEntry entry, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
             //Check to see if the entry exists
-            var doesEntryExist = await DoesEntryAlreadyExist(entry);
-            if (doesEntryExist)
+            if (DoesEntryAlreadyExist(entry))
             {
                 return;
             }
 
             //Add the entry to the database
-            await _dao.Store(entry);
+            _dao.Store(entry);
 
             //See if it matches any criterion
             if (DoesPassCriterions(entry))
@@ -106,12 +98,12 @@ namespace DataSwallow.Filter.Anime
                 }
             }
         }
+        #endregion
 
-        private async Task<bool> DoesEntryAlreadyExist(AnimeEntry entry)
+        #region private methods
+        private bool DoesEntryAlreadyExist(AnimeEntry entry)
         {
-            var existingEntry = await _dao.Get(entry.Guid);
-
-            return existingEntry.Success;
+            return  _dao.Get(entry.Guid).Success;
         }
 
         private bool DoesPassCriterions(AnimeEntry entry)

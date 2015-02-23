@@ -75,23 +75,20 @@ namespace DataSwallow.Persistence
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns></returns>
-        public Task Store(AnimeEntry entry)
+        public void Store(AnimeEntry entry)
         {
-            return Task.Factory.StartNew(() =>
+            Wrap(() =>
             {
-                Wrap(() =>
+                using (var transaction = _databaseEngine.GetTransaction())
                 {
-                    using (var transaction = _databaseEngine.GetTransaction())
-                    {
-                        transaction.Insert<string, byte[]>(
-                            Constants.AnimeEntryTable,
-                            entry.Guid,
-                            SerializeAnimeEntry(entry)
-                        );
+                    transaction.Insert<string, byte[]>(
+                        Constants.AnimeEntryTable,
+                        entry.Guid,
+                        SerializeAnimeEntry(entry)
+                    );
 
-                        transaction.Commit();
-                    }
-                });
+                    transaction.Commit();
+                }
             });
         }
 
@@ -100,18 +97,15 @@ namespace DataSwallow.Persistence
         /// </summary>
         /// <param name="entry">The entry.</param>
         /// <returns>A Task representing this operation</returns>
-        public Task Delete(AnimeEntry entry)
+        public void Delete(AnimeEntry entry)
         {
-            return Task.Factory.StartNew(() =>
+            Wrap(() =>
             {
-                Wrap(() =>
+                using (var transaction = _databaseEngine.GetTransaction())
                 {
-                    using (var transaction = _databaseEngine.GetTransaction())
-                    {
-                        transaction.RemoveKey<string>(Constants.AnimeEntryTable, entry.Guid);
-                        transaction.Commit();
-                    }
-                });
+                    transaction.RemoveKey<string>(Constants.AnimeEntryTable, entry.Guid);
+                    transaction.Commit();
+                }
             });
         }
 
@@ -120,29 +114,26 @@ namespace DataSwallow.Persistence
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>A Task representing this operation</returns>
-        public Task<IDaoResult<AnimeEntry>> Get(string key)
+        public IDaoResult<AnimeEntry> Get(string key)
         {
-            return Task.Factory.StartNew<IDaoResult<AnimeEntry>>(() =>
+            try
             {
-                try
+                using (var transaction = _databaseEngine.GetTransaction())
                 {
-                    using (var transaction = _databaseEngine.GetTransaction())
+                    var row = transaction.Select<string, byte[]>(Constants.AnimeEntryTable, key);
+                    if (row.Exists)
                     {
-                        var row = transaction.Select<string, byte[]>(Constants.AnimeEntryTable, key);
-                        if (row.Exists)
-                        {
-                            return DaoResult<AnimeEntry>.CreateSuccess(DeserializeAnimeEntry(row.Value));
-                        }
-
-                        return DaoResult<AnimeEntry>.CreateFailure();
+                        return DaoResult<AnimeEntry>.CreateSuccess(DeserializeAnimeEntry(row.Value));
                     }
+
+                    return DaoResult<AnimeEntry>.CreateFailure();
                 }
-                catch (Exception e)
-                {
-                    Logger.Error(string.Format(CultureInfo.InvariantCulture, "An error occurred while getting the key {0}", key), e);
-                    return DaoResult<AnimeEntry>.CreateFailure(e);
-                }
-            });
+            }
+            catch (Exception e)
+            {
+                Logger.Error(string.Format(CultureInfo.InvariantCulture, "An error occurred while getting the key {0}", key), e);
+                return DaoResult<AnimeEntry>.CreateFailure(e);
+            }
         }
         #endregion
 
@@ -178,6 +169,5 @@ namespace DataSwallow.Persistence
             }
         }
         #endregion
-
     }
 }
