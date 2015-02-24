@@ -257,6 +257,17 @@ namespace DataSwallow.Source.RSS
                     }
                 }
             }
+            catch (AggregateException e)
+            {
+                if(e.Flatten().InnerException.GetType().IsAssignableFrom(typeof(TaskCanceledException)))
+                {
+                    Logger.Debug("RSSFeedDataSource cancelled");
+                }
+                else
+                {
+                    Logger.Error("An error occurred in the RSSFeedDataSource", e);
+                }
+            }
             catch (Exception e)
             {
                 Logger.Error("An exception occurred while fetching the RSS Feed!", e);
