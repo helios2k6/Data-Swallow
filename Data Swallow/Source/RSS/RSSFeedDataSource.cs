@@ -232,24 +232,22 @@ namespace DataSwallow.Source.RSS
             _outputStreams.Add(message.Payload.OutputStream);
         }
 
-        private async Task HandleFetchMessage()
+        private void HandleFetchMessage()
         {
             if (_state != State.Playing) return;
 
-            var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
-            var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
-
-            Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
-
-            await Task.Delay(waitInTimeSpan, _stopTokenSource.Token);
-
-            Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
-
-            var getTask = _client.GetStringAsync(_feedUrl);
-            var contents = getTask.Result;
-
             try
             {
+                var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
+                var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
+
+                Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
+
+                Task.Delay(waitInTimeSpan, _stopTokenSource.Token).Wait();
+
+                Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
+
+                var contents = _client.GetStringAsync(_feedUrl).Result;
                 var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
                 if (rssFeed != null)
                 {
@@ -261,10 +259,10 @@ namespace DataSwallow.Source.RSS
             }
             catch (Exception e)
             {
-                Logger.Error("Could not deserialize RSS feed!", e);
+                Logger.Error("An exception occurred while fetching the RSS Feed!", e);
             }
 
-            //Keep looping and reposting this message if everything is good to go
+            //Keep looping and reposting this message
             _actorEngine.Post(FetchMessage);
         }
 
@@ -305,7 +303,7 @@ namespace DataSwallow.Source.RSS
                     HandleAddOutputStreamMessage(message);
                     break;
                 case MessageType.Fetch:
-                    HandleFetchMessage().Wait();
+                    HandleFetchMessage();
                     break;
                 case MessageType.Pause:
                     HandlePauseMessage();

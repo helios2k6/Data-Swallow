@@ -233,6 +233,17 @@ namespace DataSwallow.Control
                         Logger.Debug("The actor was cancelled");
                         ticket.TCS.TrySetCanceled();
                     }
+                    catch (AggregateException e)
+                    {
+                        if (e.Flatten().InnerException.GetType().IsAssignableFrom(typeof(TaskCanceledException)))
+                        {
+                            Logger.Debug("Inner Tasks have cancelled");
+                        }
+                        else
+                        {
+                            Logger.Fatal("Inner Tasks have faulted", e);
+                        }
+                    }
                     catch (Exception e)
                     {
                         Logger.Fatal("An exception was thrown during an Actor task", e);
