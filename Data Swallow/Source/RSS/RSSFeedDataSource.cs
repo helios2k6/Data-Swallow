@@ -67,7 +67,6 @@ namespace DataSwallow.Source.RSS
         private readonly int _pauseTime;
         private readonly int _variability;
         private readonly Random _waitSeed;
-        private readonly HttpClient _client;
         private readonly YAXSerializer _serializer;
         private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
         private readonly ISet<IOutputStream<RSSFeed>> _outputStreams;
@@ -90,7 +89,6 @@ namespace DataSwallow.Source.RSS
             _pauseTime = pauseTime;
             _variability = variability;
             _waitSeed = new Random(SystemClock.Instance.Now.InUtc().Second);
-            _client = new HttpClient();
             _serializer = new YAXSerializer(typeof(RSSFeed));
             _state = State.HasNotStarted;
 
@@ -213,7 +211,6 @@ namespace DataSwallow.Source.RSS
 
             _isDisposed = true;
             _actorEngine.Dispose();
-            _client.Dispose();
             _stopTokenSource.Dispose();
         }
         #endregion
@@ -238,22 +235,21 @@ namespace DataSwallow.Source.RSS
 
             try
             {
-                var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
-                var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
-
-                Logger.DebugFormat("Waiting {0} seconds until next RSS fetch", waitInSeconds);
-
-                Task.Delay(waitInTimeSpan, _stopTokenSource.Token).Wait();
-
-                Logger.DebugFormat("RSSFeedDataSource fetching RSS feed: {0}", _feedUrl);
-
-                var contents = _client.GetStringAsync(_feedUrl).Result;
-                var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
-                if (rssFeed != null)
+                using (var client = new HttpClient())
                 {
-                    foreach (var outputStream in _outputStreams)
+                    var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
+                    var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
+
+                    Task.Delay(waitInTimeSpan, _stopTokenSource.Token).Wait();
+
+                    var contents = client.GetStringAsync(_feedUrl).Result;
+                    var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
+                    if (rssFeed != null)
                     {
-                        outputStream.Post(rssFeed);
+                        foreach (var outputStream in _outputStreams)
+                        {
+                            outputStream.Post(rssFeed);
+                        }
                     }
                 }
             }
