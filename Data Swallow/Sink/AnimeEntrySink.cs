@@ -141,16 +141,17 @@ namespace DataSwallow.Sink
 
         private void Process(AnimeEntry entry)
         {
-            var torrentFile = _client.GetByteArrayAsync(entry.ResourceLocation).Result;
             var path = Path.Combine(_destinationFolder, entry.OriginalInput + TorrentExtension);
+            var torrentFile = _client.GetByteArrayAsync(entry.ResourceLocation).Result;
 
             try
             {
                 File.WriteAllBytes(path, torrentFile);
+                Logger.DebugFormat("Successfully downloaded torrent {0} to file {1}", entry.ResourceLocation, path);
             }
             catch (Exception e)
             {
-                Logger.Error(string.Format(CultureInfo.InvariantCulture, "Unable to write torrent file: {0}", path), e);
+                Logger.Error(string.Format(CultureInfo.InvariantCulture, "Unable to download torrent file {0} to {1}", entry.ResourceLocation, path), e);
             }
         }
         #endregion
