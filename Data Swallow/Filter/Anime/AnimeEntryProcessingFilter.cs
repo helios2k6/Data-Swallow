@@ -40,7 +40,6 @@ namespace DataSwallow.Filter.Anime
         #region private fields
         private static readonly ILog Logger = LogManager.GetLogger(typeof(AnimeEntryProcessingFilter));
 
-        private readonly IDao<AnimeEntry, string> _dao;
         private readonly IEnumerable<ICriterion<AnimeEntry>> _criterions;
         #endregion
 
@@ -48,11 +47,9 @@ namespace DataSwallow.Filter.Anime
         /// <summary>
         /// Initializes a new instance of the <see cref="AnimeEntryProcessingFilter" /> class.
         /// </summary>
-        /// <param name="dao">The DAO.</param>
         /// <param name="criterions">The criterions.</param>
-        public AnimeEntryProcessingFilter(IDao<AnimeEntry, string> dao, IEnumerable<ICriterion<AnimeEntry>> criterions)
+        public AnimeEntryProcessingFilter(IEnumerable<ICriterion<AnimeEntry>> criterions)
         {
-            _dao = dao;
             _criterions = criterions;
         }
         #endregion
@@ -78,15 +75,6 @@ namespace DataSwallow.Filter.Anime
         /// <param name="outputStreams">The output streams.</param>
         protected override void DigestMessage(AnimeEntry entry, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
-            //Check to see if the entry exists
-            if (DoesEntryAlreadyExist(entry))
-            {
-                return;
-            }
-
-            //Add the entry to the database
-            _dao.Store(entry);
-
             //See if it matches any criterion
             if (DoesPassCriterions(entry))
             {
@@ -100,11 +88,6 @@ namespace DataSwallow.Filter.Anime
         #endregion
 
         #region private methods
-        private bool DoesEntryAlreadyExist(AnimeEntry entry)
-        {
-            return  _dao.Get(entry.Guid).Success;
-        }
-
         private bool DoesPassCriterions(AnimeEntry entry)
         {
             return _criterions.Any(t => t.ApplyCriterion(entry));

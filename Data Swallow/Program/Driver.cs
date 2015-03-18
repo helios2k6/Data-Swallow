@@ -25,6 +25,7 @@
 using DataSwallow.Anime;
 using DataSwallow.Filter;
 using DataSwallow.Filter.Anime;
+using DataSwallow.Filter.Cache;
 using DataSwallow.Persistence;
 using DataSwallow.Program.Configuration;
 using DataSwallow.Program.Configuration.Anime;
@@ -150,21 +151,26 @@ namespace DataSwallow.Program
         private static ITopology<RSSFeed, AnimeEntry> CreateTopology(ConfigurationFile configuration, DBreezeEngine engine)
         {
             var dataSources = CreateDataSources(configuration.AnimeConfiguration.RSSFeeds);
-            var animeFilter = CreateAnimeFilter(configuration.AnimeConfiguration, engine);
+            var daoCheckFilter = new DaoCheckFilter(new DBreezeDao(engine));
+            var animeFilter = CreateAnimeFilter(configuration.AnimeConfiguration);
             var animeSink = new AnimeEntrySink(configuration.ProgramConfiguration.TorrentFileDestination);
 
             //Hook up sources to RSS->Anime Entry filter
             foreach (var dataSource in dataSources)
             {
-                var outputStream = new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance);
-                dataSource.AddOutputStream(outputStream);
+                dataSource.AddOutputStream(new OutputStream<RSSFeed>(RSSAnimeDetectionFilter.Instance));
             }
 
-            RSSAnimeDetectionFilter.Instance.AddOutputStream(new OutputStream<AnimeEntry>(animeFilter));
+            //Hook up Anime Entry Filter -> Dao Check Filter
+            RSSAnimeDetectionFilter.Instance.AddOutputStream(new OutputStream<AnimeEntry>(daoCheckFilter));
+
+            //Hook up Dao Check Filter -> Anime Entry Sift filter
+            daoCheckFilter.AddOutputStream(new OutputStream<AnimeEntry>(animeFilter));
 
             var filtersUpcasted = new List<IFilter>
             {
                 animeFilter,
+                daoCheckFilter,
                 RSSAnimeDetectionFilter.Instance
             };
 
@@ -175,11 +181,9 @@ namespace DataSwallow.Program
             return new FilterTopology<RSSFeed, AnimeEntry>(dataSources, filtersUpcasted, animeSink.AsEnumerable());
         }
 
-        private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntriesConfiguration entry, DBreezeEngine engine)
+        private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntriesConfiguration entry)
         {
-            return new AnimeEntryProcessingFilter(
-                new DBreezeDao(engine),
-                entry.AnimeReleases.Select(CreateGroupCriterion).ToList());
+            return new AnimeEntryProcessingFilter(entry.AnimeReleases.Select(CreateGroupCriterion).ToList());
         }
 
         private static ICriterion<AnimeEntry> CreateGroupCriterion(string entry)
