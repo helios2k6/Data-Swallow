@@ -59,7 +59,7 @@ namespace DataSwallow.Program
     {
         #region private static fields
         private const int MajorVersion = 1;
-        private const int MinorVersion = 5;
+        private const int MinorVersion = 6;
 
         private static int CancelRequests = 0;
         private static readonly ILog Logger = LogManager.GetLogger(typeof(Driver));
@@ -72,11 +72,13 @@ namespace DataSwallow.Program
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
-            if (args.Length < 1)
+            if (args.Length < 1 || UserWantsHelp(args))
             {
                 PrintHelp();
                 return;
             }
+
+            PrintVersion();
 
             try
             {
@@ -91,9 +93,7 @@ namespace DataSwallow.Program
             }
             catch (Exception e)
             {
-                PrintHelp();
                 Console.WriteLine("An error occured: " + e.ToString());
-                Logger.Fatal("An error occured while configuring the application", e);
             }
         }
         #endregion
@@ -128,14 +128,20 @@ namespace DataSwallow.Program
             return new TopologyRuntime<RSSFeed, AnimeEntry>(CreateTopology(configuration, engine));
         }
 
+        private static bool UserWantsHelp(string[] args)
+        {
+            return args.Any(arg => arg.ToLowerInvariant().Contains("help"));
+        }
+
+        private static void PrintVersion()
+        {
+            Console.WriteLine(string.Format("DataSwallow v{0}.{1}", MajorVersion, MinorVersion));
+        }
+
         private static void PrintHelp()
         {
-            var builder = new StringBuilder();
-
-            builder.AppendFormat("Data Swallow v{0}.{1}", MajorVersion, MinorVersion).AppendLine();
-            builder.Append("Usage: <this program> <configuration file>");
-
-            Console.WriteLine(builder.ToString());
+            PrintVersion();
+            Console.WriteLine("Usage: <this program> <configuration file>");
         }
 
         private static void ConfigureLogger()
