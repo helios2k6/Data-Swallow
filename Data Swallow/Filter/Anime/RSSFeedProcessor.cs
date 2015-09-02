@@ -24,8 +24,7 @@
 
 using DataSwallow.Anime;
 using DataSwallow.Source.RSS;
-using FansubFileNameParser;
-using FansubFileNameParser.Metadata;
+using FansubFileNameParser.Entity.Parsers;
 using log4net;
 using NodaTime;
 using NodaTime.Text;
@@ -88,30 +87,24 @@ namespace DataSwallow.Filter.Anime
         {
             entry = default(AnimeEntry);
 
-            FansubFile file;
-            MediaMetadata mediaMetadata;
             OffsetDateTime pubDate;
             string guid;
             Uri resourceLocation;
 
-            if (FansubFileParsers.TryParseFansubFile(item.Title, out file)
-                && TryGetMediaMetadata(item, out mediaMetadata)
+            var fansubEntity = EntityParsers.TryParseEntity(item.Title);
+
+            if (fansubEntity.HasValue
                 && TryGetPubDate(item, out pubDate)
                 && TryGetGuid(item, out guid)
                 && TryGetResourceLocation(item, out resourceLocation))
             {
-                entry = new AnimeEntry(item.Title, file, mediaMetadata, pubDate, guid, resourceLocation, source);
+                entry = new AnimeEntry(item.Title, fansubEntity.Value, pubDate, guid, resourceLocation, source);
 
                 return true;
             }
 
             Logger.DebugFormat("Could not parse RSS item: {0}", item);
             return false;
-        }
-
-        private static bool TryGetMediaMetadata(RSSChannelItem item, out MediaMetadata mediaMetadata)
-        {
-            return MediaMetadataParser.TryParseMediaMetadata(item.Title, out mediaMetadata);
         }
 
         private static bool TryGetPubDate(RSSChannelItem item, out OffsetDateTime time)

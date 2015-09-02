@@ -24,12 +24,12 @@
 
 using DataSwallow.Anime;
 using DBreeze;
+using FansubFileNameParser.Entity.Parsers;
 using log4net;
+using Newtonsoft.Json;
+using NodaTime;
 using System;
 using System.Globalization;
-using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
 
 namespace DataSwallow.Persistence
 {
@@ -38,6 +38,45 @@ namespace DataSwallow.Persistence
     /// </summary>
     public sealed class DBreezeDao : IDao<AnimeEntry, string>
     {
+        #region nested classes
+        /// <summary>
+        /// Serializable POD of the AnimeEntry class
+        /// </summary>
+        [JsonObject(MemberSerialization.OptOut)]
+        public sealed class AnimeEntryPOD
+        {
+            /// <summary>
+            /// The original fansub string
+            /// </summary>
+            [JsonProperty(PropertyName = "OriginalString")]
+            public string OriginalString { get; set; }
+
+            /// <summary>
+            /// The URI that links to the torrent
+            /// </summary>
+            [JsonProperty(PropertyName = "Uri")]
+            public string Uri { get; set; }
+
+            /// <summary>
+            /// The date this entry was published
+            /// </summary>
+            [JsonProperty(PropertyName = "PublicationDate")]
+            public OffsetDateTime PublicationDate { get; set; }
+
+            /// <summary>
+            /// The RSS Source of the entry
+            /// </summary>
+            [JsonProperty(PropertyName = "Source")]
+            public string Source { get; set; }
+
+            /// <summary>
+            /// The story's GUID
+            /// </summary>
+            [JsonProperty(PropertyName = "Guid")]
+            public string Guid { get; set; }
+        }
+        #endregion
+
         #region private fields
         private static readonly ILog Logger = LogManager.GetLogger(typeof(DBreezeDao));
         private readonly DBreezeEngine _databaseEngine;
@@ -52,9 +91,6 @@ namespace DataSwallow.Persistence
         {
             _databaseEngine = databaseEngine;
         }
-        #endregion
-
-        #region public properties
         #endregion
 
         #region public methods
@@ -80,7 +116,7 @@ namespace DataSwallow.Persistence
             {
                 using (var transaction = _databaseEngine.GetTransaction())
                 {
-                    transaction.Insert<string, byte[]>(
+                    transaction.Insert<string, string>(
                         Constants.AnimeEntryTable,
                         entry.Guid,
                         SerializeAnimeEntry(entry)
@@ -119,7 +155,7 @@ namespace DataSwallow.Persistence
             {
                 using (var transaction = _databaseEngine.GetTransaction())
                 {
-                    var row = transaction.Select<string, byte[]>(Constants.AnimeEntryTable, key);
+                    var row = transaction.Select<string, string>(Constants.AnimeEntryTable, key);
                     if (row.Exists)
                     {
                         return DaoResult<AnimeEntry>.CreateSuccess(DeserializeAnimeEntry(row.Value));
@@ -137,23 +173,32 @@ namespace DataSwallow.Persistence
         #endregion
 
         #region private methods
-        private static byte[] SerializeAnimeEntry(AnimeEntry entry)
+        private static string SerializeAnimeEntry(AnimeEntry entry)
         {
-            using (var memoryStream = new MemoryStream())
-            {
-                IFormatter serializer = new BinaryFormatter();
-                serializer.Serialize(memoryStream, entry);
-                return memoryStream.ToArray();
-            }
+            return JsonConvert.SerializeObject(Convert(entry));
         }
 
-        private static AnimeEntry DeserializeAnimeEntry(byte[] blob)
+        private static AnimeEntry DeserializeAnimeEntry(string blob)
         {
-            using (var memoryStream = new MemoryStream(blob))
+            return Convert(JsonConvert.DeserializeObject<AnimeEntryPOD>(blob));
+        }
+
+        private static AnimeEntryPOD Convert(AnimeEntry entry)
+        {
+            return new AnimeEntryPOD
             {
-                IFormatter deserializer = new BinaryFormatter();
-                return (AnimeEntry)deserializer.Deserialize(memoryStream);
-            }
+                Guid = entry.Guid,
+                OriginalString = entry.OriginalInput,
+                PublicationDate = entry.PublicationDate,
+                Source = entry.Source,
+                Uri = entry.ResourceLocation.ToString(),
+            };
+        }
+
+        private static AnimeEntry Convert(AnimeEntryPOD pod)
+        {
+            var animeEntry = EntityParsers.TryParseEntity(pod.OriginalString);
+            return new AnimeEntry(pod.OriginalString, animeEntry.Value, pod.PublicationDate, pod.Guid, new Uri(pod.Uri), pod.Source);
         }
 
         private static void Wrap(Action action)

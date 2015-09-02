@@ -22,8 +22,7 @@
  * THE SOFTWARE.
  */
 
-using FansubFileNameParser;
-using FansubFileNameParser.Metadata;
+using FansubFileNameParser.Entity;
 using NodaTime;
 using System;
 using System.Runtime.Serialization;
@@ -34,21 +33,11 @@ namespace DataSwallow.Anime
     /// <summary>
     /// An Anime item entry from some data source
     /// </summary>
-    [Serializable]
-    public sealed class AnimeEntry : IEquatable<AnimeEntry>, ISerializable
+    public sealed class AnimeEntry : IEquatable<AnimeEntry>
     {
         #region private fields
-        private const string OriginalInputKey = "OriginalInput";
-        private const string FansubFileKey = "FansubFile";
-        private const string MediaMetadataKey = "MediaMetadata";
-        private const string PublicationDateKey = "PublicationDate";
-        private const string GuidKey = "Guid";
-        private const string ResourceLocationKey = "ResourceLocation";
-        private const string SourceKey = "Source";
-
         private readonly string _originalInput;
-        private readonly FansubFile _fansubFile;
-        private readonly MediaMetadata _mediaMetadata;
+        private readonly IFansubEntity _fansubEntity;
         private readonly OffsetDateTime _publicationDate;
         private readonly string _guid;
         private readonly Uri _resourceLocation;
@@ -60,44 +49,26 @@ namespace DataSwallow.Anime
         /// Initializes a new instance of the <see cref="AnimeEntry" /> class.
         /// </summary>
         /// <param name="originalInput">The original input.</param>
-        /// <param name="fansubFile">The fansub file.</param>
-        /// <param name="mediaMetadata">The media file metadata.</param>
+        /// <param name="fansubEntity">The Fansub Entity</param>
         /// <param name="publicationDate">The publication date.</param>
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
         public AnimeEntry(
             string originalInput,
-            FansubFile fansubFile,
-            MediaMetadata mediaMetadata,
+            IFansubEntity fansubEntity,
             OffsetDateTime publicationDate,
             string guid,
             Uri resourceLocation,
-            string source)
+            string source
+        )
         {
             _originalInput = originalInput;
-            _fansubFile = fansubFile;
-            _mediaMetadata = mediaMetadata;
+            _fansubEntity = fansubEntity;
             _publicationDate = publicationDate;
             _guid = guid;
             _resourceLocation = resourceLocation;
             _source = source;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AnimeEntry"/> class.
-        /// </summary>
-        /// <param name="info">The information.</param>
-        /// <param name="context">The context.</param>
-        private AnimeEntry(SerializationInfo info, StreamingContext context)
-        {
-            _originalInput = (string)info.GetValue(OriginalInputKey, typeof(string));
-            _fansubFile = (FansubFile)info.GetValue(FansubFileKey, typeof(FansubFile));
-            _mediaMetadata = (MediaMetadata)info.GetValue(MediaMetadataKey, typeof(MediaMetadata));
-            _publicationDate = (OffsetDateTime)info.GetValue(PublicationDateKey, typeof(OffsetDateTime));
-            _guid = (string)info.GetValue(GuidKey, typeof(string));
-            _resourceLocation = (Uri)info.GetValue(ResourceLocationKey, typeof(Uri));
-            _source = (string)info.GetValue(SourceKey, typeof(string));
         }
         #endregion
 
@@ -111,20 +82,12 @@ namespace DataSwallow.Anime
         public string OriginalInput { get { return _originalInput; } }
 
         /// <summary>
-        /// Gets the fansub file.
+        /// Gets the Fansub Entity
         /// </summary>
         /// <value>
-        /// The fansub file.
+        /// The Fansub Entity
         /// </value>
-        public FansubFile FansubFile { get { return _fansubFile; } }
-
-        /// <summary>
-        /// Gets the media metadata.
-        /// </summary>
-        /// <value>
-        /// The media metadata.
-        /// </value>
-        public MediaMetadata MediaMetadata { get { return _mediaMetadata; } }
+        public IFansubEntity FansubEntity { get { return _fansubEntity; } }
 
         /// <summary>
         /// Gets the publication date.
@@ -172,8 +135,7 @@ namespace DataSwallow.Anime
             var builder = new StringBuilder();
 
             builder.AppendLine("Anime Entry with: ");
-            builder.AppendLine("File: " + FansubFile.ToString());
-            builder.AppendLine("Metadata: " + MediaMetadata.ToString());
+            builder.AppendLine("Fansub Entity: " + FansubEntity.ToString());
             builder.AppendLine("Publication Date: " + PublicationDate.ToString());
             builder.AppendLine("Guid: " + Guid.ToString());
             builder.AppendLine("URL: " + ResourceLocation.ToString());
@@ -197,8 +159,7 @@ namespace DataSwallow.Anime
             }
 
             return Equals(OriginalInput, other.OriginalInput)
-                && Equals(FansubFile, other.FansubFile)
-                && Equals(MediaMetadata, other.MediaMetadata)
+                && Equals(FansubEntity, other.FansubEntity)
                 && Equals(PublicationDate, other.PublicationDate)
                 && Equals(Guid, other.Guid)
                 && Equals(ResourceLocation, other.ResourceLocation)
@@ -228,29 +189,11 @@ namespace DataSwallow.Anime
         public override int GetHashCode()
         {
             return OriginalInput.GetHashCode()
-                ^ FansubFile.GetHashCode()
-                ^ MediaMetadata.GetHashCode()
+                ^ FansubEntity.GetHashCode()
                 ^ PublicationDate.GetHashCode()
                 ^ Guid.GetHashCode()
                 ^ ResourceLocation.GetHashCode()
                 ^ Source.GetHashCode();
-        }
-
-        /// <summary>
-        /// Populates a <see cref="T:System.Runtime.Serialization.SerializationInfo" /> with the data needed to serialize the target object.
-        /// </summary>
-        /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo" /> to populate with data.</param>
-        /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext" />) for this serialization.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue(OriginalInputKey, OriginalInput);
-            info.AddValue(FansubFileKey, FansubFile);
-            info.AddValue(MediaMetadataKey, MediaMetadata);
-            info.AddValue(PublicationDateKey, PublicationDate);
-            info.AddValue(GuidKey, Guid);
-            info.AddValue(ResourceLocationKey, ResourceLocation);
-            info.AddValue(SourceKey, Source);
         }
         #endregion
 

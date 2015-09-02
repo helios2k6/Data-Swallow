@@ -105,8 +105,6 @@
     </Compile>
     <Compile Include="Filter\Cache\DaoCheckFilter.cs" />
     <Compile Include="Persistence\DBreezeDao.cs" />
-    <Compile Include="Anime\FilePropertyCriterion.cs" />
-    <Compile Include="Anime\QualityCriterion.cs" />
     <Compile Include="Program\Configuration\Anime\AnimeEntriesConfiguration.cs" />
     <Compile Include="Program\Configuration\ConfigurationFile.cs" />
     <Compile Include="Control\Actor.cs" />

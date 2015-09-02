@@ -23,8 +23,10 @@
  */
 
 using DataSwallow.Utilities;
+using FansubFileNameParser.Entity;
+using FansubFileNameParser.Entity.Directory;
+using FansubFileNameParser.Metadata;
 using Functional.Maybe;
-using System;
 
 namespace DataSwallow.Anime
 {
@@ -33,21 +35,71 @@ namespace DataSwallow.Anime
     /// </summary>
     public sealed class AnimeCriterion : ICriterion<AnimeEntry>
     {
+        #region private classes
+        private sealed class FansubEntityFieldExtractor : IFansubEntityVisitor
+        {
+            public Maybe<MediaMetadata> Metadata { get; set; }
+
+            public Maybe<string> SeriesName { get; set; }
+
+            public Maybe<string> Group { get; set; }
+
+            public Maybe<string> Extension { get; set; }
+
+            private void SetCoreFields(FansubEntityBase entity)
+            {
+                Metadata = entity.Metadata;
+                Group = entity.Group;
+                SeriesName = entity.Series;
+            }
+
+            private void SetFileBasedEntity(FansubFileEntityBase entity)
+            {
+                SetCoreFields(entity);
+                Extension = entity.Extension;
+            }
+
+            public void Visit(FansubDirectoryEntity entity)
+            {
+                SetCoreFields(entity);
+            }
+
+            public void Visit(FansubMovieEntity entity)
+            {
+                SetFileBasedEntity(entity);
+            }
+
+            public void Visit(FansubOriginalAnimationEntity entity)
+            {
+                SetFileBasedEntity(entity);
+            }
+
+            public void Visit(FansubOPEDEntity entity)
+            {
+                SetFileBasedEntity(entity);
+            }
+
+            public void Visit(FansubEpisodeEntity entity)
+            {
+                SetFileBasedEntity(entity);
+            }
+        }
+        #endregion
+
         #region private fields
-        private readonly Maybe<string> _fansubGroup;
-        private readonly Maybe<string> _series;
+        private readonly IFansubEntity _fansubEntity;
+        private readonly FansubEntityFieldExtractor _extractor;
         #endregion
 
         #region ctor
         /// <summary>
         /// Initializes a new instance of the <see cref="AnimeCriterion" /> class.
         /// </summary>
-        /// <param name="fansubGroup">The fansub group.</param>
-        /// <param name="series">The series.</param>
-        public AnimeCriterion(Maybe<string> fansubGroup, Maybe<string> series)
+        public AnimeCriterion(IFansubEntity fansubEntity)
         {
-            _fansubGroup = fansubGroup;
-            _series = series;
+            _fansubEntity = fansubEntity;
+            _extractor = new FansubEntityFieldExtractor();
+            _fansubEntity.Accept(_extractor);
         }
         #endregion
 
@@ -60,9 +112,7 @@ namespace DataSwallow.Anime
         /// </returns>
         public override string ToString()
         {
-            return string.Format("Anime Criterion with [{0}] {1}",
-                _fansubGroup.ReturnToStringAuto(),
-                _series.ReturnToStringAuto());
+            return string.Format("Anime Criterion with: {0}", _fansubEntity.ToString());
         }
 
         /// <summary>
@@ -72,18 +122,40 @@ namespace DataSwallow.Anime
         /// <returns>Returns true if the Anime Entry passes this criterion. False otherwise</returns>
         public bool ApplyCriterion(AnimeEntry entry)
         {
-            return ApplyCriterion(_fansubGroup, entry.FansubFile.FansubGroup)
-                && ApplyCriterion(_series, entry.FansubFile.SeriesName);
+            var entryExtractor = new FansubEntityFieldExtractor();
+            entry.FansubEntity.Accept(entryExtractor);
+
+            return _extractor.SeriesName.Equals(entryExtractor.SeriesName)
+                && _extractor.Group.Equals(entryExtractor.Group)
+                && _extractor.Extension.Equals(entryExtractor.Extension)
+                && CompareMetadataQuality(_extractor.Metadata, entryExtractor.Metadata);
         }
         #endregion
 
-        #region private methods
-        private bool ApplyCriterion(Maybe<string> criterion, string entry)
+        private static bool CompareMetadataQuality(Maybe<MediaMetadata> expected, Maybe<MediaMetadata> candidate)
         {
-            return criterion.SelectOrElse(
-                crit => crit.Equals(entry, StringComparison.Ordinal),
-                () => true);
+            if (expected.IsNothing() && candidate.IsNothing())
+            {
+                return true;
+            }
+
+            var result =
+                from expectedMedia in expected
+                from condidateMedia in candidate
+                select
+                    expectedMedia.AudioCodec.Equals(condidateMedia.AudioCodec)
+                    && expectedMedia.PixelBitDepth.Equals(condidateMedia.PixelBitDepth)
+                    && expectedMedia.Resolution.Equals(condidateMedia.Resolution)
+                    && expectedMedia.VideoCodec.Equals(condidateMedia.VideoCodec)
+                    && expectedMedia.VideoMedia.Equals(condidateMedia.VideoMedia)
+                    && expectedMedia.VideoMode.Equals(condidateMedia.VideoMode);
+
+            if (result.IsNothing())
+            {
+                return false;
+            }
+
+            return result.Value;
         }
-        #endregion
     }
 }

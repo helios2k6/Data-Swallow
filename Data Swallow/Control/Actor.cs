@@ -54,6 +54,18 @@ namespace DataSwallow.Control
 
         private bool _isDisposed;
         private bool _alreadyStartedOnce;
+
+        private Thread _runner;
+        #endregion
+
+        #region ctor
+        /// <summary>
+        /// Constructs a new Actor
+        /// </summary>
+        protected Actor()
+        {
+            _runner = new Thread(Run);
+        }
         #endregion
 
         #region public properties
@@ -105,12 +117,12 @@ namespace DataSwallow.Control
 
             if (_alreadyStartedOnce)
             {
-                Logger.Error("The logger has already been started. It cannot be started twice.");
+                Logger.Error("The actor has already been started. It cannot be started twice.");
                 throw new InvalidOperationException("This actor has already been started once.");
             }
 
             _alreadyStartedOnce = true;
-            Task.Factory.StartNew(Run);
+            _runner.Start();
         }
 
         /// <summary>
@@ -254,6 +266,10 @@ namespace DataSwallow.Control
             catch (OperationCanceledException canceledException)
             {
                 Logger.Debug("Actor task loop was cancelled", canceledException);
+            }
+            catch (ThreadAbortException abortException)
+            {
+                Logger.Debug("Actor thread loop was aborted", abortException);
             }
 
             Logger.Debug("Actor shutting down");

@@ -37,9 +37,7 @@ using DataSwallow.Stream;
 using DataSwallow.Topology;
 using DataSwallow.Utilities;
 using DBreeze;
-using FansubFileNameParser;
-using FansubFileNameParser.Metadata;
-using Functional.Maybe;
+using FansubFileNameParser.Entity.Parsers;
 using log4net;
 using log4net.Config;
 using Newtonsoft.Json;
@@ -47,7 +45,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace DataSwallow.Program
@@ -189,29 +186,15 @@ namespace DataSwallow.Program
 
         private static IFilter<AnimeEntry, AnimeEntry> CreateAnimeFilter(AnimeEntriesConfiguration entry)
         {
-            return new AnimeEntryProcessingFilter(entry.AnimeReleases.Select(CreateGroupCriterion).ToList());
+            return new AnimeEntryProcessingFilter(entry.AnimeReleases.Select(CreateAnimeCriterion).ToList());
         }
 
-        private static ICriterion<AnimeEntry> CreateGroupCriterion(string entry)
+        private static ICriterion<AnimeEntry> CreateAnimeCriterion(string entry)
         {
-            FansubFile fansubFile;
-            MediaMetadata metadata;
-
-            if (FansubFileParsers.TryParseFansubFile(entry, out fansubFile) &&
-                MediaMetadataParser.TryParseMediaMetadata(entry, out metadata))
+            var fansubEntity = EntityParsers.TryParseEntity(entry);
+            if (fansubEntity.HasValue)
             {
-                var animeCrition = new AnimeCriterion(fansubFile.FansubGroup.ToMaybe(), fansubFile.SeriesName.ToMaybe());
-
-                var qualityCriterion = new QualityCriterion(
-                    metadata.VideoMode,
-                    metadata.VideoMedia,
-                    metadata.Resolution,
-                    metadata.AudioCodec,
-                    metadata.PixelBitDepth);
-
-                var filePropertyCriterion = new FilePropertyCriterion(fansubFile.Extension.ToMaybe());
-
-                return new GroupCriterion<AnimeEntry>(new ICriterion<AnimeEntry>[] { animeCrition, qualityCriterion, filePropertyCriterion });
+                return new AnimeCriterion(fansubEntity.Value);
             }
 
             return AllFailCriterion<AnimeEntry>.Instance;
@@ -219,7 +202,7 @@ namespace DataSwallow.Program
 
         private static IEnumerable<ISource<RSSFeed>> CreateDataSources(string[] rssFeeds)
         {
-            return rssFeeds.Select(t => new RSSFeedDataSource(new Uri(t), 15)).ToList();
+            return rssFeeds.Select(t => new RSSFeedDataSource(new Uri(t), 120, 3)).ToList();
         }
         #endregion
     }

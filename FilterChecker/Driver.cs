@@ -26,6 +26,7 @@ using DataSwallow.Anime;
 using DataSwallow.Program.Configuration;
 using DataSwallow.Utilities;
 using FansubFileNameParser;
+using FansubFileNameParser.Entity.Parsers;
 using FansubFileNameParser.Metadata;
 using Functional.Maybe;
 using Newtonsoft.Json;
@@ -89,13 +90,10 @@ namespace FilterChecker
         {
             OffsetDateTime currentTime = SystemClock.Instance.Now.WithOffset(Offset.Zero);
 
-            FansubFile fansubFile;
-            MediaMetadata metadata;
-
-            if (FansubFileParsers.TryParseFansubFile(name, out fansubFile) &&
-                MediaMetadataParser.TryParseMediaMetadata(name, out metadata))
+            var fansubEntity = EntityParsers.TryParseEntity(name);
+            if (fansubEntity.HasValue)
             {
-                animeEntry = new AnimeEntry(name, fansubFile, metadata, currentTime, string.Empty, new Uri("http://nlogneg.com"), string.Empty);
+                animeEntry = new AnimeEntry(name, fansubEntity.Value, currentTime, string.Empty, new Uri("http://nlogneg.com"), string.Empty);
                 return true;
             }
 
@@ -110,24 +108,10 @@ namespace FilterChecker
 
         private static ICriterion<AnimeEntry> CreateGroupCriterion(string entry)
         {
-            FansubFile fansubFile;
-            MediaMetadata metadata;
-
-            if (FansubFileParsers.TryParseFansubFile(entry, out fansubFile) &&
-                MediaMetadataParser.TryParseMediaMetadata(entry, out metadata))
+            var fansubEntity = EntityParsers.TryParseEntity(entry);
+            if (fansubEntity.HasValue)
             {
-                var animeCrition = new AnimeCriterion(fansubFile.FansubGroup.ToMaybe(), fansubFile.SeriesName.ToMaybe());
-
-                var qualityCriterion = new QualityCriterion(
-                    metadata.VideoMode,
-                    metadata.VideoMedia,
-                    metadata.Resolution,
-                    metadata.AudioCodec,
-                    metadata.PixelBitDepth);
-
-                var filePropertyCriterion = new FilePropertyCriterion(fansubFile.Extension.ToMaybe());
-
-                return new GroupCriterion<AnimeEntry>(new ICriterion<AnimeEntry>[] { animeCrition, qualityCriterion, filePropertyCriterion });
+                return new AnimeCriterion(fansubEntity.Value);
             }
 
             return AllFailCriterion<AnimeEntry>.Instance;

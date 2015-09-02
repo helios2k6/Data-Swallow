@@ -56,7 +56,7 @@
     },
     "ProgramConfiguration":
     {
-        "TorrentFileDestination":"E:\\File Harbor\\",
-        "DatabaseFolder":"E:\\File Harbor\\TEMP_DB\\"
+        "TorrentFileDestination":"C:\\Users\\Andrew\\Documents\\DOCKING",
+        "DatabaseFolder":"C:\\Users\\Andrew\\Documents\\DOCKING\\TEMP_DB\\"
     }
 }

@@ -235,27 +235,35 @@ namespace DataSwallow.Source.RSS
 
             try
             {
-                using (var client = new HttpClient())
+                var client = new HttpClient();
+                var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
+                var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
+
+                Thread.Sleep(waitInTimeSpan);
+
+                var contents = client.GetStringAsync(_feedUrl).Result;
+                var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
+                if (rssFeed != null)
                 {
-                    var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
-                    var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
-
-                    Task.Delay(waitInTimeSpan, _stopTokenSource.Token).Wait();
-
-                    var contents = client.GetStringAsync(_feedUrl).Result;
-                    var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
-                    if (rssFeed != null)
+                    foreach (var outputStream in _outputStreams)
                     {
-                        foreach (var outputStream in _outputStreams)
-                        {
-                            outputStream.Post(rssFeed);
-                        }
+                        outputStream.Post(rssFeed);
                     }
+                }
+
+                try
+                {
+                    client.Dispose();
+                }
+                catch (Exception)
+                {
+                    // Do nothing. Apparently, someone wrote code that calls an inaccessible method
+                    // in the HttpClient and it spams the shit out of our logs, so fuck them
                 }
             }
             catch (AggregateException e)
             {
-                if(e.Flatten().InnerException.GetType().IsAssignableFrom(typeof(TaskCanceledException)))
+                if (e.Flatten().InnerException.GetType().IsAssignableFrom(typeof(TaskCanceledException)))
                 {
                     Logger.Debug("RSSFeedDataSource cancelled");
                 }
