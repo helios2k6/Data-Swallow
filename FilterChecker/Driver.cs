@@ -50,30 +50,39 @@ namespace FilterChecker
         /// <param name="args">The arguments.</param>
         public static void Main(string[] args)
         {
+            Console.WriteLine("FilterChecker v2.0");
             if (args.Length < 2)
             {
                 PrintHelp();
                 return;
             }
 
+            Console.WriteLine("Loading configuration file");
             var configurationFile = LoadAnimeConfigurationNames(args[0]);
             var testAnimeNames = args.Skip(1);
 
+            Console.WriteLine("Creating criterions");
             var criterions = configurationFile.Select(CreateGroupCriterion);
 
+            Console.WriteLine("Testing strings");
             foreach (var testAnimeName in testAnimeNames)
             {
+                Console.WriteLine("Testing: {0}", testAnimeName);
                 AnimeEntry testAnimeEntry;
                 if (TryCreateAnimeEntry(testAnimeName, out testAnimeEntry))
                 {
                     if (criterions.Any(t => t.ApplyCriterion(testAnimeEntry)))
                     {
-                        Console.WriteLine(string.Format("{0} PASSED!", testAnimeName));
+                        Console.WriteLine("{0} PASSED!", testAnimeName);
                     }
                     else
                     {
-                        Console.WriteLine(string.Format("{0} FAILED!", testAnimeName));
+                        Console.WriteLine("{0} FAILED!", testAnimeName);
                     }
+                }
+                else
+                {
+                    Console.WriteLine("Could not parse: {0}", testAnimeName);
                 }
             }
         }
@@ -82,7 +91,6 @@ namespace FilterChecker
         #region private methods
         private static void PrintHelp()
         {
-            Console.WriteLine("Filter Checker v1.0");
             Console.WriteLine("Usage: FilterChecker.exe <config file> [test file name 1, test file name 2,...]");
         }
 
@@ -108,9 +116,11 @@ namespace FilterChecker
 
         private static ICriterion<AnimeEntry> CreateGroupCriterion(string entry)
         {
+            Console.WriteLine("Creating criterion for: {0}", entry);
             var fansubEntity = EntityParsers.TryParseEntity(entry);
             if (fansubEntity.HasValue)
             {
+                Console.WriteLine("Success!");
                 return new AnimeCriterion(fansubEntity.Value);
             }
 

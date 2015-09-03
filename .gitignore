@@ -2,5 +2,5 @@ _Resharper*
 bin*
 obj*
 *.suo
-
+*.DS_Store*
 */Test Results/*
