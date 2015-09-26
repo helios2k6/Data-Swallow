@@ -61,7 +61,7 @@ namespace DataSwallow.Persistence
             /// The date this entry was published
             /// </summary>
             [JsonProperty(PropertyName = "PublicationDate")]
-            public OffsetDateTime PublicationDate { get; set; }
+            public Instant PublicationDate { get; set; }
 
             /// <summary>
             /// The RSS Source of the entry
@@ -109,7 +109,6 @@ namespace DataSwallow.Persistence
         /// Stores the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns></returns>
         public void Store(AnimeEntry entry)
         {
             Wrap(() =>
@@ -131,7 +130,6 @@ namespace DataSwallow.Persistence
         /// Deletes the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns>A Task representing this operation</returns>
         public void Delete(AnimeEntry entry)
         {
             Wrap(() =>
@@ -148,7 +146,7 @@ namespace DataSwallow.Persistence
         /// Gets the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <returns>A Task representing this operation</returns>
+        /// <returns>The result of the Get operation</returns>
         public IDaoResult<AnimeEntry> Get(string key)
         {
             try
@@ -168,6 +166,26 @@ namespace DataSwallow.Persistence
             {
                 Logger.Error(string.Format(CultureInfo.InvariantCulture, "An error occurred while getting the key {0}", key), e);
                 return DaoResult<AnimeEntry>.CreateFailure(e);
+            }
+        }
+
+        /// <summary>
+        /// Gets whether or not the 
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>Whether or not the key exists in the database</returns>
+        public bool Contains(string key)
+        {
+            try
+            {
+                using (var transaction = _databaseEngine.GetTransaction())
+                {
+                    return transaction.Select<string, string>(Constants.AnimeEntryTable, key).Exists;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
         #endregion

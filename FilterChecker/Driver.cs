@@ -96,12 +96,10 @@ namespace FilterChecker
 
         private static bool TryCreateAnimeEntry(string name, out AnimeEntry animeEntry)
         {
-            OffsetDateTime currentTime = SystemClock.Instance.Now.WithOffset(Offset.Zero);
-
             var fansubEntity = EntityParsers.TryParseEntity(name);
             if (fansubEntity.HasValue)
             {
-                animeEntry = new AnimeEntry(name, fansubEntity.Value, currentTime, string.Empty, new Uri("http://nlogneg.com"), string.Empty);
+                animeEntry = new AnimeEntry(name, fansubEntity.Value, SystemClock.Instance.Now, string.Empty, new Uri("http://nlogneg.com"), string.Empty);
                 return true;
             }
 

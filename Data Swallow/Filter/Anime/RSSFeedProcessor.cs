@@ -87,7 +87,7 @@ namespace DataSwallow.Filter.Anime
         {
             entry = default(AnimeEntry);
 
-            OffsetDateTime pubDate;
+            Instant pubDate;
             string guid;
             Uri resourceLocation;
 
@@ -107,16 +107,16 @@ namespace DataSwallow.Filter.Anime
             return false;
         }
 
-        private static bool TryGetPubDate(RSSChannelItem item, out OffsetDateTime time)
+        private static bool TryGetPubDate(RSSChannelItem item, out Instant instant)
         {
-            time = default(OffsetDateTime);
+            instant = default(Instant);
 
             var pattern = OffsetDateTimePattern.CreateWithInvariantCulture(DateTimePatternRFC822);
             var parseResult = pattern.Parse(item.PublicationDate);
 
             if (parseResult.Success)
             {
-                time = parseResult.Value;
+                instant = parseResult.Value.ToInstant();
 
                 return true;
             }

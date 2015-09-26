@@ -58,7 +58,7 @@ namespace DataSwallow.Filter.Cache
         /// <param name="outputStreams">The output streams.</param>
         protected override void DigestMessage(AnimeEntry input, IEnumerable<IOutputStream<AnimeEntry>> outputStreams)
         {
-            if (_dao.Get(input.Guid).Success)
+            if (_dao.Contains(input.Guid))
             {
                 return;
             }

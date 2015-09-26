@@ -35,21 +35,25 @@ namespace DataSwallow.Persistence
         /// Stores the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns>A Task representing this operation</returns>
         void Store(TEntry entry);
         /// <summary>
         /// Deletes the specified entry.
         /// </summary>
         /// <param name="entry">The entry.</param>
-        /// <returns>A Task representing this operation</returns>
         void Delete(TEntry entry);
         /// <summary>
         /// Gets the specified key.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <returns>
-        /// The Task representing the query 
+        /// The result of the Get operation
         /// </returns>
         IDaoResult<TEntry> Get(TKey key);
+        /// <summary>
+        /// Gets whether or not the key exists in the database
+        /// </summary>
+        /// <param name="key">The key</param>
+        /// <returns>True if the key as found in the database. False otherwise</returns>
+        bool Contains(TKey key);
     }
 }

@@ -38,7 +38,7 @@ namespace DataSwallow.Anime
         #region private fields
         private readonly string _originalInput;
         private readonly IFansubEntity _fansubEntity;
-        private readonly OffsetDateTime _publicationDate;
+        private readonly Instant _publicationDate;
         private readonly string _guid;
         private readonly Uri _resourceLocation;
         private readonly string _source;
@@ -50,14 +50,14 @@ namespace DataSwallow.Anime
         /// </summary>
         /// <param name="originalInput">The original input.</param>
         /// <param name="fansubEntity">The Fansub Entity</param>
-        /// <param name="publicationDate">The publication date.</param>
+        /// <param name="publicationDate">The publication date represented as an Instant.</param>
         /// <param name="guid">The unique identifier.</param>
         /// <param name="resourceLocation">The resource location.</param>
         /// <param name="source">The source.</param>
         public AnimeEntry(
             string originalInput,
             IFansubEntity fansubEntity,
-            OffsetDateTime publicationDate,
+            Instant publicationDate,
             string guid,
             Uri resourceLocation,
             string source
@@ -95,7 +95,7 @@ namespace DataSwallow.Anime
         /// <value>
         /// The publication date.
         /// </value>
-        public OffsetDateTime PublicationDate { get { return _publicationDate; } }
+        public Instant PublicationDate { get { return _publicationDate; } }
 
         /// <summary>
         /// Gets the unique identifier.
