@@ -202,7 +202,7 @@ namespace DataSwallow.Program
 
         private static IEnumerable<ISource<RSSFeed>> CreateDataSources(string[] rssFeeds)
         {
-            return rssFeeds.Select(t => new RSSFeedDataSource(new Uri(t), 120, 3)).ToList();
+            return rssFeeds.Select(t => new RSSFeedDataSource(new Uri(t), 23, 3)).ToList();
         }
         #endregion
     }

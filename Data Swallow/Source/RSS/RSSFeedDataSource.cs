@@ -24,11 +24,11 @@
 
 using DataSwallow.Control;
 using DataSwallow.Stream;
+using EasyHttp.Http;
 using log4net;
 using NodaTime;
 using System;
 using System.Collections.Generic;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using YAXLib;
@@ -71,6 +71,7 @@ namespace DataSwallow.Source.RSS
         private readonly FunctionalStatelessActor<Message<MessageType, MessagePayload>> _actorEngine;
         private readonly ISet<IOutputStream<RSSFeed>> _outputStreams;
         private readonly CancellationTokenSource _stopTokenSource;
+        private readonly HttpClient _client;
 
         private State _state;
         private bool _isDisposed;
@@ -95,6 +96,7 @@ namespace DataSwallow.Source.RSS
             _actorEngine = new FunctionalStatelessActor<Message<MessageType, MessagePayload>>(Process);
             _outputStreams = new HashSet<IOutputStream<RSSFeed>>();
             _stopTokenSource = new CancellationTokenSource();
+            _client = new HttpClient();
         }
 
         /// <summary>
@@ -235,13 +237,13 @@ namespace DataSwallow.Source.RSS
 
             try
             {
-                var client = new HttpClient();
                 var waitInSeconds = _waitSeed.Next(_variability) + _pauseTime;
                 var waitInTimeSpan = TimeSpan.FromSeconds(waitInSeconds);
 
                 Thread.Sleep(waitInTimeSpan);
+                var response = _client.Get(_feedUrl.ToString());
+                var contents = response.RawText;
 
-                var contents = client.GetStringAsync(_feedUrl).Result;
                 var rssFeed = _serializer.Deserialize(contents) as RSSFeed;
                 if (rssFeed != null)
                 {
@@ -249,16 +251,6 @@ namespace DataSwallow.Source.RSS
                     {
                         outputStream.Post(rssFeed);
                     }
-                }
-
-                try
-                {
-                    client.Dispose();
-                }
-                catch (Exception)
-                {
-                    // Do nothing. Apparently, someone wrote code that calls an inaccessible method
-                    // in the HttpClient and it spams the shit out of our logs, so fuck them
                 }
             }
             catch (AggregateException e)
